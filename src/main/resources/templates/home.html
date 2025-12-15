@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Trang chủ</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <!-- HERO SECTION -->
+      <section class="welcome_area" style="height: 800px">
+        <div class="welcome_slides owl-carousel">
+          <!-- Slide 1 -->
+          <div
+            class="single_slide bg-img background-overlay"
+            style="background-image: url(img/bg-img/bg-1.jpg); height: 800px">
+            <div class="container h-100">
+              <div class="row h-100 align-items-center">
+                <div class="col-12 col-md-8">
+                  <div class="hero-content">
+                    <h6>Thời trang cao cấp</h6>
+                    <h2>Bộ sưu tập Mùa Hè</h2>
+                    <p>
+                      Khám phá những mẫu thiết kế mới nhất cho mùa hè năng động,
+                      mang lại cảm giác thoải mái và phong cách.
+                    </p>
+                    <a href="shop.html" class="btn essence-btn">Mua ngay</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Slide 2 -->
+          <div
+            class="single_slide bg-img background-overlay"
+            style="background-image: url(img/bg-img/bg-3.jpg); height: 800px">
+            <div class="container h-100">
+              <div class="row h-100 align-items-center">
+                <div class="col-12 col-md-8">
+                  <div class="hero-content">
+                    <h6>Phong cách hằng ngày</h6>
+                    <h2>Bộ sưu tập Dạo Phố</h2>
+                    <p>
+                      Tự tin thể hiện cá tính với những bộ trang phục dạo phố
+                      đơn giản nhưng đầy tinh tế.
+                    </p>
+                    <a href="shop.html" class="btn essence-btn">Mua ngay</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- END HERO SECTION -->
+    </main>
+  </body>
+</html>
