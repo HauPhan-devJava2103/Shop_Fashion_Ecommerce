@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Create User</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Create New User</h2>
+        <a th:href="@{/admin/users}" class="btn btn-secondary">Back to List</a>
+      </div>
+
+      <div
+        th:if="${errorMessage}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <div class="card shadow">
+        <div class="card-body">
+          <form
+            th:action="@{/admin/users/create}"
+            th:object="${user}"
+            method="post">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fullName"
+                  th:field="*{fullName}"
+                  required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  th:field="*{email}"
+                  required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  th:field="*{password}"
+                  required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="phone"
+                  th:field="*{phone}"
+                  required />
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="address" class="form-label">Address</label>
+              <textarea
+                class="form-control"
+                id="address"
+                th:field="*{address}"
+                rows="3"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Gender</label>
+                <select class="form-select" th:field="*{gender}">
+                  <option
+                    th:each="genderOpt : ${T(vn.web.fashionshop.enums.EGender).values()}"
+                    th:value="${genderOpt}"
+                    th:text="${genderOpt.displayName}"></option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Role</label>
+                <select class="form-select" th:field="*{role}">
+                  <option
+                    th:each="r : ${roles}"
+                    th:value="${r.id}"
+                    th:text="${r.roleName.displayName}"></option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="isActive"
+                th:field="*{isActive}" />
+              <label class="form-check-label" for="isActive">Active</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create User</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
