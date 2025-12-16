@@ -43,7 +43,23 @@ INSERT INTO users (full_name, email, phone, gender, address, password, role_id, 
 ('Trần Thị Staff', 'staff@fashionshop.com', '0902345678', 'FEMALE', '456 Lê Lợi, Q1, TP.HCM', '123456', 3, TRUE, NOW(), NOW()),
 ('Lê Minh Tuấn', 'tuanle@gmail.com', '0903456789', 'MALE', '789 Võ Văn Tần, Q3, TP.HCM', '123456', 2, TRUE, NOW(), NOW()),
 ('Phạm Thu Hương', 'huongpham@gmail.com', '0904567890', 'FEMALE', '321 Điện Biên Phủ, Q10, TP.HCM', '123456', 2, TRUE, NOW(), NOW()),
-('Hoàng Văn Nam', 'namhoang@gmail.com', '0905678901', 'MALE', '654 CMT8, Q3, TP.HCM', '123456', 2, TRUE, NOW(), NOW());
+('Hoàng Văn Nam', 'namhoang@gmail.com', '0905678901', 'MALE', '654 CMT8, Q3, TP.HCM', '123456', 2, TRUE, NOW(), NOW()),
+-- Test users for Chart (7 days)
+('Nguyễn Test 1', 'test1@gmail.com', '0911111111', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 0 DAY), NOW()),
+('Trần Test 2', 'test2@gmail.com', '0911111112', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 0 DAY), NOW()),
+('Lê Test 3', 'test3@gmail.com', '0911111113', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW()),
+('Phạm Test 4', 'test4@gmail.com', '0911111114', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW()),
+('Hoàng Test 5', 'test5@gmail.com', '0911111115', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 1 DAY), NOW()),
+('Vũ Test 6', 'test6@gmail.com', '0911111116', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 2 DAY), NOW()),
+('Đặng Test 7', 'test7@gmail.com', '0911111117', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 2 DAY), NOW()),
+('Bùi Test 8', 'test8@gmail.com', '0911111118', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+('Đỗ Test 9', 'test9@gmail.com', '0911111119', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 4 DAY), NOW()),
+('Hồ Test 10', 'test10@gmail.com', '0911111120', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 4 DAY), NOW()),
+('Ngô Test 11', 'test11@gmail.com', '0911111121', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
+('Dương Test 12', 'test12@gmail.com', '0911111122', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
+('Lý Test 13', 'test13@gmail.com', '0911111123', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 5 DAY), NOW()),
+('Võ Test 14', 'test14@gmail.com', '0911111124', 'FEMALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 6 DAY), NOW()),
+('Phan Test 15', 'test15@gmail.com', '0911111125', 'MALE', 'HCM', '123456', 2, TRUE, DATE_SUB(NOW(), INTERVAL 6 DAY), NOW());
 
 -- =====================================================
 -- 3. CATEGORIES

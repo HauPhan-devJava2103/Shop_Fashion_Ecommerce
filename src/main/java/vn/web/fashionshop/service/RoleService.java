@@ -18,4 +18,8 @@ public class RoleService {
     public List<Role> getAllRoles() {
         return roleRepository.findAll();
     }
+
+    public Long countTotalRoles() {
+        return roleRepository.count();
+    }
 }

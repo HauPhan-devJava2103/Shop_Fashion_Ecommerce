@@ -16,6 +16,7 @@
           border-radius: 8px;
           margin: 4px 12px;
           transition: all 0.2s ease;
+          font-size: 14px;
         }
         .admin-sidebar .nav-link:hover {
           color: #fff;
@@ -27,8 +28,12 @@
         }
         .admin-sidebar .nav-link i {
           font-size: 18px;
-          width: 24px;
+          width: 22px;
           text-align: center;
+          flex-shrink: 0;
+        }
+        .admin-sidebar .nav-link span {
+          flex-grow: 1;
         }
         .admin-sidebar .sidebar-heading {
           font-size: 11px;
@@ -38,19 +43,23 @@
           padding: 20px 20px 10px;
           font-weight: 600;
         }
+        .admin-sidebar .nav-item {
+          margin: 2px 0;
+        }
       </style>
 
       <div class="sidebar-content h-100 d-flex flex-column">
         <!-- Close button for mobile -->
-        <div class="d-lg-none text-end px-3 mb-2">
+        <div class="d-lg-none text-end px-3 py-2">
           <button class="btn btn-link text-white p-0" onclick="closeSidebar()">
             <i class="bi bi-x-lg fs-4"></i>
           </button>
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-grow-1">
-          <div class="sidebar-heading">Main Menu</div>
+        <nav class="flex-grow-1 py-2">
+          <!-- Main Menu -->
+          <div class="sidebar-heading">Quản lý</div>
           <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link active" th:href="@{/admin}">
@@ -61,12 +70,12 @@
             <li class="nav-item">
               <a class="nav-link" th:href="@{/admin/users}">
                 <i class="bi bi-people"></i>
-                <span>Quản lý Users</span>
+                <span>Người dùng</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" th:href="@{/admin/categories}">
-                <i class="bi bi-tags"></i>
+                <i class="bi bi-grid"></i>
                 <span>Danh mục</span>
               </a>
             </li>
@@ -76,20 +85,21 @@
                 <span>Sản phẩm</span>
               </a>
             </li>
+          </ul>
+
+          <!-- E-Commerce -->
+          <div class="sidebar-heading">Kinh doanh</div>
+          <ul class="nav flex-column">
             <li class="nav-item">
               <a class="nav-link" th:href="@{/admin/orders}">
                 <i class="bi bi-bag-check"></i>
                 <span>Đơn hàng</span>
               </a>
             </li>
-          </ul>
-
-          <div class="sidebar-heading">Báo cáo</div>
-          <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link" th:href="@{/admin/reports}">
-                <i class="bi bi-graph-up"></i>
-                <span>Thống kê</span>
+              <a class="nav-link" th:href="@{/admin/vouchers}">
+                <i class="bi bi-ticket-perforated"></i>
+                <span>Voucher</span>
               </a>
             </li>
             <li class="nav-item">
@@ -100,6 +110,24 @@
             </li>
           </ul>
 
+          <!-- Reports -->
+          <div class="sidebar-heading">Báo cáo</div>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/reports}">
+                <i class="bi bi-graph-up"></i>
+                <span>Thống kê</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/reports/revenue}">
+                <i class="bi bi-cash-stack"></i>
+                <span>Doanh thu</span>
+              </a>
+            </li>
+          </ul>
+
+          <!-- System -->
           <div class="sidebar-heading">Hệ thống</div>
           <ul class="nav flex-column">
             <li class="nav-item">
