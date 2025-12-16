@@ -1,109 +1,196 @@
--- CREATE ROLE
+-- =====================================================
+-- FASHION SHOP - SAMPLE DATA (CHUẨN THEO ENTITY 100%)
+-- =====================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- XÓA DỮ LIỆU CŨ
+TRUNCATE TABLE payment_transactions;
+TRUNCATE TABLE payments;
+TRUNCATE TABLE reviews;
+TRUNCATE TABLE cart_items;
+TRUNCATE TABLE carts;
+TRUNCATE TABLE order_addresses;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE product_variants;
+TRUNCATE TABLE images;
+TRUNCATE TABLE products;
+TRUNCATE TABLE categories;
+TRUNCATE TABLE vouchers;
+TRUNCATE TABLE role_permissions;
+TRUNCATE TABLE permissions;
+TRUNCATE TABLE users;
+TRUNCATE TABLE roles;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- =====================================================
+-- 1. ROLES
+-- Entity: role_name (Enum), description, is_active
+-- =====================================================
 INSERT INTO roles (role_name, description, is_active, created_at, updated_at) VALUES
-('ADMIN', 'Quản trị viên hệ thống', true, NOW(), NOW()),
-('CUSTOMER', 'Khách hàng', true, NOW(), NOW()),
-('STAFF', 'Nhân viên', true, NOW(), NOW());
+('ADMIN', 'Quản trị viên hệ thống', TRUE, NOW(), NOW()),
+('CUSTOMER', 'Khách hàng', TRUE, NOW(), NOW()),
+('STAFF', 'Nhân viên bán hàng', TRUE, NOW(), NOW());
 
--- CREATE Permission
-INSERT INTO permissions (permission_name, description, is_active, api_path, method, module, created_at, updated_at) VALUES
-('VIEW_PRODUCTS', 'Xem danh sách sản phẩm', true, '/api/products', 'GET', 'PRODUCT', NOW(), NOW()),
-('MANAGE_PRODUCTS', 'Quản lý sản phẩm', true, '/api/products/**', 'POST,PUT,DELETE', 'PRODUCT', NOW(), NOW()),
-('VIEW_ORDERS', 'Xem đơn hàng', true, '/api/orders', 'GET', 'ORDER', NOW(), NOW()),
-('MANAGE_ORDERS', 'Quản lý đơn hàng', true, '/api/orders/**', 'POST,PUT', 'ORDER', NOW(), NOW()),
-('VIEW_USERS', 'Xem người dùng', true, '/api/users', 'GET', 'USER', NOW(), NOW()),
-('MANAGE_USERS', 'Quản lý người dùng', true, '/api/users/**', 'POST,PUT,DELETE', 'USER', NOW(), NOW());
+-- =====================================================
+-- 2. USERS
+-- Entity: full_name, email, phone, gender (Enum), address, password, role_id
+-- =====================================================
+INSERT INTO users (full_name, email, phone, gender, address, password, role_id, is_active, created_at, updated_at) VALUES
+('Nguyễn Văn Admin', 'admin@fashionshop.com', '0901234567', 'MALE', '123 Nguyễn Huệ, Q1, TP.HCM', '123456', 1, TRUE, NOW(), NOW()),
+('Trần Thị Staff', 'staff@fashionshop.com', '0902345678', 'FEMALE', '456 Lê Lợi, Q1, TP.HCM', '123456', 3, TRUE, NOW(), NOW()),
+('Lê Minh Tuấn', 'tuanle@gmail.com', '0903456789', 'MALE', '789 Võ Văn Tần, Q3, TP.HCM', '123456', 2, TRUE, NOW(), NOW()),
+('Phạm Thu Hương', 'huongpham@gmail.com', '0904567890', 'FEMALE', '321 Điện Biên Phủ, Q10, TP.HCM', '123456', 2, TRUE, NOW(), NOW()),
+('Hoàng Văn Nam', 'namhoang@gmail.com', '0905678901', 'MALE', '654 CMT8, Q3, TP.HCM', '123456', 2, TRUE, NOW(), NOW());
 
--- CREATE Role_Permission
--- 1. Xóa dữ liệu cũ trong role_permissions để tránh lỗi duplicate (nếu có)
-DELETE FROM role_permissions;
+-- =====================================================
+-- 3. CATEGORIES
+-- Entity: category_name, slug, image_url, parent_id
+-- =====================================================
+INSERT INTO categories (category_name, slug, image_url, is_active, created_at, updated_at) VALUES
+('Áo Nam', 'ao-nam', '/images/categories/ao-nam.jpg', TRUE, NOW(), NOW()),
+('Áo Nữ', 'ao-nu', '/images/categories/ao-nu.jpg', TRUE, NOW(), NOW()),
+('Quần Nam', 'quan-nam', '/images/categories/quan-nam.jpg', TRUE, NOW(), NOW()),
+('Quần Nữ', 'quan-nu', '/images/categories/quan-nu.jpg', TRUE, NOW(), NOW()),
+('Váy Đầm', 'vay-dam', '/images/categories/vay-dam.jpg', TRUE, NOW(), NOW()),
+('Phụ Kiện', 'phu-kien', '/images/categories/phu-kien.jpg', TRUE, NOW(), NOW());
 
--- 2. Gán tất cả quyền cho ADMIN (role_id = 1)
-INSERT INTO role_permissions (role_id, permission_id)
-SELECT 1, id FROM permissions;
--- → ADMIN sẽ có quyền id 7,8,9,10,11,12
+-- =====================================================
+-- 4. PRODUCTS
+-- Entity: sku, product_name, description, stock, price, discount, category_id
+-- =====================================================
+INSERT INTO products (sku, product_name, description, stock, price, discount, category_id, is_active, created_at, updated_at) VALUES
+('SKU-001', 'Áo Thun Nam Basic', 'Áo thun cotton 100%', 100, 150000.00, 20.00, 1, TRUE, NOW(), NOW()),
+('SKU-002', 'Áo Sơ Mi Nam', 'Áo sơ mi công sở', 80, 350000.00, 10.00, 1, TRUE, NOW(), NOW()),
+('SKU-003', 'Áo Khoác Bomber', 'Áo khoác dù 2 lớp', 60, 550000.00, 0.00, 1, TRUE, NOW(), NOW()),
+('SKU-004', 'Áo Thun Nữ Oversize', 'Áo thun form rộng', 150, 180000.00, 15.00, 2, TRUE, NOW(), NOW()),
+('SKU-005', 'Quần Jean Nam Slim', 'Quần jean co giãn', 100, 450000.00, 0.00, 3, TRUE, NOW(), NOW()),
+('SKU-006', 'Váy Maxi Hoa', 'Váy maxi voan lụa', 60, 420000.00, 10.00, 5, TRUE, NOW(), NOW());
 
--- 3. Gán quyền tối thiểu cho CUSTOMER (role_id = 2)
--- Chỉ được xem sản phẩm và xem đơn hàng của mình
-INSERT INTO role_permissions (role_id, permission_id) VALUES
-(2, 7),  -- VIEW_PRODUCTS
-(2, 9);  -- VIEW_ORDERS
-
--- 4. (Tùy chọn) Gán quyền cho STAFF nếu cần, ví dụ: xem và quản lý đơn hàng, xem sản phẩm
-INSERT INTO role_permissions (role_id, permission_id) VALUES
-(3, 7),   -- VIEW_PRODUCTS
-(3, 9),   -- VIEW_ORDERS
-(3, 10);  -- MANAGE_ORDERS
-
--- CREATE USER
-INSERT INTO users (full_name, email, phone, gender, address, password, is_active, created_at, updated_at, role_id) VALUES
-('Admin', 'admin@fashionshop.com', '0901234567', 'MALE', 'Hà Nội', '$2a$10$W7z9Y9fZfZfZfZfZfZfZfOu.examplehashedpassword', true, NOW(), NOW(), 1),
-('Nguyễn Văn A', 'nguyenvana@gmail.com', '0912345678', 'MALE', 'TP.HCM', '$2a$10$examplehashed12345678901234567890', true, NOW(), NOW(), 2),
-('Trần Thị B', 'tranthib@gmail.com', '0923456789', 'FEMALE', 'Đà Nẵng', '$2a$10$examplehashed12345678901234567890', true, NOW(), NOW(), 2),
-('Lê Văn C', 'levanc@yahoo.com', '0934567890', 'MALE', 'Hà Nội', '$2a$10$examplehashed12345678901234567890', true, NOW(), NOW(), 2);
-
--- CREATE CATEGORY
-INSERT INTO categories (category_name, slug, image_url, is_active, created_at, updated_at, parent_id) VALUES
-('Áo', 'ao', 'https://example.com/cat-ao.jpg', true, NOW(), NOW(), NULL),
-('Quần', 'quan', 'https://example.com/cat-quan.jpg', true, NOW(), NOW(), NULL),
-('Váy', 'vay', 'https://example.com/cat-vay.jpg', true, NOW(), NOW(), NULL),
-('Áo thun', 'ao-thun', 'https://example.com/cat-aothun.jpg', true, NOW(), NOW(), 1),
-('Áo sơ mi', 'ao-so-mi', 'https://example.com/cat-aosomi.jpg', true, NOW(), NOW(), 1),
-('Quần jeans', 'quan-jeans', 'https://example.com/cat-jeans.jpg', true, NOW(), NOW(), 2);
-
--- CREATE PRODUCT
-INSERT INTO products (sku, product_name, description, stock, price, discount, is_active, created_at, updated_at, category_id) VALUES
-('SP001', 'Áo thun basic trắng', 'Áo thun cotton thoải mái', 100, 199000.00, 10.00, true, NOW(), NOW(), 4),
-('SP002', 'Áo sơ mi kẻ caro', 'Áo sơ mi công sở', 50, 450000.00, 0.00, true, NOW(), NOW(), 5),
-('SP003', 'Quần jeans slimfit', 'Quần jeans co giãn', 80, 599000.00, 15.00, true, NOW(), NOW(), 6),
-('SP004', 'Váy maxi hoa', 'Váy maxi nhẹ nhàng mùa hè', 40, 699000.00, 20.00, true, NOW(), NOW(), 3);
-
--- CREATE PRODUCT_VARIANT
+-- =====================================================
+-- 5. PRODUCT VARIANTS
+-- Entity: product_id, size (Enum), color, stock, sku_variant
+-- =====================================================
 INSERT INTO product_variants (product_id, size, color, stock, sku_variant, created_at, updated_at) VALUES
-(1, 'M', 'Trắng', 30, 'SP001-M-TRANG', NOW(), NOW()),
-(1, 'L', 'Trắng', 40, 'SP001-L-TRANG', NOW(), NOW()),
-(1, 'XL', 'Trắng', 30, 'SP001-XL-TRANG', NOW(), NOW()),
-(2, 'M', 'Xanh kẻ', 20, 'SP002-M-XANH', NOW(), NOW()),
-(2, 'L', 'Xanh kẻ', 30, 'SP002-L-XANH', NOW(), NOW());
+(1, 'M', 'Trắng', 30, 'SKU-001-M-WHITE', NOW(), NOW()),
+(1, 'L', 'Trắng', 40, 'SKU-001-L-WHITE', NOW(), NOW()),
+(1, 'M', 'Đen', 30, 'SKU-001-M-BLACK', NOW(), NOW()),
+(2, 'L', 'Xanh', 30, 'SKU-002-L-BLUE', NOW(), NOW()),
+(2, 'XL', 'Xanh', 20, 'SKU-002-XL-BLUE', NOW(), NOW()),
+(5, 'S', 'Xanh Đậm', 30, 'SKU-005-S-DBLUE', NOW(), NOW()),
+(5, 'M', 'Xanh Đậm', 40, 'SKU-005-M-DBLUE', NOW(), NOW()),
+(6, 'M', 'Đỏ', 20, 'SKU-006-M-RED', NOW(), NOW()),
+(6, 'L', 'Vàng', 20, 'SKU-006-L-YELLOW', NOW(), NOW());
 
-
--- IMAGES
+-- =====================================================
+-- 6. IMAGES
+-- Entity: product_id, url_image, alt_text, is_main
+-- =====================================================
 INSERT INTO images (product_id, url_image, alt_text, is_main, created_at, updated_at) VALUES
-(1, 'https://example.com/product1-1.jpg', 'Áo thun trắng mặt trước', true, NOW(), NOW()),
-(1, 'https://example.com/product1-2.jpg', 'Áo thun trắng mặt sau', false, NOW(), NOW()),
-(2, 'https://example.com/product2-1.jpg', 'Áo sơ mi kẻ caro', true, NOW(), NOW()),
-(3, 'https://example.com/product3-1.jpg', 'Quần jeans slimfit', true, NOW(), NOW()),
-(4, 'https://example.com/product4-1.jpg', 'Váy maxi hoa tím', true, NOW(), NOW());
+(1, '/images/products/ao-thun-nam-1.jpg', 'Áo thun nam trắng', TRUE, NOW(), NOW()),
+(1, '/images/products/ao-thun-nam-2.jpg', 'Áo thun nam đen', FALSE, NOW(), NOW()),
+(2, '/images/products/ao-somi-1.jpg', 'Áo sơ mi xanh', TRUE, NOW(), NOW()),
+(5, '/images/products/quan-jean-1.jpg', 'Quần jean slim', TRUE, NOW(), NOW()),
+(6, '/images/products/vay-maxi-1.jpg', 'Váy maxi hoa', TRUE, NOW(), NOW());
 
+-- =====================================================
+-- 7. VOUCHERS
+-- Entity: code, description, discount_percent, max_discount_amount, min_order_value
+-- =====================================================
+INSERT INTO vouchers (code, description, discount_percent, max_discount_amount, min_order_value, start_at, end_at, usage_limit, used_count, is_active, created_at, updated_at) VALUES
+('WELCOME10', 'Giảm 10% đơn đầu tiên', 10, 50000.00, 200000.00, NOW(), DATE_ADD(NOW(), INTERVAL 1 YEAR), 1000, 5, TRUE, NOW(), NOW()),
+('SUMMER20', 'Sale hè 20%', 20, 100000.00, 500000.00, NOW(), DATE_ADD(NOW(), INTERVAL 3 MONTH), 500, 20, TRUE, NOW(), NOW()),
+('FREESHIP', 'Free ship', 5, 30000.00, 100000.00, NOW(), DATE_ADD(NOW(), INTERVAL 1 YEAR), NULL, 50, TRUE, NOW(), NOW());
 
--- CART
-INSERT INTO carts (user_id, created_at, updated_at) VALUES
-(2, NOW(), NOW()), -- cho user Nguyễn Văn A
-(3, NOW(), NOW()), -- cho user Trần Thị B
-(4, NOW(), NOW()); -- cho user Lê Văn C
+-- =====================================================
+-- 8. ORDERS
+-- Entity: user_id, sub_total, discount_amount, total_amount, voucher_id, voucher_code, voucher_discount_percent, payment_method (Enum), order_status (Enum)
+-- =====================================================
+INSERT INTO orders (user_id, sub_total, discount_amount, total_amount, voucher_id, voucher_code, voucher_discount_percent, payment_method, order_status, created_at, updated_at) VALUES
+(3, 450000.00, 45000.00, 405000.00, 1, 'WELCOME10', 10, 'COD', 'DELIVERED', DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+(4, 550000.00, 0.00, 550000.00, NULL, NULL, NULL, 'BANK_TRANSFER', 'CONFIRMED', DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+(3, 800000.00, 100000.00, 700000.00, 2, 'SUMMER20', 20, 'COD', 'PENDING', NOW(), NOW());
 
--- CART_ITEM
-INSERT INTO cart_items (cart_id, variant_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
-(1, 9, 2, 199000.00, 398000.00, NOW(), NOW()),   -- user A: 2 áo thun M trắng (id=9)
-(1, 12, 1, 450000.00, 450000.00, NOW(), NOW()),  -- user A: 1 áo sơ mi M xanh kẻ (id=12)
-(2, 9, 1, 199000.00, 169150.00, NOW(), NOW());   -- user B: 1 áo thun M trắng
-
--- REVIEW
-INSERT INTO reviews (product_id, user_id, rating, comment, image_url, is_approved, created_at, updated_at) VALUES
-(1, 2, 5, 'Áo đẹp, chất liệu tốt!', NULL, true, NOW(), NOW()),
-(1, 3, 4, 'Mặc thoải mái, giao hàng nhanh', 'https://example.com/review1.jpg', true, NOW(), NOW()),
-(2, 4, 5, 'Rất lịch sự, phù hợp công sở', NULL, true, NOW(), NOW());
-
--- ORDER
-INSERT INTO orders (user_id, total_amount, payment_method, order_status, created_at, updated_at) 
-VALUES (2, 848000.00, 'COD', 'DELIVERED', NOW(), NOW());
-
--- ORDER _ITEM
+-- =====================================================
+-- 9. ORDER ITEMS
+-- Entity: order_id, variant_id, quantity, unit_price, total_price
+-- =====================================================
 INSERT INTO order_items (order_id, variant_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
-(1, 9, 2, 199000.00, 398000.00, NOW(), NOW()),   -- 2 áo thun size M trắng (id=9)
-(1, 12, 1, 450000.00, 450000.00, NOW(), NOW());  -- 1 áo sơ mi size M xanh kẻ (id=12)
--- ADDRESS
-INSERT INTO order_addresses (order_id, recipient_name, phone, address_line, ward, district, city, note, created_at, updated_at) VALUES
-(1, 'Nguyễn Văn A', '0912345678', '123 Đường Láng', 'Phường Láng Thượng', 'Quận Đống Đa', 'Hà Nội', 'Giao buổi sáng', NOW(), NOW());
--- PAYMENTS
+(1, 1, 1, 120000.00, 120000.00, DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+(1, 6, 1, 330000.00, 330000.00, DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+(2, 4, 1, 315000.00, 315000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+(2, 5, 1, 315000.00, 315000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+(3, 8, 1, 378000.00, 378000.00, NOW(), NOW()),
+(3, 9, 1, 378000.00, 378000.00, NOW(), NOW());
+
+-- =====================================================
+-- 10. ORDER ADDRESSES
+-- Entity: order_id, recipient_name, phone, address_line, ward, district, city
+-- =====================================================
+INSERT INTO order_addresses (order_id, recipient_name, phone, address_line, ward, district, city, created_at, updated_at) VALUES
+(1, 'Lê Minh Tuấn', '0903456789', '789 Võ Văn Tần', 'Phường 6', 'Quận 3', 'TP.HCM', NOW(), NOW()),
+(2, 'Phạm Thu Hương', '0904567890', '321 Điện Biên Phủ', 'Phường 17', 'Quận Bình Thạnh', 'TP.HCM', NOW(), NOW()),
+(3, 'Lê Minh Tuấn', '0903456789', '789 Võ Văn Tần', 'Phường 6', 'Quận 3', 'TP.HCM', NOW(), NOW());
+
+-- =====================================================
+-- 11. PAYMENTS
+-- Entity: order_id, method (Enum), status (Enum), amount, paid_at
+-- =====================================================
 INSERT INTO payments (order_id, method, status, amount, paid_at, created_at, updated_at) VALUES
-(1, 'COD', 'PENDING', 848000.00, NULL, NOW(), NOW());
+(1, 'COD', 'SUCCESS', 405000.00, DATE_SUB(NOW(), INTERVAL 8 DAY), NOW(), NOW()),
+(2, 'BANK_TRANSFER', 'SUCCESS', 550000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW(), NOW()),
+(3, 'COD', 'PENDING', 700000.00, NULL, NOW(), NOW());
+
+-- =====================================================
+-- 12. PAYMENT TRANSACTIONS
+-- Entity: payment_id, gateway (Enum), txn_ref, gateway_txn_id, response_message
+-- =====================================================
+INSERT INTO payment_transactions (payment_id, gateway, txn_ref, gateway_txn_id, response_message, created_at, updated_at) VALUES
+(2, 'VNPAY', 'TXN202412160001', 'VNP123456789', 'Giao dịch thành công', NOW(), NOW());
+
+-- =====================================================
+-- 13. CARTS
+-- Entity: user_id
+-- =====================================================
+INSERT INTO carts (user_id, created_at, updated_at) VALUES
+(3, NOW(), NOW()),
+(4, NOW(), NOW()),
+(5, NOW(), NOW());
+
+-- =====================================================
+-- 14. CART ITEMS
+-- Entity: cart_id, variant_id, quantity, unit_price, total_price
+-- =====================================================
+INSERT INTO cart_items (cart_id, variant_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
+(1, 2, 2, 120000.00, 240000.00, NOW(), NOW()),
+(2, 8, 1, 378000.00, 378000.00, NOW(), NOW()),
+(3, 3, 1, 120000.00, 120000.00, NOW(), NOW());
+
+-- =====================================================
+-- 15. PERMISSIONS
+-- Entity: permission_name, api_path, method, module (Enum)
+-- =====================================================
+INSERT INTO permissions (permission_name, description, api_path, method, module, is_active, created_at, updated_at) VALUES
+('USER_READ', 'Xem user', '/api/users', 'GET', 'USER', TRUE, NOW(), NOW()),
+('PRODUCT_READ', 'Xem sản phẩm', '/api/products', 'GET', 'PRODUCT', TRUE, NOW(), NOW()),
+('ORDER_MANAGE', 'Quản lý đơn hàng', '/api/orders', 'POST', 'ORDER', TRUE, NOW(), NOW());
+
+-- =====================================================
+-- 16. ROLE PERMISSIONS
+-- =====================================================
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+(1, 1), (1, 2), (1, 3),
+(3, 1), (3, 2);
+
+-- =====================================================
+-- 17. REVIEWS
+-- Entity: order_item_id, product_id, user_id, rating, comment, is_approved
+-- =====================================================
+INSERT INTO reviews (order_item_id, product_id, user_id, rating, comment, is_approved, created_at, updated_at) VALUES
+(1, 1, 3, 5, 'Áo thun rất đẹp, chất lượng tốt!', TRUE, NOW(), NOW()),
+(2, 5, 3, 4, 'Quần jean vừa vặn, giao hàng nhanh', TRUE, NOW(), NOW());
+
+-- =====================================================
+SELECT '✅ Data import completed successfully!' AS Status;

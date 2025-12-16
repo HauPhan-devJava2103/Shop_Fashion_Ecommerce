@@ -8,15 +8,23 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_review_order_item", columnNames = { "order_item_id" })
+}, indexes = {
+        @Index(name = "idx_review_product", columnList = "product_id"),
+        @Index(name = "idx_review_user", columnList = "user_id")
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,8 +32,14 @@ public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // reviewId
+    private Long id;
 
+    // Liên kết với OrderItem cụ thể (1 item chỉ được review 1 lần)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_item_id", nullable = false, unique = true)
+    private OrderItem orderItem;
+
+    // Giữ lại product_id để query nhanh (denormalize)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
@@ -40,10 +54,10 @@ public class Review {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    // Ảnh đánh giá
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    // Admin duyệt review hay không
     @Column(name = "is_approved", nullable = false)
     private Boolean isApproved = false;
 
