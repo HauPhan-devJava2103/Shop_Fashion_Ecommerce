@@ -1,8 +1,10 @@
 package vn.web.fashionshop.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+import org.springframework.lang.NonNull;
 
 import vn.web.fashionshop.dto.RegisterDTO;
 import vn.web.fashionshop.entity.Role;
@@ -27,6 +29,9 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
+        if (id == null) {
+            return null;
+        }
         return userRepository.findById(id).orElse(null);
     }
 
@@ -34,20 +39,29 @@ public class UserService {
         return roleRepository.findByRoleName(roleName);
     }
 
-    public boolean checkEmailExist(String email) {
+    public boolean checkEmailExist(@NonNull String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public boolean checkPhoneExist(String phone) {
+    public boolean checkPhoneExist(@NonNull String phone) {
         return userRepository.existsByPhone(phone);
     }
 
     public User create(User user) {
-        // Check duplicate email and phone
-        if (checkEmailExist(user.getEmail())) {
+        if (user == null) {
             return null;
         }
-        if (checkPhoneExist(user.getPhone())) {
+
+        final String email = user.getEmail();
+        final String phone = user.getPhone();
+        if (email == null || email.isBlank() || phone == null || phone.isBlank()) {
+            return null;
+        }
+        // Check duplicate email and phone
+        if (checkEmailExist(email)) {
+            return null;
+        }
+        if (checkPhoneExist(phone)) {
             return null;
         }
 
@@ -57,25 +71,32 @@ public class UserService {
     }
 
     public User update(User user) {
-        if (user.getId() == null) {
+        if (user == null || user.getId() == null) {
             return null;
         }
+
+        final String newEmail = user.getEmail();
+        final String newPhone = user.getPhone();
+        if (newEmail == null || newEmail.isBlank() || newPhone == null || newPhone.isBlank()) {
+            return null;
+        }
+
         User existingUser = getUserById(user.getId());
         if (existingUser != null) {
             // Check Duplicate Email
-            if (!existingUser.getEmail().equals(user.getEmail())) {
-                if (checkEmailExist(user.getEmail())) {
+            if (!Objects.equals(existingUser.getEmail(), newEmail)) {
+                if (checkEmailExist(newEmail)) {
                     return null; // Email taken by another user
                 }
-                existingUser.setEmail(user.getEmail());
+                existingUser.setEmail(newEmail);
             }
 
             // Check Duplicate Phone
-            if (!existingUser.getPhone().equals(user.getPhone())) {
-                if (checkPhoneExist(user.getPhone())) {
+            if (!Objects.equals(existingUser.getPhone(), newPhone)) {
+                if (checkPhoneExist(newPhone)) {
                     return null; // Phone taken by another user
                 }
-                existingUser.setPhone(user.getPhone());
+                existingUser.setPhone(newPhone);
             }
 
             existingUser.setFullName(user.getFullName());
@@ -96,12 +117,14 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        if (id != null) {
-            userRepository.deleteById(id);
+        if (id == null) {
+            return;
         }
+        userRepository.deleteById(id);
     }
 
     public User registerDTOtoUser(RegisterDTO registerDTO) {
+        Objects.requireNonNull(registerDTO, "registerDTO must not be null");
         User user = new User();
         user.setFullName(registerDTO.getFullName());
         user.setEmail(registerDTO.getEmail());
