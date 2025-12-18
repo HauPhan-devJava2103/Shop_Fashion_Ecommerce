@@ -100,10 +100,11 @@
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">Role</label>
-                <select class="form-select" th:field="*{role}">
+                <select class="form-select" name="role.id">
                   <option
                     th:each="r : ${roles}"
                     th:value="${r.id}"
+                    th:selected="${user.role != null and user.role.id == r.id}"
                     th:text="${r.roleName.displayName}"></option>
                 </select>
               </div>

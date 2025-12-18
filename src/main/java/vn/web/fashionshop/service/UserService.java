@@ -1,8 +1,12 @@
 package vn.web.fashionshop.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.lang.NonNull;
 
@@ -24,8 +28,10 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(int pageNo) {
+        int pageSize = 6;
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+        return userRepository.findAll(pageable);
     }
 
     public User getUserById(Long id) {
@@ -135,5 +141,42 @@ public class UserService {
         user.setCreatedAt(java.time.LocalDateTime.now());
         user.setIsActive(true);
         return user;
+    }
+
+    public Long countTotalUser() {
+        return userRepository.count();
+    }
+
+    public Long countActiveUser() {
+        return userRepository.countByIsActiveTrue();
+    }
+
+    public Long countUserThisMonth() {
+        return userRepository.countUserThisMonth();
+    }
+
+    public List<Object[]> countUserByDateRange(int days) {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        return userRepository.countUserByDateRange(startDate);
+    }
+
+    public List<Object[]> countUsersByRole() {
+        return userRepository.countUsersByRole();
+    }
+
+    public Page<User> searchUsers(String keyword, Long roleId, String statusStr, int pageNo) {
+        int pageSize = 6;
+        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+
+        Boolean status = null;
+        if (statusStr != null && !statusStr.isEmpty()) {
+            if ("active".equalsIgnoreCase(statusStr)) {
+                status = true;
+            } else if ("inactive".equalsIgnoreCase(statusStr)) {
+                status = false;
+            }
+        }
+
+        return userRepository.searchUsers(keyword, roleId, status, pageable);
     }
 }
