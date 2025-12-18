@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.lang.NonNull;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import vn.web.fashionshop.dto.RegisterDTO;
 import vn.web.fashionshop.entity.Role;
@@ -22,10 +23,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Page<User> getAllUsers(int pageNo) {
@@ -60,7 +63,9 @@ public class UserService {
 
         final String email = user.getEmail();
         final String phone = user.getPhone();
-        if (email == null || email.isBlank() || phone == null || phone.isBlank()) {
+        final String rawPassword = user.getPassword();
+
+        if (email == null || email.isBlank() || phone == null || phone.isBlank() || rawPassword == null || rawPassword.isBlank()) {
             return null;
         }
         // Check duplicate email and phone
@@ -70,6 +75,21 @@ public class UserService {
         if (checkPhoneExist(phone)) {
             return null;
         }
+
+        // Resolve role if only id is present (from form binding)
+        Role inputRole = user.getRole();
+        if (inputRole != null) {
+            Long roleId = inputRole.getId();
+            if (roleId != null) {
+                Role role = roleRepository.findById(roleId).orElse(null);
+                if (role != null) {
+                    user.setRole(role);
+                }
+            }
+        }
+
+        // Hash password before saving
+        user.setPassword(passwordEncoder.encode(rawPassword));
 
         user.setCreatedAt(java.time.LocalDateTime.now());
         user.setIsActive(true);
@@ -108,13 +128,28 @@ public class UserService {
             existingUser.setFullName(user.getFullName());
             existingUser.setAddress(user.getAddress());
             existingUser.setGender(user.getGender());
-            existingUser.setRole(user.getRole());
+
+            // Resolve role if only id is present (from form binding)
+            Role inputRole = user.getRole();
+            if (inputRole != null) {
+                Long roleId = inputRole.getId();
+                if (roleId != null) {
+                    Role role = roleRepository.findById(roleId).orElse(null);
+                    if (role != null) {
+                        existingUser.setRole(role);
+                    }
+                } else {
+                    existingUser.setRole(inputRole);
+                }
+            } else {
+                existingUser.setRole(null);
+            }
+
             existingUser.setIsActive(user.getIsActive());
             existingUser.setUpdatedAt(java.time.LocalDateTime.now());
 
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                // TODO: Encrypt password here
-                existingUser.setPassword(user.getPassword());
+                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
 
             return userRepository.save(existingUser);
