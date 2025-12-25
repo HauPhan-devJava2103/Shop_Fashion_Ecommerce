@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Chi tiết Voucher</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="h3 fw-bold text-dark mb-1">Chi tiết Voucher</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/vouchers}" class="text-decoration-none"
+                  >Voucher</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+          </nav>
+        </div>
+        <div class="d-flex gap-2">
+          <a
+            th:href="@{/admin/vouchers/edit/{id}(id=${voucher.id})}"
+            class="btn btn-warning">
+            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+          </a>
+          <a th:href="@{/admin/vouchers}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại
+          </a>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Main Info Card -->
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm mb-4">
+            <div
+              class="card-header bg-gradient text-white"
+              style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              ">
+              <h5 class="mb-0">
+                <i class="bi bi-ticket-perforated-fill me-2"></i>
+                <span th:text="${voucher.code}">VOUCHER CODE</span>
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <!-- Description -->
+              <div class="mb-4">
+                <h6 class="text-muted mb-2">
+                  <i class="bi bi-info-circle me-1"></i>Mô tả
+                </h6>
+                <p class="mb-0" th:text="${voucher.description}">
+                  Mô tả voucher
+                </p>
+              </div>
+
+              <hr />
+
+              <!-- Discount Details -->
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="p-3 bg-light rounded-3">
+                    <small class="text-muted d-block mb-1"
+                      >Phần trăm giảm giá</small
+                    >
+                    <h3 class="mb-0 text-success">
+                      <span th:text="${voucher.discountPercent}">0</span>%
+                    </h3>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="p-3 bg-light rounded-3">
+                    <small class="text-muted d-block mb-1">Giảm tối đa</small>
+                    <h5 class="mb-0">
+                      <span
+                        th:if="${voucher.maxDiscountAmount}"
+                        th:text="${#numbers.formatDecimal(voucher.maxDiscountAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                      <span
+                        th:unless="${voucher.maxDiscountAmount}"
+                        class="text-muted"
+                        >Không giới hạn</span
+                      >
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order Requirements -->
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="p-3 bg-light rounded-3">
+                    <small class="text-muted d-block mb-1"
+                      >Đơn hàng tối thiểu</small
+                    >
+                    <h5 class="mb-0">
+                      <span
+                        th:if="${voucher.minOrderValue}"
+                        th:text="${#numbers.formatDecimal(voucher.minOrderValue, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                      <span
+                        th:unless="${voucher.minOrderValue}"
+                        class="text-muted"
+                        >Không yêu cầu</span
+                      >
+                    </h5>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="p-3 bg-light rounded-3">
+                    <small class="text-muted d-block mb-1"
+                      >Giới hạn sử dụng</small
+                    >
+                    <h5 class="mb-0">
+                      <span
+                        th:if="${voucher.usageLimit}"
+                        th:text="${voucher.usageLimit}"
+                        >0</span
+                      >
+                      <span th:unless="${voucher.usageLimit}" class="text-muted"
+                        >Không giới hạn</span
+                      >
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <!-- Usage Stats -->
+              <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                  <div class="p-3 bg-primary bg-opacity-10 rounded-3">
+                    <small class="text-primary d-block mb-1 fw-semibold">
+                      <i class="bi bi-graph-up me-1"></i>Đã sử dụng
+                    </small>
+                    <h4 class="mb-0 text-primary">
+                      <span th:text="${voucher.usedCount}">0</span>
+                      <span th:if="${voucher.usageLimit}">
+                        / <span th:text="${voucher.usageLimit}"></span>
+                      </span>
+                    </h4>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="p-3 bg-success bg-opacity-10 rounded-3">
+                    <small class="text-success d-block mb-1 fw-semibold">
+                      <i class="bi bi-percent me-1"></i>Tỷ lệ sử dụng
+                    </small>
+                    <h4 class="mb-0 text-success">
+                      <span
+                        th:if="${voucher.usageLimit}"
+                        th:text="${#numbers.formatDecimal(voucher.usedCount * 100.0 / voucher.usageLimit, 1, 'POINT', 0, 'POINT')} + '%'"></span>
+                      <span th:unless="${voucher.usageLimit}">N/A</span>
+                    </h4>
+                  </div>
+                </div>
+              </div>
+
+              <hr />
+
+              <!-- Validity Period -->
+              <div class="mb-3">
+                <h6 class="text-muted mb-3">
+                  <i class="bi bi-calendar-range me-1"></i>Thời gian hiệu lực
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                      <i
+                        class="bi bi-calendar-event text-success me-2 fs-5"></i>
+                      <div>
+                        <small class="text-muted d-block">Bắt đầu</small>
+                        <strong th:if="${voucher.startAt}">
+                          <span
+                            th:text="${#temporals.format(voucher.startAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </strong>
+                        <span th:unless="${voucher.startAt}" class="text-muted"
+                          >Ngay lập tức</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-calendar-x text-danger me-2 fs-5"></i>
+                      <div>
+                        <small class="text-muted d-block">Kết thúc</small>
+                        <strong th:if="${voucher.endAt}">
+                          <span
+                            th:text="${#temporals.format(voucher.endAt, 'dd/MM/yyyy HH:mm')}"></span>
+                        </strong>
+                        <span th:unless="${voucher.endAt}" class="text-muted"
+                          >Không giới hạn</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timestamps Card -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+              <h6 class="mb-0 fw-semibold">
+                <i class="bi bi-clock-history me-2"></i>Lịch sử
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block mb-1">Ngày tạo</small>
+                  <strong
+                    th:text="${#temporals.format(voucher.createdAt, 'dd/MM/yyyy HH:mm:ss')}"></strong>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <small class="text-muted d-block mb-1"
+                    >Cập nhật lần cuối</small
+                  >
+                  <strong
+                    th:if="${voucher.updatedAt}"
+                    th:text="${#temporals.format(voucher.updatedAt, 'dd/MM/yyyy HH:mm:ss')}"></strong>
+                  <span th:unless="${voucher.updatedAt}" class="text-muted"
+                    >Chưa cập nhật</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar - Status & Actions -->
+        <div class="col-lg-4">
+          <!-- Status Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+              <h6 class="mb-0 fw-semibold">
+                <i class="bi bi-info-square me-2"></i>Trạng thái
+              </h6>
+            </div>
+            <div class="card-body">
+              <!-- Active Status -->
+              <div class="mb-3">
+                <small class="text-muted d-block mb-2">Kích hoạt</small>
+                <span
+                  th:if="${voucher.isActive}"
+                  class="badge bg-success-subtle text-success fs-6">
+                  <i class="bi bi-check-circle-fill me-1"></i>Đang kích hoạt
+                </span>
+                <span
+                  th:unless="${voucher.isActive}"
+                  class="badge bg-secondary-subtle text-secondary fs-6">
+                  <i class="bi bi-x-circle-fill me-1"></i>Đã vô hiệu hóa
+                </span>
+              </div>
+
+              <!-- Validity Status -->
+              <div class="mb-3">
+                <small class="text-muted d-block mb-2">Tình trạng</small>
+                <span th:if="${voucher.valid}" class="badge bg-success fs-6">
+                  <i class="bi bi-check2-circle me-1"></i>Còn hiệu lực
+                </span>
+                <span
+                  th:unless="${voucher.valid}"
+                  class="badge bg-warning text-dark fs-6">
+                  <i class="bi bi-exclamation-triangle me-1"></i>Hết hiệu lực
+                </span>
+              </div>
+
+              <hr />
+
+              <!-- Quick Stats -->
+              <div class="small">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">ID:</span>
+                  <strong th:text="${voucher.id}">1</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Mã:</span>
+                  <strong class="text-uppercase" th:text="${voucher.code}"
+                    >CODE</strong
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Card -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+              <h6 class="mb-0 fw-semibold">
+                <i class="bi bi-lightning me-2"></i>Hành động
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a
+                  th:href="@{/admin/vouchers/edit/{id}(id=${voucher.id})}"
+                  class="btn btn-warning">
+                  <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+                </a>
+                <a
+                  th:href="@{/admin/vouchers/delete/{id}(id=${voucher.id})}"
+                  class="btn btn-danger"
+                  onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này?')">
+                  <i class="bi bi-trash3 me-1"></i>Xóa
+                </a>
+                <a
+                  th:href="@{/admin/vouchers}"
+                  class="btn btn-outline-secondary">
+                  <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -29,62 +29,78 @@
         <div class="card-body">
           <form
             th:action="@{/admin/users/create}"
-            th:object="${user}"
+            th:object="${userDTO}"
             method="post">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="fullName" class="form-label">Full Name</label>
+                <label for="fullName" class="form-label"
+                  >Họ tên <span class="text-danger">*</span></label
+                >
                 <input
                   type="text"
                   class="form-control"
                   id="fullName"
                   th:field="*{fullName}"
-                  required />
+                  placeholder="Nhập họ tên" />
+                <small class="text-danger" th:errors="*{fullName}"></small>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label"
+                  >Email <span class="text-danger">*</span></label
+                >
                 <input
                   type="email"
                   class="form-control"
                   id="email"
                   th:field="*{email}"
-                  required />
+                  placeholder="example@email.com" />
+                <small class="text-danger" th:errors="*{email}"></small>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label"
+                  >Mật khẩu <span class="text-danger">*</span></label
+                >
                 <input
                   type="password"
                   class="form-control"
                   id="password"
                   th:field="*{password}"
-                  required />
+                  placeholder="Ít nhất 8 ký tự" />
+                <small class="text-danger" th:errors="*{password}"></small>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="phone" class="form-label">Phone</label>
+                <label for="phone" class="form-label"
+                  >Số điện thoại <span class="text-danger">*</span></label
+                >
                 <input
                   type="text"
                   class="form-control"
                   id="phone"
                   th:field="*{phone}"
-                  required />
+                  placeholder="0xxxxxxxxx" />
+                <small class="text-danger" th:errors="*{phone}"></small>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="address" class="form-label">Address</label>
+              <label for="address" class="form-label"
+                >Địa chỉ <span class="text-danger">*</span></label
+              >
               <textarea
                 class="form-control"
                 id="address"
                 th:field="*{address}"
-                rows="3"></textarea>
+                rows="3"
+                placeholder="Nhập địa chỉ"></textarea>
+              <small class="text-danger" th:errors="*{address}"></small>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Gender</label>
+                <label class="form-label">Giới tính</label>
                 <select class="form-select" th:field="*{gender}">
                   <option
                     th:each="genderOpt : ${T(vn.web.fashionshop.enums.EGender).values()}"
@@ -93,13 +109,17 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Role</label>
-                <select class="form-select" th:field="*{role}">
+                <label class="form-label"
+                  >Vai trò <span class="text-danger">*</span></label
+                >
+                <select class="form-select" th:field="*{roleId}">
+                  <option value="">-- Chọn vai trò --</option>
                   <option
                     th:each="r : ${roles}"
                     th:value="${r.id}"
                     th:text="${r.roleName.displayName}"></option>
                 </select>
+                <small class="text-danger" th:errors="*{roleId}"></small>
               </div>
             </div>
 
@@ -109,10 +129,15 @@
                 class="form-check-input"
                 id="isActive"
                 th:field="*{isActive}" />
-              <label class="form-check-label" for="isActive">Active</label>
+              <label class="form-check-label" for="isActive">Kích hoạt</label>
             </div>
 
-            <button type="submit" class="btn btn-primary">Create User</button>
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-save"></i> Tạo người dùng
+            </button>
+            <a th:href="@{/admin/users}" class="btn btn-secondary">
+              <i class="bi bi-x-circle"></i> Hủy
+            </a>
           </form>
         </div>
       </div>

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.Valid;
 import vn.web.fashionshop.dto.ChartResponse;
+import vn.web.fashionshop.dto.UserDTO;
 import vn.web.fashionshop.entity.Role;
 import vn.web.fashionshop.entity.User;
 import vn.web.fashionshop.service.RoleService;
@@ -100,20 +103,45 @@ public class UserController {
 
     @GetMapping("/create")
     public String create(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("userDTO", new UserDTO());
         model.addAttribute("roles", roleService.getAllRoles());
         return "admin/user/create";
     }
 
     @PostMapping("/create")
-    public String save(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes, Model model) {
+    public String save(@Valid @ModelAttribute("userDTO") UserDTO userDTO,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+        // Kiểm tra lỗi validation từ UserDTO
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("roles", roleService.getAllRoles());
+            return "admin/user/create";
+        }
+
+        // Convert DTO sang Entity
+        User user = userService.userDTOtoUser(userDTO);
+
+        // Set role từ roleId
+        Role role = roleService.getAllRoles().stream()
+                .filter(r -> r.getId().equals(userDTO.getRoleId()))
+                .findFirst()
+                .orElse(null);
+        if (role == null) {
+            model.addAttribute("roles", roleService.getAllRoles());
+            model.addAttribute("errorMessage", "Vai trò không hợp lệ!");
+            return "admin/user/create";
+        }
+        user.setRole(role);
+
+        // Tạo user
         User createdUser = userService.create(user);
         if (createdUser == null) {
             model.addAttribute("roles", roleService.getAllRoles());
-            model.addAttribute("errorMessage", "Email already exists or invalid data!");
+            model.addAttribute("errorMessage", "Email hoặc số điện thoại đã tồn tại!");
             return "admin/user/create";
         }
-        redirectAttributes.addFlashAttribute("successMessage", "User created successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", "Tạo người dùng thành công!");
         return "redirect:/admin/users";
     }
 
@@ -139,7 +167,7 @@ public class UserController {
         User updatedUser = userService.update(user);
         if (updatedUser == null) {
             model.addAttribute("roles", roleService.getAllRoles());
-            model.addAttribute("errorMessage", "Update failed! Email might exist or User ID invalid.");
+            model.addAttribute("errorMessage", "Update failed! Email might exist or Phone exist.");
             return "admin/user/edit";
         }
         redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");

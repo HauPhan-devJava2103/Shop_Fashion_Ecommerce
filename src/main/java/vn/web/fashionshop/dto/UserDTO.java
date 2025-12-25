@@ -2,13 +2,14 @@ package vn.web.fashionshop.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import vn.web.fashionshop.enums.EGender;
 
 @Data
-public class RegisterDTO {
+public class UserDTO {
     @NotBlank(message = "Họ tên không được để trống")
     @Size(min = 2, max = 100, message = "Họ tên phải có từ 2 đến 100 ký tự")
     private String fullName;
@@ -27,10 +28,11 @@ public class RegisterDTO {
     private String address;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8, max = 50, message = "Mật khẩu phải có từ 8 đến 50 ký tự")
+    @Size(min = 8, message = "Mật khẩu phải có từ 8 ký tự")
     private String password;
 
-    @NotBlank(message = "Xác nhận mật khẩu không được để trống")
-    @Size(min = 8, max = 50, message = "Xác nhận mật khẩu phải có từ 8 đến 50 ký tự")
-    private String confirmPassword;
+    @NotNull(message = "Vai trò không được để trống")
+    private Long roleId;
+
+    private Boolean isActive = true;
 }

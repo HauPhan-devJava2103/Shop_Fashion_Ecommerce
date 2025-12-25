@@ -32,8 +32,6 @@
             th:object="${user}"
             method="post">
             <input type="hidden" th:field="*{id}" />
-            <!-- Keep old password if not changing, but we might encounter binding issues if we don't handle it carefully.
-                 Best practice is to use a DTO, but for CRUD quick impl, we handle in logic. -->
 
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -65,8 +63,6 @@
                   id="password"
                   name="newPassword"
                   placeholder="Leave blank to keep current password" />
-                <!-- Note: We are NOT binding th:field="*{password}" here to avoid overwriting with empty string.
-                      We use name="newPassword" and handle in Controller or Service. -->
               </div>
               <div class="col-md-6 mb-3">
                 <label for="phone" class="form-label">Phone</label>
