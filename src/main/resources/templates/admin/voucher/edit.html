@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Chỉnh sửa Voucher</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="h3 fw-bold text-dark mb-1">Chỉnh sửa Voucher</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/vouchers}" class="text-decoration-none"
+                  >Voucher</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Chỉnh sửa</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Form Card -->
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-pencil-square me-2"></i>Cập nhật thông tin
+                Voucher
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <!-- Error Messages -->
+              <div
+                th:if="${errorMessage}"
+                class="alert alert-danger alert-dismissible fade show"
+                role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="alert"
+                  aria-label="Close"></button>
+              </div>
+
+              <form
+                th:action="@{/admin/vouchers/edit/{id}(id=${voucherId})}"
+                th:object="${voucher}"
+                method="post"
+                class="needs-validation"
+                novalidate>
+                <!-- Code -->
+                <div class="mb-4">
+                  <label for="code" class="form-label fw-semibold"
+                    >Mã Voucher <span class="text-danger">*</span></label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text"
+                      ><i class="bi bi-upc"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:classappend="${#fields.hasErrors('code')} ? 'is-invalid' : ''"
+                      id="code"
+                      th:field="*{code}"
+                      placeholder="VD: SUMMER2024"
+                      maxlength="20"
+                      required
+                      style="text-transform: uppercase" />
+                  </div>
+                  <div
+                    class="invalid-feedback"
+                    th:if="${#fields.hasErrors('code')}"
+                    style="display: block">
+                    <span th:errors="*{code}"></span>
+                  </div>
+                  <div class="form-text">
+                    Tối đa 20 ký tự, không chứa khoảng trắng
+                  </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                  <label for="description" class="form-label fw-semibold"
+                    >Mô tả <span class="text-danger">*</span></label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="description"
+                    th:field="*{description}"
+                    rows="3"
+                    placeholder="Mô tả chi tiết về voucher..."
+                    required></textarea>
+                </div>
+
+                <div class="row">
+                  <!-- Discount Percent -->
+                  <div class="col-md-6 mb-4">
+                    <label for="discountPercent" class="form-label fw-semibold"
+                      >Phần trăm giảm giá
+                      <span class="text-danger">*</span></label
+                    >
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="discountPercent"
+                        th:field="*{discountPercent}"
+                        min="0"
+                        max="100"
+                        placeholder="0"
+                        required />
+                      <span class="input-group-text">%</span>
+                    </div>
+                    <div class="form-text">Từ 0% đến 100%</div>
+                  </div>
+
+                  <!-- Max Discount Amount -->
+                  <div class="col-md-6 mb-4">
+                    <label
+                      for="maxDiscountAmount"
+                      class="form-label fw-semibold"
+                      >Giảm tối đa</label
+                    >
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="maxDiscountAmount"
+                        th:field="*{maxDiscountAmount}"
+                        min="0"
+                        step="1000"
+                        placeholder="100000" />
+                      <span class="input-group-text">VNĐ</span>
+                    </div>
+                    <div class="form-text">Để trống nếu không giới hạn</div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <!-- Min Order Value -->
+                  <div class="col-md-6 mb-4">
+                    <label for="minOrderValue" class="form-label fw-semibold"
+                      >Đơn hàng tối thiểu</label
+                    >
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="minOrderValue"
+                        th:field="*{minOrderValue}"
+                        min="0"
+                        step="1000"
+                        placeholder="50000" />
+                      <span class="input-group-text">VNĐ</span>
+                    </div>
+                    <div class="form-text">
+                      Giá trị đơn hàng tối thiểu để áp dụng
+                    </div>
+                  </div>
+
+                  <!-- Usage Limit -->
+                  <div class="col-md-6 mb-4">
+                    <label for="usageLimit" class="form-label fw-semibold"
+                      >Giới hạn sử dụng</label
+                    >
+                    <div class="input-group">
+                      <span class="input-group-text"
+                        ><i class="bi bi-people"></i
+                      ></span>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="usageLimit"
+                        th:field="*{usageLimit}"
+                        min="1"
+                        placeholder="100" />
+                    </div>
+                    <div class="form-text">
+                      Số lần tối đa voucher được sử dụng
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Is Active -->
+                <div class="mb-4">
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      id="isActive"
+                      th:field="*{isActive}" />
+                    <label class="form-check-label fw-semibold" for="isActive"
+                      >Kích hoạt</label
+                    >
+                  </div>
+                  <div class="form-text">
+                    Bật để voucher có thể sử dụng được
+                  </div>
+                </div>
+
+                <!-- Validity Period -->
+                <div class="row">
+                  <!-- Start Date -->
+                  <div class="col-md-6 mb-4">
+                    <label for="startAt" class="form-label fw-semibold">
+                      <i class="bi bi-calendar-event text-success me-1"></i>
+                      Thời gian bắt đầu
+                    </label>
+                    <input
+                      type="datetime-local"
+                      class="form-control"
+                      id="startAt"
+                      th:field="*{startAt}" />
+                    <div class="form-text">Để trống nếu có hiệu lực ngay</div>
+                  </div>
+
+                  <!-- End Date -->
+                  <div class="col-md-6 mb-4">
+                    <label for="endAt" class="form-label fw-semibold">
+                      <i class="bi bi-calendar-x text-danger me-1"></i>
+                      Thời gian kết thúc
+                    </label>
+                    <input
+                      type="datetime-local"
+                      class="form-control"
+                      id="endAt"
+                      th:field="*{endAt}" />
+                    <div class="form-text">
+                      Để trống nếu không có hạn sử dụng
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+                  <a
+                    th:href="@{/admin/vouchers}"
+                    class="btn btn-outline-secondary">
+                    <i class="bi bi-x-lg me-1"></i>Hủy
+                  </a>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-1"></i>Cập nhật
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm sticky-top" style="top: 20px">
+            <div
+              class="card-header bg-gradient text-white"
+              style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              ">
+              <h6 class="mb-0">
+                <i class="bi bi-info-circle me-2"></i>Thông tin hữu ích
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <h6 class="fw-semibold text-primary">
+                  <i class="bi bi-lightbulb"></i> Lưu ý
+                </h6>
+                <ul class="small text-muted mb-0">
+                  <li>Mã voucher phải duy nhất trong hệ thống</li>
+                  <li>Voucher chỉ áp dụng khi đủ điều kiện đơn tối thiểu</li>
+                  <li>Có thể giới hạn số lần sử dụng hoặc để vô hạn</li>
+                  <li>Thời gian hiệu lực có thể tùy chỉnh hoặc để trống</li>
+                </ul>
+              </div>
+              <div class="alert alert-warning small mb-0" role="alert">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                <strong>Cảnh báo:</strong> Thay đổi mã voucher có thể ảnh hưởng
+                đến các đơn hàng đã sử dụng voucher này.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block layout:fragment="scripts">
+      <script th:src="@{/js/voucher/create.js}"></script>
+    </th:block>
+  </body>
+</html>

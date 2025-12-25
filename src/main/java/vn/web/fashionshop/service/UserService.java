@@ -12,6 +12,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import vn.web.fashionshop.dto.RegisterDTO;
+import vn.web.fashionshop.dto.UserDTO;
+import vn.web.fashionshop.dto.UserListDTO;
 import vn.web.fashionshop.entity.Role;
 import vn.web.fashionshop.entity.User;
 import vn.web.fashionshop.enums.ERoleName;
@@ -178,6 +180,18 @@ public class UserService {
         return user;
     }
 
+    public User userDTOtoUser(UserDTO userDTO) {
+        User user = new User();
+        user.setFullName(userDTO.getFullName());
+        user.setEmail(userDTO.getEmail());
+        user.setPhone(userDTO.getPhone());
+        user.setGender(userDTO.getGender());
+        user.setAddress(userDTO.getAddress());
+        user.setPassword(userDTO.getPassword());
+        user.setIsActive(userDTO.getIsActive());
+        return user;
+    }
+
     public Long countTotalUser() {
         return userRepository.count();
     }
@@ -213,5 +227,22 @@ public class UserService {
         }
 
         return userRepository.searchUsers(keyword, roleId, status, pageable);
+    }
+
+    // Convert User entity sang UserListDTO cho API response
+    public UserListDTO userToListDTO(User user) {
+        UserListDTO dto = new UserListDTO();
+        dto.setId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setGender(user.getGender() != null ? user.getGender().getDisplayName() : null);
+        dto.setIsActive(user.getIsActive());
+
+        if (user.getRole() != null) {
+            dto.setRoleName(user.getRole().getRoleName().name());
+            dto.setRoleDisplayName(user.getRole().getRoleName().getDisplayName());
+        }
+        return dto;
     }
 }

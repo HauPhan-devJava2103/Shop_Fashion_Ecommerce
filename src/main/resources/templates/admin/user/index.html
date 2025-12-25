@@ -200,10 +200,7 @@
       <!-- Users Table Card -->
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <form
-            th:action="@{/admin/users}"
-            method="get"
-            class="row align-items-center mb-0">
+          <div class="row align-items-center mb-0">
             <div class="col">
               <h5 class="mb-0 fw-semibold">
                 <i class="bi bi-people text-primary me-2"></i>Danh sách người
@@ -218,7 +215,7 @@
                 </span>
                 <input
                   type="text"
-                  name="keyword"
+                  id="searchInput"
                   th:value="${keyword}"
                   class="form-control bg-light border-start-0"
                   placeholder="Tìm kiếm..." />
@@ -227,10 +224,9 @@
             <!-- Status Filter -->
             <div class="col-auto">
               <select
+                id="statusFilter"
                 class="form-select form-select-sm"
-                style="width: 150px"
-                name="status"
-                onchange="this.form.submit()">
+                style="width: 150px">
                 <option
                   value=""
                   th:selected="${status == null || status == ''}">
@@ -247,10 +243,9 @@
             <!-- Role Filter -->
             <div class="col-auto">
               <select
+                id="roleFilter"
                 class="form-select form-select-sm"
-                style="width: 150px"
-                name="roleId"
-                onchange="this.form.submit()">
+                style="width: 150px">
                 <option value="" th:selected="${roleId == null}">
                   Tất cả vai trò
                 </option>
@@ -261,7 +256,7 @@
                   th:selected="${roleId == role.id}"></option>
               </select>
             </div>
-          </form>
+          </div>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -277,7 +272,7 @@
                   <th class="text-center" style="width: 120px">Thao tác</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="userTableBody">
                 <tr th:each="user : ${users.content}">
                   <td
                     class="ps-4 fw-semibold text-muted"
@@ -342,7 +337,7 @@
                         <li>
                           <a
                             class="dropdown-item d-flex align-items-center py-2 px-3"
-                            th:href="@{/admin/users/{id}(id=${user.id})}">
+                            th:href="@{/admin/users/view/{id}(id=${user.id})}">
                             <i class="bi bi-eye text-info me-2"></i>Xem chi tiết
                           </a>
                         </li>
@@ -384,13 +379,13 @@
         <div class="card-footer bg-white py-3">
           <div class="row align-items-center">
             <div class="col">
-              <small class="text-muted">
+              <small id="resultInfo" class="text-muted">
                 Hiển thị
                 <strong th:text="${users.numberOfElements}"></strong> trên tổng
                 số <strong th:text="${users.totalElements}"></strong> người dùng
               </small>
             </div>
-            <div class="col-auto">
+            <div id="paginationContainer" class="col-auto">
               <!-- Pagination -->
               <nav th:if="${totalPages > 1}">
                 <ul class="pagination pagination-sm mb-0">
@@ -432,6 +427,8 @@
 
       <!-- Chart.js Script -->
       <script th:src="@{/js/admin/user-analytics.js}"></script>
+      <!-- AJAX Search Script -->
+      <script th:src="@{/js/admin/user-search.js}"></script>
     </div>
     <!-- END layout:fragment="content" -->
   </body>

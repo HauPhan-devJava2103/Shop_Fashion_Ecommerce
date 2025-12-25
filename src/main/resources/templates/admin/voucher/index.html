@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Quản lý Danh Mục</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="h3 fw-bold text-dark mb-1">Quản lý Voucher</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Voucher</li>
+            </ol>
+          </nav>
+        </div>
+        <a th:href="@{/admin/vouchers/create}" class="btn btn-primary">
+          <i class="bi bi-voucher me-2"></i>Thêm Voucher
+        </a>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <div
+        th:if="${successMessage}"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <div
+        th:if="${errorMessage}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <!-- Voucher Stats Widgets -->
+      <div class="row g-4 mb-4">
+        <!-- Total Vouchers -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-folder-fill text-primary fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Tổng voucher</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${totalVouchers}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Active Vouchers -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Còn hiệu lực</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${activeVouchers}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Hidden Vouchers -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-secondary bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-eye-slash-fill text-secondary fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Hết hạn</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${expiredVouchers}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Root Vouchers -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-list-task text-warning fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Tổng lượt dùng</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${usedVouchers}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vouchers Table Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-ticket-perforated text-primary me-2"></i>Danh
+                sách Voucher
+              </h5>
+            </div>
+            <!-- Advanced Search & Filters -->
+            <div class="col-12">
+              <form
+                th:action="@{/admin/vouchers}"
+                method="get"
+                class="d-flex gap-2 flex-wrap align-items-end">
+                <!-- Search Input -->
+                <div
+                  class="flex-grow-1"
+                  style="min-width: 250px; max-width: 500px">
+                  <label class="form-label small text-muted mb-1"
+                    >Tìm kiếm</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                      <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input
+                      type="text"
+                      name="keyword"
+                      th:value="${keyword}"
+                      class="form-control bg-light border-start-0"
+                      placeholder="Tìm mã hoặc mô tả..." />
+                  </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div style="min-width: 200px">
+                  <label class="form-label small text-muted mb-1"
+                    >Trạng thái</label
+                  >
+                  <select name="status" class="form-select">
+                    <option
+                      value=""
+                      th:selected="${status == null or status == ''}">
+                      Tất cả
+                    </option>
+                    <option value="valid" th:selected="${status == 'valid'}">
+                      Còn hiệu lực
+                    </option>
+                    <option
+                      value="expired"
+                      th:selected="${status == 'expired'}">
+                      Hết hạn
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Lọc
+                  </button>
+                  <a
+                    th:href="@{/admin/vouchers}"
+                    class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise"></i>
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-hover align-middle mb-0"
+              id="vouchersTable">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-4" style="width: 60px">ID</th>
+                  <th>Mã Voucher</th>
+                  <th>Mô tả</th>
+                  <th
+                    class="text-center"
+                    data-sort="discountPercent"
+                    style="cursor: pointer">
+                    Giảm giá
+                    <i class="bi bi-arrow-down-up text-muted sort-icon"></i>
+                  </th>
+                  <th class="text-end">Giảm tối đa</th>
+                  <th class="text-end">Đơn tối thiểu</th>
+                  <th
+                    class="text-center"
+                    data-sort="usedCount"
+                    style="cursor: pointer">
+                    Đã dùng
+                    <i class="bi bi-arrow-down-up text-muted sort-icon"></i>
+                  </th>
+                  <th class="text-center">Trạng thái</th>
+                  <th class="text-center" style="width: 100px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="voucher : ${vouchers.content}">
+                  <td
+                    class="ps-4 fw-semibold text-muted"
+                    th:text="${voucher.id}"></td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="bg-success bg-opacity-10 rounded-2 p-2 me-2">
+                        <i
+                          class="bi bi-ticket-perforated-fill text-success"></i>
+                      </div>
+                      <div>
+                        <div
+                          class="fw-bold text-uppercase"
+                          th:text="${voucher.code}">
+                          CODE
+                        </div>
+                        <small class="text-muted" th:if="${voucher.endAt}">
+                          HSD:
+                          <span
+                            th:text="${#temporals.format(voucher.endAt, 'dd/MM/yyyy')}"></span>
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="text-truncate d-inline-block"
+                      style="max-width: 200px"
+                      th:text="${voucher.description}"
+                      th:title="${voucher.description}"></span>
+                  </td>
+                  <td
+                    class="text-center"
+                    data-value="discountPercent"
+                    th:data-raw="${voucher.discountPercent}">
+                    <span
+                      class="badge bg-success fs-6"
+                      th:text="${voucher.discountPercent + '%'}"
+                      >0%</span
+                    >
+                  </td>
+                  <td class="text-end">
+                    <span
+                      th:if="${voucher.maxDiscountAmount}"
+                      th:text="${#numbers.formatDecimal(voucher.maxDiscountAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                    <span
+                      th:unless="${voucher.maxDiscountAmount}"
+                      class="text-muted"
+                      >---</span
+                    >
+                  </td>
+                  <td class="text-end">
+                    <span
+                      th:if="${voucher.minOrderValue}"
+                      th:text="${#numbers.formatDecimal(voucher.minOrderValue, 0, 'COMMA', 0, 'POINT') + 'đ'}"></span>
+                    <span
+                      th:unless="${voucher.minOrderValue}"
+                      class="text-muted"
+                      >---</span
+                    >
+                  </td>
+                  <td
+                    class="text-center"
+                    data-value="usedCount"
+                    th:data-raw="${voucher.usedCount}">
+                    <span th:text="${voucher.usedCount}">0</span>
+                    <span th:if="${voucher.usageLimit}"
+                      >/ <span th:text="${voucher.usageLimit}"></span
+                    ></span>
+                    <span th:unless="${voucher.usageLimit}" class="text-muted"
+                      >/ ∞</span
+                    >
+                  </td>
+                  <td class="text-center">
+                    <span
+                      th:if="${voucher.isActive && voucher.valid}"
+                      class="badge bg-success-subtle text-success">
+                      <i class="bi bi-check-circle me-1"></i>Còn hiệu lực
+                    </span>
+                    <span
+                      th:if="${voucher.isActive && !voucher.valid}"
+                      class="badge bg-warning-subtle text-warning">
+                      <i class="bi bi-exclamation-circle me-1"></i>Hết hạn/Đã
+                      dùng hết
+                    </span>
+                    <span
+                      th:unless="${voucher.isActive}"
+                      class="badge bg-secondary-subtle text-secondary">
+                      <i class="bi bi-x-circle me-1"></i>Vô hiệu
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-sm btn-light border-0 rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 34px; height: 34px"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      <ul
+                        class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2"
+                        style="min-width: 160px">
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/vouchers/view/{id}(id=${voucher.id})}">
+                            <i class="bi bi-eye text-info me-2"></i>Xem chi tiết
+                          </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1" /></li>
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/vouchers/edit/{id}(id=${voucher.id})}">
+                            <i class="bi bi-pencil-square text-primary me-2"></i
+                            >Chỉnh sửa
+                          </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1" /></li>
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3 text-danger"
+                            th:href="@{/admin/vouchers/delete/{id}(id=${voucher.id})}"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này?')">
+                            <i class="bi bi-trash3 me-2"></i>Xóa
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Empty State -->
+                <tr th:if="${vouchers.isEmpty()}">
+                  <td colspan="9" class="text-center py-5">
+                    <div class="text-muted">
+                      <i
+                        class="bi bi-ticket-perforated display-4 d-block mb-3 opacity-50"></i>
+                      <p class="mb-0">Chưa có voucher nào</p>
+                      <a
+                        th:href="@{/admin/vouchers/create}"
+                        class="btn btn-primary btn-sm mt-3">
+                        <i class="bi bi-plus-lg me-1"></i>Thêm voucher mới
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Card Footer with Pagination -->
+        <div class="card-footer bg-white py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <small class="text-muted">
+                Hiển thị
+                <strong th:text="${vouchers.numberOfElements}"></strong> trên
+                tổng số
+                <strong th:text="${vouchers.totalElements}"></strong> voucher
+              </small>
+            </div>
+            <div class="col-auto">
+              <!-- Pagination -->
+              <nav th:if="${totalPages > 1}">
+                <ul class="pagination pagination-sm mb-0">
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/vouchers(page=${currentPage - 1}, keyword=${keyword}, status=${status}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                      >Trước</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${currentPage == i} ? 'active'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/vouchers(page=${i}, keyword=${keyword}, status=${status}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                      th:text="${i}"></a>
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/vouchers(page=${currentPage + 1}, keyword=${keyword}, status=${status}, sortBy=${sortBy}, sortDir=${sortDir})}"
+                      >Sau</a
+                    >
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END layout:fragment="content" -->
+
+    <th:block layout:fragment="scripts">
+      <script th:src="@{/js/voucher/index.js}"></script>
+      <script th:src="@{/js/voucher/search.js}"></script>
+    </th:block>
+  </body>
+</html>
