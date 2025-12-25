@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Đăng nhập</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="container py-5" style="max-width: 520px">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h3 class="mb-3">Đăng nhập</h3>
+
+            <div th:if="${param.error}" class="alert alert-danger">
+              Sai email hoặc mật khẩu.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+              Bạn đã đăng xuất.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+              <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input
+                  class="form-control"
+                  type="email"
+                  name="username"
+                  placeholder="admin@fashionshop.com"
+                  required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Mật khẩu</label>
+                <input
+                  class="form-control"
+                  type="password"
+                  name="password"
+                  placeholder="••••••"
+                  required />
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">
+                Đăng nhập
+              </button>
+            </form>
+
+            <div class="mt-3 text-center">
+              <span class="text-muted">Chưa có tài khoản?</span>
+              <a th:href="@{/register}">Đăng ký</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
