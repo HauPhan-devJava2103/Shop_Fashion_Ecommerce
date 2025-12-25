@@ -1,6 +1,7 @@
 package vn.web.fashionshop.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +26,12 @@ public class UploadController {
     }
 
         @GetMapping(value = "/admin/upload/image", produces = MediaType.TEXT_HTML_VALUE)
-        public String uploadImageForm() {
+        public String uploadImageForm(CsrfToken csrfToken) {
+                String csrfField = "";
+                if (csrfToken != null) {
+                        csrfField = "<input type=\"hidden\" name=\"" + csrfToken.getParameterName() + "\" value=\"" + csrfToken.getToken()
+                                        + "\" />";
+                }
                 return """
                                 <!doctype html>
                                 <html lang=\"en\">
@@ -37,6 +43,7 @@ public class UploadController {
                                     <body style=\"font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 24px;\">
                                         <h2>Upload image</h2>
                                         <form action=\"/admin/upload/image\" method=\"post\" enctype=\"multipart/form-data\">
+                                            """ + csrfField + """
                                             <input type=\"file\" name=\"file\" accept=\"image/*\" required />
                                             <button type=\"submit\" style=\"margin-left: 8px;\">Upload</button>
                                         </form>
