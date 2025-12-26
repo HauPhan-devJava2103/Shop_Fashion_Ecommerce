@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Quản lý đánh giá</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="mb-3 mb-md-0">
+          <h1 class="h3 fw-bold text-dark mb-1">Quản lý đánh giá</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Đánh giá</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Review Stats Widgets -->
+      <div class="row g-4 mb-4">
+        <!-- Total Reviews -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-chat-square-text-fill text-primary fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Tổng đánh giá</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${totalReviews}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Reviews -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-clock-fill text-warning fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Chờ duyệt</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${pendingReviews}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Approved Reviews -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Đã duyệt</h6>
+                  <h3 class="mb-0 fw-bold" th:text="${approvedReviews}">0</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Average Rating -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div
+                  class="flex-shrink-0 bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                  <i class="bi bi-star-fill text-info fs-4"></i>
+                </div>
+                <div>
+                  <h6 class="text-muted mb-1 small">Rating trung bình</h6>
+                  <h3 class="mb-0 fw-bold">
+                    <span
+                      th:text="${#numbers.formatDecimal(averageRating, 1, 1)}"
+                      >0.0</span
+                    >
+                    <small class="fs-6 text-muted">/5.0</small>
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rating Distribution Chart (Optional) -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-bar-chart-fill text-primary me-2"></i>Phân bố
+                đánh giá theo Rating
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="rating-distribution">
+                <!-- 5 Stars -->
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stars-label me-3" style="min-width: 80px">
+                    <span class="text-warning">★★★★★</span>
+                  </div>
+                  <div class="progress flex-grow-1 me-3" style="height: 20px">
+                    <div
+                      class="progress-bar bg-success"
+                      role="progressbar"
+                      th:style="'width: ' + ${fiveStarPercentage} + '%'"
+                      th:aria-valuenow="${fiveStarPercentage}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <span
+                    class="text-muted"
+                    style="min-width: 60px"
+                    th:text="${fiveStarCount} + ' (' + ${#numbers.formatDecimal(fiveStarPercentage, 1, 1)} + '%)'"
+                    >0 (0%)</span
+                  >
+                </div>
+
+                <!-- 4 Stars -->
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stars-label me-3" style="min-width: 80px">
+                    <span class="text-warning">★★★★</span>☆
+                  </div>
+                  <div class="progress flex-grow-1 me-3" style="height: 20px">
+                    <div
+                      class="progress-bar bg-primary"
+                      role="progressbar"
+                      th:style="'width: ' + ${fourStarPercentage} + '%'"
+                      th:aria-valuenow="${fourStarPercentage}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <span
+                    class="text-muted"
+                    style="min-width: 60px"
+                    th:text="${fourStarCount} + ' (' + ${#numbers.formatDecimal(fourStarPercentage, 1, 1)} + '%)'"
+                    >0 (0%)</span
+                  >
+                </div>
+
+                <!-- 3 Stars -->
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stars-label me-3" style="min-width: 80px">
+                    <span class="text-warning">★★★</span>☆☆
+                  </div>
+                  <div class="progress flex-grow-1 me-3" style="height: 20px">
+                    <div
+                      class="progress-bar bg-info"
+                      role="progressbar"
+                      th:style="'width: ' + ${threeStarPercentage} + '%'"
+                      th:aria-valuenow="${threeStarPercentage}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <span
+                    class="text-muted"
+                    style="min-width: 60px"
+                    th:text="${threeStarCount} + ' (' + ${#numbers.formatDecimal(threeStarPercentage, 1, 1)} + '%)'"
+                    >0 (0%)</span
+                  >
+                </div>
+
+                <!-- 2 Stars -->
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stars-label me-3" style="min-width: 80px">
+                    <span class="text-warning">★★</span>☆☆☆
+                  </div>
+                  <div class="progress flex-grow-1 me-3" style="height: 20px">
+                    <div
+                      class="progress-bar bg-warning"
+                      role="progressbar"
+                      th:style="'width: ' + ${twoStarPercentage} + '%'"
+                      th:aria-valuenow="${twoStarPercentage}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <span
+                    class="text-muted"
+                    style="min-width: 60px"
+                    th:text="${twoStarCount} + ' (' + ${#numbers.formatDecimal(twoStarPercentage, 1, 1)} + '%)'"
+                    >0 (0%)</span
+                  >
+                </div>
+
+                <!-- 1 Star -->
+                <div class="d-flex align-items-center">
+                  <div class="stars-label me-3" style="min-width: 80px">
+                    <span class="text-warning">★</span>☆☆☆☆
+                  </div>
+                  <div class="progress flex-grow-1 me-3" style="height: 20px">
+                    <div
+                      class="progress-bar bg-danger"
+                      role="progressbar"
+                      th:style="'width: ' + ${oneStarPercentage} + '%'"
+                      th:aria-valuenow="${oneStarPercentage}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"></div>
+                  </div>
+                  <span
+                    class="text-muted"
+                    style="min-width: 60px"
+                    th:text="${oneStarCount} + ' (' + ${#numbers.formatDecimal(oneStarPercentage, 1, 1)} + '%)'"
+                    >0 (0%)</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white">
+              <h5 class="card-title mb-0">
+                <i class="bi bi-activity text-primary me-2"></i>Thống kê nhanh
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Review trong tháng</span>
+                  <strong class="text-primary" th:text="${reviewsThisMonth}"
+                    >0</strong
+                  >
+                </div>
+              </div>
+              <div class="mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Review hôm nay</span>
+                  <strong class="text-success" th:text="${reviewsToday}"
+                    >0</strong
+                  >
+                </div>
+              </div>
+              <div class="mb-3 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Có hình ảnh</span>
+                  <strong class="text-info" th:text="${reviewsWithImage}"
+                    >0</strong
+                  >
+                </div>
+              </div>
+              <div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-muted">Tỷ lệ duyệt</span>
+                  <strong
+                    class="text-warning"
+                    th:text="${#numbers.formatDecimal(approvalRate, 1, 1)} + '%'"
+                    >0%</strong
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div
+        th:if="${successMessage}"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        th:if="${errorMessage}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <!-- Reviews Table Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <div class="row align-items-center mb-0">
+            <div class="col">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-chat-square-text text-primary me-2"></i>Danh
+                sách đánh giá
+              </h5>
+            </div>
+            <!-- Search -->
+            <div class="col-auto">
+              <div class="input-group" style="width: 250px">
+                <span class="input-group-text bg-light border-end-0">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input
+                  type="text"
+                  id="searchInput"
+                  th:value="${keyword}"
+                  class="form-control bg-light border-start-0"
+                  placeholder="Tìm kiếm..." />
+              </div>
+            </div>
+            <!-- Status Filter -->
+            <div class="col-auto">
+              <select
+                id="statusFilter"
+                class="form-select form-select-sm"
+                style="width: 150px">
+                <option
+                  value=""
+                  th:selected="${status == null || status == ''}">
+                  Tất cả trạng thái
+                </option>
+                <option value="pending" th:selected="${status == 'pending'}">
+                  Chờ duyệt
+                </option>
+                <option value="approved" th:selected="${status == 'approved'}">
+                  Đã duyệt
+                </option>
+              </select>
+            </div>
+            <!-- Rating Filter -->
+            <div class="col-auto">
+              <select
+                id="ratingFilter"
+                class="form-select form-select-sm"
+                style="width: 130px">
+                <option value="" th:selected="${rating == null}">
+                  Tất cả rating
+                </option>
+                <option value="5" th:selected="${rating == 5}">5 ★</option>
+                <option value="4" th:selected="${rating == 4}">4 ★</option>
+                <option value="3" th:selected="${rating == 3}">3 ★</option>
+                <option value="2" th:selected="${rating == 2}">2 ★</option>
+                <option value="1" th:selected="${rating == 1}">1 ★</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-4" style="width: 60px">ID</th>
+                  <th>Sản phẩm</th>
+                  <th>Người dùng</th>
+                  <th style="width: 100px">Rating</th>
+                  <th>Nội dung</th>
+                  <th class="text-center">Trạng thái</th>
+                  <th>Ngày tạo</th>
+                  <th class="text-center" style="width: 120px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="reviewTableBody">
+                <tr th:each="review : ${reviews.content}">
+                  <td
+                    class="ps-4 fw-semibold text-muted"
+                    th:text="${review.id}"></td>
+                  <td>
+                    <div>
+                      <div
+                        class="fw-semibold"
+                        th:text="${review.product?.productName}"></div>
+                      <small class="text-muted"
+                        >SKU: <span th:text="${review.product?.sku}"></span
+                      ></small>
+                    </div>
+                  </td>
+                  <td>
+                    <div>
+                      <div
+                        class="fw-semibold"
+                        th:text="${review.user?.fullName}"></div>
+                      <small
+                        class="text-muted"
+                        th:text="${review.user?.email}"></small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="rating-stars">
+                      <span
+                        class="text-warning fw-bold"
+                        th:text="${review.rating} + ' ★'"
+                        >5 ★</span
+                      >
+                    </div>
+                  </td>
+                  <td>
+                    <div
+                      class="text-truncate"
+                      style="max-width: 300px"
+                      th:text="${review.comment}"
+                      th:title="${review.comment}"></div>
+                    <!-- Display review image if exists -->
+                    <div
+                      th:if="${review.imageUrl != null and !review.imageUrl.isEmpty()}"
+                      class="mt-2">
+                      <img
+                        th:src="${review.imageUrl}"
+                        alt="Review image"
+                        class="img-thumbnail"
+                        style="
+                          max-width: 100px;
+                          max-height: 100px;
+                          object-fit: cover;
+                          cursor: pointer;
+                        "
+                        onclick="window.open(this.src, '_blank')"
+                        title="Click để xem ảnh đầy đủ" />
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <span
+                      th:if="${review.isApproved}"
+                      class="badge bg-success-subtle text-success">
+                      <i class="bi bi-check-circle me-1"></i>Đã duyệt
+                    </span>
+                    <span
+                      th:unless="${review.isApproved}"
+                      class="badge bg-warning-subtle text-warning">
+                      <i class="bi bi-clock me-1"></i>Chờ duyệt
+                    </span>
+                  </td>
+                  <td>
+                    <small
+                      class="text-muted"
+                      th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+                  </td>
+                  <td class="text-center">
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-sm btn-light border-0 rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 34px; height: 34px"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      <ul
+                        class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2"
+                        style="min-width: 160px">
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/reviews/view/{id}(id=${review.id})}">
+                            <i class="bi bi-eye text-info me-2"></i>Xem chi tiết
+                          </a>
+                        </li>
+                        <!-- Approve button - only show for pending reviews -->
+                        <li th:unless="${review.isApproved}">
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/reviews/approve/{id}(id=${review.id})}"
+                            onclick="return confirm('Bạn có chắc chắn muốn duyệt đánh giá này?')">
+                            <i class="bi bi-check-circle text-success me-2"></i
+                            >Duyệt
+                          </a>
+                        </li>
+                        <!-- Reject button - only show for approved reviews -->
+                        <li th:if="${review.isApproved}">
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/reviews/reject/{id}(id=${review.id})}"
+                            onclick="return confirm('Bạn có chắc chắn muốn từ chối đánh giá này?')">
+                            <i class="bi bi-x-circle text-warning me-2"></i>Từ
+                            chối
+                          </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1" /></li>
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3 text-danger"
+                            th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này?')">
+                            <i class="bi bi-trash3 me-2"></i>Xóa
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Empty State -->
+                <tr th:if="${reviews.isEmpty()}">
+                  <td colspan="8" class="text-center py-5">
+                    <div class="text-muted">
+                      <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                      <p class="mb-0">Chưa có đánh giá nào</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- Card Footer with Pagination -->
+        <div class="card-footer bg-white py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <small id="resultInfo" class="text-muted">
+                Hiển thị
+                <strong th:text="${reviews.numberOfElements}"></strong> trên
+                tổng số <strong th:text="${reviews.totalElements}"></strong>
+                đánh giá
+              </small>
+            </div>
+            <div id="paginationContainer" class="col-auto">
+              <!-- Pagination -->
+              <nav th:if="${totalPages > 1}">
+                <ul class="pagination pagination-sm mb-0">
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/reviews(page=${currentPage - 1}, keyword=${keyword}, status=${status}, rating=${rating})}"
+                      >Trước</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${currentPage == i} ? 'active'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/reviews(page=${i}, keyword=${keyword}, status=${status}, rating=${rating})}"
+                      th:text="${i}"></a>
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/reviews(page=${currentPage + 1}, keyword=${keyword}, status=${status}, rating=${rating})}"
+                      >Sau</a
+                    >
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AJAX Search Script -->
+      <script th:src="@{/js/admin/review-search.js}"></script>
+    </div>
+    <!-- END layout:fragment="content" -->
+  </body>
+</html>

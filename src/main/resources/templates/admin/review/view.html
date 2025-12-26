@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Chi tiết đánh giá</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">Chi tiết đánh giá</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/reviews}" class="text-decoration-none"
+                  >Đánh giá</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+          </nav>
+        </div>
+        <a th:href="@{/admin/reviews}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-2"></i>Quay lại
+        </a>
+      </div>
+
+      <!-- Review Detail Card -->
+      <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+          <!-- Review Information -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-chat-square-text text-primary me-2"></i>Thông
+                tin đánh giá
+              </h5>
+            </div>
+            <div class="card-body">
+              <!-- Rating -->
+              <div class="mb-4 pb-4 border-bottom">
+                <label class="form-label fw-semibold text-muted small"
+                  >Đánh giá</label
+                >
+                <div class="d-flex align-items-center">
+                  <div class="rating-stars me-3">
+                    <span
+                      th:each="i : ${#numbers.sequence(1, 5)}"
+                      class="fs-3"
+                      th:classappend="${i <= review.rating ? 'text-warning' : 'text-muted'}"
+                      >★</span
+                    >
+                  </div>
+                  <h3 class="mb-0" th:text="${review.rating} + '/5'">5/5</h3>
+                </div>
+              </div>
+
+              <!-- Comment -->
+              <div class="mb-4 pb-4 border-bottom">
+                <label class="form-label fw-semibold text-muted small"
+                  >Nội dung đánh giá</label
+                >
+                <p
+                  class="mb-0 fs-6 text-dark"
+                  th:text="${review.comment}"
+                  style="white-space: pre-wrap; line-height: 1.6">
+                  Sản phẩm rất tốt, chất lượng cao...
+                </p>
+              </div>
+
+              <!-- Review Image -->
+              <div
+                th:if="${review.imageUrl != null and !review.imageUrl.isEmpty()}">
+                <label class="form-label fw-semibold text-muted small"
+                  >Hình ảnh đính kèm</label
+                >
+                <div class="review-image-container">
+                  <img
+                    th:src="${review.imageUrl}"
+                    alt="Review image"
+                    class="img-fluid rounded shadow-sm"
+                    style="max-width: 500px; cursor: pointer"
+                    onclick="window.open(this.src, '_blank')"
+                    title="Click để xem ảnh đầy đủ" />
+                </div>
+              </div>
+
+              <div
+                th:unless="${review.imageUrl != null and !review.imageUrl.isEmpty()}"
+                class="text-muted fst-italic">
+                <i class="bi bi-image-slash me-2"></i>Không có hình ảnh đính kèm
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Information -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-box-seam text-primary me-2"></i>Sản phẩm được
+                đánh giá
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Tên sản phẩm</label
+                  >
+                  <p
+                    class="mb-0 fw-semibold"
+                    th:text="${review.product?.productName}">
+                    Product Name
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >SKU</label
+                  >
+                  <p class="mb-0" th:text="${review.product?.sku}">SKU-001</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Giá</label
+                  >
+                  <p
+                    class="mb-0 text-primary fw-bold"
+                    th:text="${#numbers.formatDecimal(review.product?.price, 0, 'COMMA', 0, 'POINT')} + ' đ'">
+                    0 đ
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Danh mục</label
+                  >
+                  <p
+                    class="mb-0"
+                    th:text="${review.product?.category?.categoryName}">
+                    Category
+                  </p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <a
+                  th:href="@{/admin/products/view/{id}(id=${review.product?.id})}"
+                  class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Xem sản phẩm
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Information -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-person text-primary me-2"></i>Người đánh giá
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Họ và tên</label
+                  >
+                  <p
+                    class="mb-0 fw-semibold"
+                    th:text="${review.user?.fullName}">
+                    Customer Name
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Email</label
+                  >
+                  <p class="mb-0" th:text="${review.user?.email}">
+                    customer@email.com
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Số điện thoại</label
+                  >
+                  <p class="mb-0" th:text="${review.user?.phone}">0123456789</p>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold text-muted small"
+                    >Giới tính</label
+                  >
+                  <p class="mb-0" th:text="${review.user?.gender?.displayName}">
+                    Nam
+                  </p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <a
+                  th:href="@{/admin/users/view/{id}(id=${review.user?.id})}"
+                  class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Xem thông tin
+                  khách hàng
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+          <!-- Status & Actions -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-gear text-primary me-2"></i>Trạng thái & Thao
+                tác
+              </h5>
+            </div>
+            <div class="card-body">
+              <!-- Approval Status -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold text-muted small"
+                  >Trạng thái duyệt</label
+                >
+                <div>
+                  <span
+                    th:if="${review.isApproved}"
+                    class="badge bg-success-subtle text-success fs-6 px-3 py-2">
+                    <i class="bi bi-check-circle me-1"></i>Đã duyệt
+                  </span>
+                  <span
+                    th:unless="${review.isApproved}"
+                    class="badge bg-warning-subtle text-warning fs-6 px-3 py-2">
+                    <i class="bi bi-clock me-1"></i>Chờ duyệt
+                  </span>
+                </div>
+              </div>
+
+              <!-- Review ID -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted small"
+                  >Review ID</label
+                >
+                <p class="mb-0 fw-bold text-primary">
+                  #<span th:text="${review.id}">1</span>
+                </p>
+              </div>
+
+              <!-- Created At -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-muted small"
+                  >Ngày tạo</label
+                >
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm')}">
+                  26/12/2025 20:00
+                </p>
+              </div>
+
+              <!-- Updated At -->
+              <div class="mb-4" th:if="${review.updatedAt != null}">
+                <label class="form-label fw-semibold text-muted small"
+                  >Cập nhật lần cuối</label
+                >
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(review.updatedAt, 'dd/MM/yyyy HH:mm')}">
+                  26/12/2025 21:00
+                </p>
+              </div>
+
+              <hr class="my-4" />
+
+              <!-- Action Buttons -->
+              <div class="d-grid gap-2">
+                <!-- Approve Button -->
+                <a
+                  th:unless="${review.isApproved}"
+                  th:href="@{/admin/reviews/approve/{id}(id=${review.id})}"
+                  class="btn btn-success"
+                  onclick="return confirm('Bạn có chắc chắn muốn duyệt đánh giá này?')">
+                  <i class="bi bi-check-circle me-2"></i>Duyệt đánh giá
+                </a>
+
+                <!-- Reject Button -->
+                <a
+                  th:if="${review.isApproved}"
+                  th:href="@{/admin/reviews/reject/{id}(id=${review.id})}"
+                  class="btn btn-warning"
+                  onclick="return confirm('Bạn có chắc chắn muốn từ chối đánh giá này?')">
+                  <i class="bi bi-x-circle me-2"></i>Từ chối
+                </a>
+
+                <!-- Delete Button -->
+                <a
+                  th:href="@{/admin/reviews/delete/{id}(id=${review.id})}"
+                  class="btn btn-danger"
+                  onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này? Hành động này không thể hoàn tác!')">
+                  <i class="bi bi-trash3 me-2"></i>Xóa đánh giá
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Info -->
+          <div class="card border-0 shadow-sm bg-light">
+            <div class="card-body">
+              <h6 class="fw-semibold mb-3">
+                <i class="bi bi-info-circle text-primary me-2"></i>Lưu ý
+              </h6>
+              <ul class="small text-muted mb-0 ps-3">
+                <li class="mb-2">
+                  Đánh giá đã duyệt sẽ hiển thị công khai trên trang sản phẩm
+                </li>
+                <li class="mb-2">
+                  Từ chối đánh giá sẽ ẩn nó khỏi trang sản phẩm
+                </li>
+                <li>Xóa đánh giá sẽ xóa vĩnh viễn khỏi hệ thống</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

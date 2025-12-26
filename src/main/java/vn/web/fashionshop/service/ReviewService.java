@@ -1,0 +1,193 @@
+package vn.web.fashionshop.service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import vn.web.fashionshop.entity.Review;
+import vn.web.fashionshop.repository.ReviewRepository;
+
+@Service
+@Transactional(readOnly = true)
+public class ReviewService {
+
+    private final ReviewRepository reviewRepository;
+
+    public ReviewService(ReviewRepository reviewRepository) {
+        this.reviewRepository = reviewRepository;
+    }
+
+    // Stats Widget Methods
+
+    // Total Reviews
+    public long getTotalReviews() {
+        return reviewRepository.count();
+    }
+
+    // Pending Reviews
+    public long getPendingReviews() {
+        return reviewRepository.countByIsApproved(false);
+    }
+
+    // Approved Reviews
+    public long getApprovedReviews() {
+        return reviewRepository.countByIsApproved(true);
+    }
+
+    // Average Rating
+    public double getAverageRating() {
+        Double avg = reviewRepository.getAverageRatingAll();
+        return avg != null ? avg : 0.0;
+    }
+
+    /**
+     * Get average rating from approved reviews only
+     */
+    public double getApprovedAverageRating() {
+        Double avg = reviewRepository.getAverageRating();
+        return avg != null ? avg : 0.0;
+    }
+
+    /**
+     * Get number of reviews created this month
+     */
+    public long getReviewsThisMonth() {
+        LocalDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.now().withDayOfMonth(
+                LocalDate.now().lengthOfMonth()).atTime(LocalTime.MAX);
+        return reviewRepository.countByCreatedAtBetween(startOfMonth, endOfMonth);
+    }
+
+    /**
+     * Get number of reviews created today
+     */
+    public long getReviewsToday() {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
+        return reviewRepository.countByCreatedAtBetween(startOfDay, endOfDay);
+    }
+
+    /**
+     * Get number of reviews with images
+     */
+    public long getReviewsWithImage() {
+        return reviewRepository.countByImageUrlIsNotNull();
+    }
+
+    /**
+     * Get approval rate percentage
+     */
+    public double getApprovalRate() {
+        long total = getTotalReviews();
+        if (total == 0) {
+            return 0.0;
+        }
+        long approved = getApprovedReviews();
+        return (approved * 100.0) / total;
+    }
+
+    /**
+     * Get rating distribution (number of reviews per rating)
+     */
+    public Map<Integer, Long> getRatingDistribution() {
+        Map<Integer, Long> distribution = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            distribution.put(i, reviewRepository.countByRatingValue(i));
+        }
+        return distribution;
+    }
+
+    /**
+     * Get percentage for each rating level
+     */
+    public Map<Integer, Double> getRatingPercentages() {
+        Map<Integer, Double> percentages = new HashMap<>();
+        long total = getTotalReviews();
+
+        if (total == 0) {
+            for (int i = 1; i <= 5; i++) {
+                percentages.put(i, 0.0);
+            }
+            return percentages;
+        }
+
+        Map<Integer, Long> distribution = getRatingDistribution();
+        for (int i = 1; i <= 5; i++) {
+            double percentage = (distribution.get(i) * 100.0) / total;
+            percentages.put(i, percentage);
+        }
+
+        return percentages;
+    }
+
+    // CRUD
+
+    // Get all reviews with pagination
+    public Page<Review> getAllReviews(Pageable pageable) {
+        return reviewRepository.findAll(pageable);
+    }
+
+    // Search reviews with filters
+    public Page<Review> searchReviews(String keyword, String status, Integer rating, Pageable pageable) {
+        return reviewRepository.searchReviews(keyword, status, rating, pageable);
+    }
+
+    // Get review by ID
+    public Review getReviewById(Long id) {
+        return reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review not found with id: " + id));
+    }
+
+    // Get reviews by product
+    public Page<Review> getReviewsByProduct(Long productId, Pageable pageable) {
+        return reviewRepository.findByProductId(productId, pageable);
+    }
+
+    // Get reviews by user
+    public Page<Review> getReviewsByUser(Long userId, Pageable pageable) {
+        return reviewRepository.findByUserId(userId, pageable);
+    }
+
+    // Approve a review
+    @Transactional
+    public Review approveReview(Long id) {
+        Review review = getReviewById(id);
+        review.setIsApproved(true);
+        review.setUpdatedAt(LocalDateTime.now());
+        return reviewRepository.save(review);
+    }
+
+    // Reject/Unapprove a review
+    @Transactional
+    public Review rejectReview(Long id) {
+        Review review = getReviewById(id);
+        review.setIsApproved(false);
+        review.setUpdatedAt(LocalDateTime.now());
+        return reviewRepository.save(review);
+    }
+
+    // Delete a review
+    @Transactional
+    public void deleteReview(Long id) {
+        Review review = getReviewById(id);
+        reviewRepository.delete(review);
+    }
+
+    // Save or update a review
+    @Transactional
+    public Review saveReview(Review review) {
+        if (review.getId() == null) {
+            review.setCreatedAt(LocalDateTime.now());
+        } else {
+            review.setUpdatedAt(LocalDateTime.now());
+        }
+        return reviewRepository.save(review);
+    }
+}
