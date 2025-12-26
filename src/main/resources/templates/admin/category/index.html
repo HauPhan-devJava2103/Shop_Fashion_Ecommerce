@@ -25,8 +25,35 @@
           </nav>
         </div>
         <a th:href="@{/admin/categories/create}" class="btn btn-primary">
-          <i class="bi bi-folder-plus me-2"></i>Thêm Danh Mục
+          <i class="bi bi-folder-plus me-2"></i>Thêm Danh Mục
         </a>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <div
+        th:if="${successMessage}"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
+      </div>
+
+      <div
+        th:if="${errorMessage}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"></button>
       </div>
 
       <!-- Category Stats Widgets -->
@@ -48,6 +75,7 @@
             </div>
           </div>
         </div>
+
         <!-- Active Categories -->
         <div class="col-xl-3 col-md-6">
           <div class="card border-0 shadow-sm h-100">
@@ -65,6 +93,7 @@
             </div>
           </div>
         </div>
+
         <!-- Hidden Categories -->
         <div class="col-xl-3 col-md-6">
           <div class="card border-0 shadow-sm h-100">
@@ -82,6 +111,7 @@
             </div>
           </div>
         </div>
+
         <!-- Root Categories -->
         <div class="col-xl-3 col-md-6">
           <div class="card border-0 shadow-sm h-100">
@@ -101,73 +131,362 @@
         </div>
       </div>
 
-      <!-- Enhanced Analytics Widgets Row -->
-      <div class="row g-4 g-lg-5 g-xl-6 mb-5 mb-lg-5 mb-xl-6">
-        <!-- User Growth Chart -->
-        <div class="col-lg-8">
-          <div class="card h-100">
-            <div
-              class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="card-title mb-0">User Registration Trends</h5>
-              <div class="btn-group btn-group-sm" role="group">
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="growthPeriod"
-                  id="growth7d"
-                  autocomplete="off"
-                  checked />
-                <label class="btn btn-outline-secondary" for="growth7d"
-                  >7D</label
-                >
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="growthPeriod"
-                  id="growth30d"
-                  autocomplete="off" />
-                <label class="btn btn-outline-secondary" for="growth30d"
-                  >30D</label
-                >
-                <input
-                  type="radio"
-                  class="btn-check"
-                  name="growthPeriod"
-                  id="growth90d"
-                  autocomplete="off" />
-                <label class="btn btn-outline-secondary" for="growth90d"
-                  >90D</label
-                >
-              </div>
+      <!-- CHART CATEGORY -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-bar-chart-fill text-primary me-2"></i>Category
+                Performance
+              </h5>
+              <small class="text-muted">Số lượng sản phẩm theo danh mục</small>
             </div>
-            <div class="card-body p-3 p-lg-4">
-              <!-- Canvas Container -->
-              <div style="position: relative; height: 300px; width: 100%">
-                <canvas id="userGrowthChart"></canvas>
-              </div>
+            <!-- Limit Filter Buttons -->
+            <div class="btn-group" role="group" aria-label="Chart limit filter">
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartLimit"
+                id="chartLimit5"
+                value="5"
+                autocomplete="off"
+                checked />
+              <label class="btn btn-outline-primary btn-sm" for="chartLimit5"
+                >Top 5</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartLimit"
+                id="chartLimit10"
+                value="10"
+                autocomplete="off" />
+              <label class="btn btn-outline-primary btn-sm" for="chartLimit10"
+                >Top 10</label
+              >
+
+              <input
+                type="radio"
+                class="btn-check"
+                name="chartLimit"
+                id="chartLimit15"
+                value="15"
+                autocomplete="off" />
+              <label class="btn btn-outline-primary btn-sm" for="chartLimit15"
+                >Top 15</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="categoryPerformanceChart" height="300"></canvas>
+        </div>
+      </div>
+      <!-- END CHART CATEGORY -->
+
+      <!-- Categories Table Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-folder2-open text-primary me-2"></i>Danh sách
+                danh mục
+              </h5>
+            </div>
+
+            <!-- Search & Filters -->
+            <div class="col-12 mt-3">
+              <form
+                th:action="@{/admin/categories}"
+                method="get"
+                class="d-flex gap-2 flex-wrap align-items-end">
+                <!-- Search Input -->
+                <div
+                  class="flex-grow-1"
+                  style="min-width: 250px; max-width: 500px">
+                  <label class="form-label small text-muted mb-1"
+                    >Tìm kiếm</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0">
+                      <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input
+                      type="text"
+                      name="keyword"
+                      th:value="${keyword}"
+                      class="form-control bg-light border-start-0"
+                      placeholder="Tìm tên danh mục hoặc slug..." />
+                  </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div style="min-width: 180px">
+                  <label class="form-label small text-muted mb-1"
+                    >Trạng thái</label
+                  >
+                  <select name="status" class="form-select">
+                    <option
+                      value=""
+                      th:selected="${status == null or status == ''}">
+                      Tất cả
+                    </option>
+                    <option value="active" th:selected="${status == 'active'}">
+                      Hoạt động
+                    </option>
+                    <option
+                      value="inactive"
+                      th:selected="${status == 'inactive'}">
+                      Vô hiệu
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Parent Category Filter -->
+                <div style="min-width: 200px">
+                  <label class="form-label small text-muted mb-1"
+                    >Danh mục</label
+                  >
+                  <select name="parentSlug" class="form-select">
+                    <option
+                      value=""
+                      th:selected="${parentSlug == null or parentSlug == ''}">
+                      Tất cả
+                    </option>
+                    <option
+                      th:each="cat : ${rootCategoriesList}"
+                      th:value="${cat.slug}"
+                      th:text="${cat.categoryName}"
+                      th:selected="${parentSlug == cat.slug}"></option>
+                  </select>
+                </div>
+              </form>
             </div>
           </div>
         </div>
 
-        <!-- Role & Department Distribution -->
-        <div class="col-lg-4">
-          <div class="card h-100">
-            <div class="card-header">
-              <h5 class="card-title mb-0">User Distribution</h5>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-hover align-middle mb-0"
+              id="categoriesTable">
+              <thead class="bg-light">
+                <tr>
+                  <th class="ps-4" style="width: 60px">ID</th>
+                  <th>Tên danh mục</th>
+                  <th>Slug</th>
+                  <th>Danh mục gốc</th>
+                  <th class="text-center">Trạng thái</th>
+                  <th class="text-center" style="width: 100px">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="category : ${categories.content}">
+                  <td
+                    class="ps-4 fw-semibold text-muted"
+                    th:text="${category.id}"></td>
+
+                  <!-- Category Name with Image -->
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <!-- Image or Placeholder -->
+                      <div class="me-3">
+                        <img
+                          th:if="${category.imageUrl != null and !category.imageUrl.isEmpty()}"
+                          th:src="${category.imageUrl}"
+                          alt="Category image"
+                          class="rounded"
+                          style="
+                            width: 50px;
+                            height: 50px;
+                            object-fit: cover;
+                          " />
+                        <div
+                          th:unless="${category.imageUrl != null and !category.imageUrl.isEmpty()}"
+                          class="bg-primary bg-opacity-10 rounded d-flex align-items-center justify-content-center"
+                          style="width: 50px; height: 50px">
+                          <i class="bi bi-folder-fill text-primary fs-5"></i>
+                        </div>
+                      </div>
+
+                      <!-- Category Info -->
+                      <div>
+                        <div class="fw-bold" th:text="${category.categoryName}">
+                          Category Name
+                        </div>
+                        <small
+                          class="text-muted"
+                          th:if="${category.products != null}">
+                          <i class="bi bi-box-seam me-1"></i>
+                          <span th:text="${#lists.size(category.products)}"
+                            >0</span
+                          >
+                          sản phẩm
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Slug -->
+                  <td>
+                    <code class="text-muted small" th:text="${category.slug}"
+                      >slug</code
+                    >
+                  </td>
+
+                  <!-- Parent Category -->
+                  <td>
+                    <span
+                      th:if="${category.parentCategory != null}"
+                      class="badge bg-info-subtle text-info"
+                      th:text="${category.parentCategory.categoryName}">
+                      Parent
+                    </span>
+                    <span
+                      th:unless="${category.parentCategory != null}"
+                      class="text-muted small">
+                      <i class="bi bi-dash-circle"></i> Root
+                    </span>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="text-center">
+                    <span
+                      th:if="${category.isActive}"
+                      class="badge bg-success-subtle text-success">
+                      <i class="bi bi-check-circle me-1"></i>Hoạt động
+                    </span>
+                    <span
+                      th:unless="${category.isActive}"
+                      class="badge bg-secondary-subtle text-secondary">
+                      <i class="bi bi-x-circle me-1"></i>Vô hiệu
+                    </span>
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="text-center">
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-sm btn-light border-0 rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 34px; height: 34px"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="bi bi-three-dots-vertical"></i>
+                      </button>
+                      <ul
+                        class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2"
+                        style="min-width: 160px">
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/categories/view/{id}(id=${category.id})}">
+                            <i class="bi bi-eye text-info me-2"></i>Xem chi tiết
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3"
+                            th:href="@{/admin/categories/edit/{id}(id=${category.id})}">
+                            <i class="bi bi-pencil-square text-primary me-2"></i
+                            >Chỉnh sửa
+                          </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1" /></li>
+                        <li>
+                          <a
+                            class="dropdown-item d-flex align-items-center py-2 px-3 text-danger"
+                            th:href="@{/admin/categories/delete/{id}(id=${category.id})}"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?')">
+                            <i class="bi bi-trash3 me-2"></i>Xóa
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr th:if="${categories.isEmpty()}">
+                  <td colspan="6" class="text-center py-5">
+                    <div class="text-muted">
+                      <i
+                        class="bi bi-folder2-open display-4 d-block mb-3 opacity-50"></i>
+                      <p class="mb-0">Chưa có danh mục nào</p>
+                      <a
+                        th:href="@{/admin/categories/create}"
+                        class="btn btn-primary btn-sm mt-3">
+                        <i class="bi bi-plus-lg me-1"></i>Thêm danh mục mới
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="card-footer bg-white py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <small class="text-muted">
+                Hiển thị
+                <strong th:text="${categories.numberOfElements}">0</strong> trên
+                tổng số
+                <strong th:text="${categories.totalElements}">0</strong> danh
+                mục
+              </small>
             </div>
-            <div class="card-body p-3 p-lg-4">
-              <!-- Role Distribution -->
-              <div class="mb-4">
-                <h6 class="text-muted mb-3">By Role</h6>
-                <div style="position: relative; height: 250px; width: 100%">
-                  <canvas id="roleDistributionChart"></canvas>
-                </div>
-              </div>
+            <div class="col-auto">
+              <!-- Pagination -->
+              <nav th:if="${totalPages > 1}">
+                <ul class="pagination pagination-sm mb-0">
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 1} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/categories(page=${currentPage - 1}, keyword=${keyword}, status=${status}, parentSlug=${parentSlug})}"
+                      >Trước</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(1, totalPages)}"
+                    th:classappend="${currentPage == i} ? 'active'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/categories(page=${i}, keyword=${keyword}, status=${status}, parentSlug=${parentSlug})}"
+                      th:text="${i}"></a>
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages} ? 'disabled'">
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/categories(page=${currentPage + 1}, keyword=${keyword}, status=${status}, parentSlug=${parentSlug})}"
+                      >Sau</a
+                    >
+                  </li>
+                </ul>
+              </nav>
             </div>
           </div>
         </div>
       </div>
     </div>
     <!-- END layout:fragment="content" -->
+
+    <!-- Custom Scripts -->
+    <div layout:fragment="scripts">
+      <script th:src="@{/js/admin/category-search.js}"></script>
+      <script th:src="@{/js/admin/category-analytics.js}"></script>
+    </div>
   </body>
 </html>
