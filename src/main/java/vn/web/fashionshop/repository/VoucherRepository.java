@@ -1,6 +1,7 @@
 package vn.web.fashionshop.repository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,8 @@ import vn.web.fashionshop.entity.Voucher;
 
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
+
+        Optional<Voucher> findByCode(String code);
 
         // Kiểm tra mã voucher tồn tại
         Boolean existsByCode(String code);

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>
+      Chi tiết sản phẩm - <span th:text="${product.productName}"></span>
+    </title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-box-seam text-primary me-2"></i>Chi tiết sản phẩm
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}">Dashboard</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/products}">Sản phẩm</a>
+              </li>
+              <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+          </nav>
+        </div>
+        <div>
+          <a
+            th:href="@{/admin/products/{id}/images(id=${product.id})}"
+            class="btn btn-success me-2">
+            <i class="bi bi-images me-2"></i>Quản lý hình ảnh
+          </a>
+          <a
+            th:href="@{/admin/products/edit/{id}(id=${product.id})}"
+            class="btn btn-primary me-2">
+            <i class="bi bi-pencil me-2"></i>Chỉnh sửa
+          </a>
+          <a th:href="@{/admin/products}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại
+          </a>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+          <!-- Product Images Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-images text-primary me-2"></i>Hình ảnh sản phẩm
+              </h5>
+            </div>
+            <div class="card-body">
+              <div
+                th:if="${product.images != null && !product.images.isEmpty()}"
+                class="row g-3">
+                <div
+                  th:each="image : ${product.images}"
+                  class="col-md-4 col-sm-6">
+                  <div class="position-relative">
+                    <img
+                      th:src="${image.urlImage}"
+                      th:alt="${image.altText}"
+                      class="img-fluid rounded shadow-sm"
+                      style="width: 100%; height: 200px; object-fit: cover" />
+                    <span
+                      th:if="${image.isMain}"
+                      class="position-absolute top-0 end-0 m-2 badge bg-primary">
+                      <i class="bi bi-star-fill"></i> Chính
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div
+                th:if="${product.images == null || product.images.isEmpty()}"
+                class="text-center py-5">
+                <i class="bi bi-image display-1 text-muted opacity-50"></i>
+                <p class="text-muted mt-3">Chưa có hình ảnh</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Variants Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-grid-3x3 text-primary me-2"></i>Các phiên bản
+                sản phẩm
+              </h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="bg-light">
+                    <tr>
+                      <th class="ps-4">SKU Variant</th>
+                      <th>Kích thước</th>
+                      <th>Màu sắc</th>
+                      <th class="text-center pe-4">Tồn kho</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      th:if="${product.variants == null || product.variants.isEmpty()}">
+                      <td colspan="4" class="text-center py-4 text-muted">
+                        Sản phẩm chưa có phiên bản nào
+                      </td>
+                    </tr>
+                    <tr th:each="variant : ${product.variants}">
+                      <td class="ps-4">
+                        <code
+                          class="text-muted"
+                          th:text="${variant.skuVariant}"></code>
+                      </td>
+                      <td>
+                        <span
+                          th:if="${variant.size != null}"
+                          class="badge bg-secondary-subtle text-secondary"
+                          th:text="${variant.size.name()}"></span>
+                        <span th:if="${variant.size == null}" class="text-muted"
+                          >-</span
+                        >
+                      </td>
+                      <td>
+                        <span
+                          th:if="${variant.color != null && !variant.color.isEmpty()}"
+                          class="badge bg-info-subtle text-info"
+                          th:text="${variant.color}"></span>
+                        <span
+                          th:if="${variant.color == null || variant.color.isEmpty()}"
+                          class="text-muted"
+                          >-</span
+                        >
+                      </td>
+                      <td class="text-center pe-4">
+                        <span
+                          th:if="${variant.stock > 0}"
+                          class="badge bg-success"
+                          th:text="${variant.stock} + ' sp'"></span>
+                        <span
+                          th:if="${variant.stock == 0}"
+                          class="badge bg-danger"
+                          >Hết hàng</span
+                        >
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Description Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-file-text text-primary me-2"></i>Mô tả sản phẩm
+              </h5>
+            </div>
+            <div class="card-body">
+              <p
+                th:if="${product.description != null && !product.description.isEmpty()}"
+                th:text="${product.description}"
+                class="mb-0"></p>
+              <p
+                th:if="${product.description == null || product.description.isEmpty()}"
+                class="text-muted mb-0">
+                Chưa có mô tả
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+          <!-- Product Info Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-info-circle text-primary me-2"></i>Thông tin sản
+                phẩm
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold d-block mb-2"
+                  >Tên sản phẩm</label
+                >
+                <h5 class="fw-bold mb-0" th:text="${product.productName}"></h5>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">SKU</label>
+                <p class="mb-0">
+                  <code class="fs-6" th:text="${product.sku}"></code>
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">Danh mục</label>
+                <p class="mb-0">
+                  <span
+                    th:if="${product.category != null}"
+                    class="badge bg-info-subtle text-info fs-6"
+                    th:text="${product.category.categoryName}"></span>
+                  <span th:if="${product.category == null}" class="text-muted"
+                    >Chưa phân loại</span
+                  >
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold d-block mb-2"
+                  >Trạng thái</label
+                >
+                <span
+                  th:class="'badge fs-6 ' + (${product.isActive} ? 'bg-success' : 'bg-danger')">
+                  <i
+                    th:class="'bi ' + (${product.isActive} ? 'bi-check-circle' : 'bi-x-circle') + ' me-1'"></i>
+                  <span
+                    th:text="${product.isActive ? 'Đang bán' : 'Ngưng bán'}"></span>
+                </span>
+              </div>
+
+              <hr class="my-3" />
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">Giá bán</label>
+                <p class="mb-0 fw-bold text-success fs-4">
+                  <span
+                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                  ₫
+                </p>
+              </div>
+
+              <div
+                class="mb-3"
+                th:if="${product.discount != null && product.discount > 0}">
+                <label class="text-muted small fw-semibold">Giảm giá</label>
+                <p class="mb-0">
+                  <span class="badge bg-danger fs-6">
+                    <span th:text="${product.discount}"></span>%
+                  </span>
+                </p>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">Tồn kho</label>
+                <p class="mb-0">
+                  <span
+                    th:if="${product.stock > 0}"
+                    class="badge bg-success fs-6"
+                    th:text="${product.stock} + ' sản phẩm'"></span>
+                  <span
+                    th:if="${product.stock == 0}"
+                    class="badge bg-danger fs-6"
+                    >Hết hàng</span
+                  >
+                </p>
+              </div>
+
+              <hr class="my-3" />
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">Ngày tạo</label>
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(product.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
+              </div>
+
+              <div class="mb-3" th:if="${product.updatedAt != null}">
+                <label class="text-muted small fw-semibold"
+                  >Cập nhật lần cuối</label
+                >
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(product.updatedAt, 'dd/MM/yyyy HH:mm')}"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Card -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body d-grid gap-2">
+              <a
+                th:href="@{/admin/products/edit/{id}(id=${product.id})}"
+                class="btn btn-primary">
+                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa sản phẩm
+              </a>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                onclick="confirmDeleteProduct(this)"
+                th:data-id="${product.id}"
+                th:data-name="${product.productName}">
+                <i class="bi bi-trash3 me-2"></i>Xóa sản phẩm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function confirmDeleteProduct(btn) {
+          const productId = btn.getAttribute("data-id");
+          const productName = btn.getAttribute("data-name");
+
+          if (
+            confirm(
+              `Bạn có chắc chắn muốn xóa sản phẩm "${productName}"?\n\nHành động này không thể hoàn tác!`
+            )
+          ) {
+            window.location.href = `/admin/products/delete/${productId}`;
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>

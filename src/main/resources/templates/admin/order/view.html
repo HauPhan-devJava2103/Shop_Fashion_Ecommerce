@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Chi tiết đơn hàng #<span th:text="${order.id}"></span></title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-receipt text-primary me-2"></i>Chi tiết đơn hàng
+            #<span th:text="${order.id}"></span>
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}">Dashboard</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/orders}">Đơn hàng</a>
+              </li>
+              <li class="breadcrumb-item active">Chi tiết</li>
+            </ol>
+          </nav>
+        </div>
+        <div>
+          <a th:href="@{/admin/orders}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại
+          </a>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+          <!-- Order Items Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-box-seam text-primary me-2"></i>Sản phẩm đặt
+                hàng
+              </h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="bg-light">
+                    <tr>
+                      <th class="ps-4">Sản phẩm</th>
+                      <th class="text-center">Số lượng</th>
+                      <th class="text-end">Đơn giá</th>
+                      <th class="text-end pe-4">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="item : ${order.orderItems}">
+                      <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                          <!-- Product Image -->
+                          <div class="me-3" style="width: 60px; height: 60px">
+                            <img
+                              th:if="${item.variant.product.images != null && !item.variant.product.images.isEmpty()}"
+                              th:src="${item.variant.product.images[0].urlImage}"
+                              th:alt="${item.variant.product.productName}"
+                              class="img-fluid rounded"
+                              style="
+                                width: 60px;
+                                height: 60px;
+                                object-fit: cover;
+                              " />
+                            <!-- Fallback icon if no image -->
+                            <div
+                              th:if="${item.variant.product.images == null || item.variant.product.images.isEmpty()}"
+                              class="bg-light rounded d-flex align-items-center justify-content-center"
+                              style="width: 60px; height: 60px">
+                              <i class="bi bi-box-seam text-primary fs-3"></i>
+                            </div>
+                          </div>
+                          <div class="flex-grow-1">
+                            <div
+                              class="fw-bold mb-1"
+                              th:text="${item.variant.product.productName}"></div>
+                            <div class="d-flex gap-2 flex-wrap">
+                              <!-- SKU Variant -->
+                              <small class="text-muted">
+                                <i class="bi bi-upc-scan me-1"></i>
+                                <span
+                                  th:text="${item.variant.skuVariant}"></span>
+                              </small>
+
+                              <!-- Size Badge -->
+                              <span
+                                th:if="${item.variant.size != null}"
+                                class="badge bg-secondary-subtle text-secondary rounded-pill"
+                                th:text="${item.variant.size.name()}">
+                              </span>
+
+                              <!-- Color Badge -->
+                              <span
+                                th:if="${item.variant.color != null && !item.variant.color.isEmpty()}"
+                                class="badge bg-info-subtle text-info rounded-pill"
+                                th:text="${item.variant.color}">
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="text-center">
+                        <span
+                          class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2"
+                          th:text="${item.quantity}"></span>
+                      </td>
+                      <td class="text-end">
+                        <span
+                          th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+                        ₫
+                      </td>
+                      <td class="text-end pe-4 fw-bold text-success">
+                        <span
+                          th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')}"></span>
+                        ₫
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Address Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-geo-alt text-primary me-2"></i>Địa chỉ giao hàng
+              </h5>
+            </div>
+            <div class="card-body" th:if="${order.orderAddress != null}">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small fw-semibold">Người nhận</label>
+                  <p
+                    class="mb-0 fw-bold"
+                    th:text="${order.orderAddress.recipientName}"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small fw-semibold"
+                    >Số điện thoại</label
+                  >
+                  <p class="mb-0" th:text="${order.orderAddress.phone}"></p>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="text-muted small fw-semibold">Địa chỉ</label>
+                  <p class="mb-0">
+                    <span th:text="${order.orderAddress.addressLine}"></span>,
+                    <span th:text="${order.orderAddress.ward}"></span>,
+                    <span th:text="${order.orderAddress.district}"></span>,
+                    <span th:text="${order.orderAddress.city}"></span>
+                  </p>
+                </div>
+                <div
+                  class="col-12"
+                  th:if="${order.orderAddress.note != null && !order.orderAddress.note.isEmpty()}">
+                  <label class="text-muted small fw-semibold">Ghi chú</label>
+                  <p
+                    class="mb-0 text-muted"
+                    th:text="${order.orderAddress.note}"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Info Card -->
+          <div
+            class="card border-0 shadow-sm mb-4"
+            th:if="${order.payment != null}">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-credit-card text-primary me-2"></i>Thông tin
+                thanh toán
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small fw-semibold"
+                    >Phương thức</label
+                  >
+                  <p class="mb-0">
+                    <span
+                      th:if="${order.payment.method.name() == 'COD'}"
+                      class="badge bg-warning-subtle text-warning">
+                      <i class="bi bi-cash me-1"></i>Thanh toán khi nhận hàng
+                    </span>
+                    <span
+                      th:if="${order.payment.method.name() == 'BANK_TRANSFER'}"
+                      class="badge bg-info-subtle text-info">
+                      <i class="bi bi-bank me-1"></i>Chuyển khoản ngân hàng
+                    </span>
+                  </p>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="text-muted small fw-semibold">Trạng thái</label>
+                  <p class="mb-0">
+                    <span
+                      th:class="'badge ' + (${order.payment.status.name() == 'PAID'} ? 'bg-success' : 'bg-warning')">
+                      <span th:text="${order.payment.status}"></span>
+                    </span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <label class="text-muted small fw-semibold">Số tiền</label>
+                  <p class="mb-0 fw-bold text-success fs-5">
+                    <span
+                      th:text="${#numbers.formatDecimal(order.payment.amount, 0, 'COMMA', 0, 'POINT')}"></span>
+                    ₫
+                  </p>
+                </div>
+                <div class="col-md-6" th:if="${order.payment.paidAt != null}">
+                  <label class="text-muted small fw-semibold"
+                    >Ngày thanh toán</label
+                  >
+                  <p
+                    class="mb-0"
+                    th:text="${#temporals.format(order.payment.paidAt, 'dd/MM/yyyy HH:mm')}"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-4">
+          <!-- Order Summary Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-file-text text-primary me-2"></i>Thông tin đơn
+                hàng
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold d-block mb-2"
+                  >Trạng thái</label
+                >
+                <span
+                  th:class="'badge fs-6 ' + 
+                  ${order.orderStatus.name() == 'PENDING' ? 'bg-warning-subtle text-warning' :
+                   order.orderStatus.name() == 'CONFIRMED' ? 'bg-info-subtle text-info' :
+                   order.orderStatus.name() == 'PROCESSING' ? 'bg-primary-subtle text-primary' :
+                   order.orderStatus.name() == 'SHIPPED' ? 'bg-secondary-subtle text-secondary' :
+                   order.orderStatus.name() == 'DELIVERED' ? 'bg-success-subtle text-success' :
+                   order.orderStatus.name() == 'COMPLETED' ? 'bg-success-subtle text-success' :
+                   order.orderStatus.name() == 'CANCELLED' ? 'bg-danger-subtle text-danger' : 'bg-secondary'}">
+                  <i class="bi bi-check-circle me-1"></i>
+                  <span th:text="${order.orderStatus.displayName}"></span>
+                </span>
+              </div>
+
+              <div class="mb-3">
+                <label class="text-muted small fw-semibold">Ngày đặt</label>
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
+              </div>
+
+              <div class="mb-3" th:if="${order.updatedAt != null}">
+                <label class="text-muted small fw-semibold"
+                  >Cập nhật lần cuối</label
+                >
+                <p
+                  class="mb-0"
+                  th:text="${#temporals.format(order.updatedAt, 'dd/MM/yyyy HH:mm')}"></p>
+              </div>
+
+              <hr class="my-3" />
+
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Tạm tính:</span>
+                <span
+                  th:text="${#numbers.formatDecimal(order.subTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+              </div>
+
+              <div
+                class="d-flex justify-content-between mb-2"
+                th:if="${order.discountAmount != null && order.discountAmount > 0}">
+                <span class="text-muted">Giảm giá:</span>
+                <span
+                  class="text-danger"
+                  th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>
+              </div>
+
+              <div
+                class="d-flex justify-content-between mb-3"
+                th:if="${order.voucherCode != null && !order.voucherCode.isEmpty()}">
+                <span class="text-muted">Mã giảm giá:</span>
+                <span class="badge bg-success-subtle text-success">
+                  <span th:text="${order.voucherCode}"></span>
+                  <span th:if="${order.voucherDiscountPercent != null}"
+                    >(<span th:text="${order.voucherDiscountPercent}"></span
+                    >%)</span
+                  >
+                </span>
+              </div>
+
+              <hr class="my-3" />
+
+              <div class="d-flex justify-content-between">
+                <span class="fw-bold fs-5">Tổng cộng:</span>
+                <span class="fw-bold text-success fs-4">
+                  <span
+                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}"></span>
+                  ₫
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Info Card -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-person text-primary me-2"></i>Thông tin khách
+                hàng
+              </h5>
+            </div>
+            <div class="card-body" th:if="${order.user != null}">
+              <div class="text-center mb-3">
+                <div
+                  class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
+                  style="width: 80px; height: 80px">
+                  <i class="bi bi-person-fill text-primary fs-1"></i>
+                </div>
+                <h6 class="fw-bold mb-0" th:text="${order.user.fullName}"></h6>
+                <small class="text-muted" th:text="${order.user.email}"></small>
+              </div>
+
+              <hr class="my-3" />
+
+              <div class="mb-2" th:if="${order.user.phone != null}">
+                <label class="text-muted small fw-semibold d-block"
+                  >Số điện thoại</label
+                >
+                <span th:text="${order.user.phone}"></span>
+              </div>
+
+              <div class="mb-2" th:if="${order.user.address != null}">
+                <label class="text-muted small fw-semibold d-block"
+                  >Địa chỉ</label
+                >
+                <span th:text="${order.user.address}"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions Card -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body d-grid gap-2">
+              <a
+                th:href="@{/admin/orders/edit/{id}(id=${order.id})}"
+                class="btn btn-primary">
+                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa đơn hàng
+              </a>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')">
+                <i class="bi bi-trash3 me-2"></i>Xóa đơn hàng
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

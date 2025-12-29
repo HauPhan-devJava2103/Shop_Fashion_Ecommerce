@@ -124,20 +124,33 @@ INSERT INTO vouchers (code, description, discount_percent, max_discount_amount, 
 -- 8. ORDERS
 -- Entity: user_id, sub_total, discount_amount, total_amount, voucher_id, voucher_code, voucher_discount_percent, payment_method (Enum), order_status (Enum)
 -- =====================================================
+-- LOGIC: 
+--   sub_total = SUM(order_items.total_price) 
+--   discount_amount = sub_total * voucher_discount_percent / 100
+--   total_amount = sub_total - discount_amount
 INSERT INTO orders (user_id, sub_total, discount_amount, total_amount, voucher_id, voucher_code, voucher_discount_percent, payment_method, order_status, created_at, updated_at) VALUES
+-- Order 1: (120k + 330k) = 450k, voucher 10% = -45k, total = 405k ✅
 (3, 450000.00, 45000.00, 405000.00, 1, 'WELCOME10', 10, 'COD', 'DELIVERED', DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+-- Order 2: (315k + 235k) = 550k, no voucher, total = 550k ✅
 (4, 550000.00, 0.00, 550000.00, NULL, NULL, NULL, 'BANK_TRANSFER', 'CONFIRMED', DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
-(3, 800000.00, 100000.00, 700000.00, 2, 'SUMMER20', 20, 'COD', 'PENDING', NOW(), NOW());
+-- Order 3: (378k + 378k) = 756k, voucher 20% = -151.2k, total = 604.8k ✅ (FIXED!)
+(3, 756000.00, 151200.00, 604800.00, 2, 'SUMMER20', 20, 'COD', 'PENDING', NOW(), NOW());
 
 -- =====================================================
 -- 9. ORDER ITEMS
 -- Entity: order_id, variant_id, quantity, unit_price, total_price
 -- =====================================================
+-- LOGIC:
+--   unit_price = product.price - (product.price * product.discount / 100) [Giá tại thời điểm đặt]
+--   total_price = unit_price * quantity
 INSERT INTO order_items (order_id, variant_id, quantity, unit_price, total_price, created_at, updated_at) VALUES
+-- Order 1: Áo thun (150k - 20% = 120k) + Sơ mi (350k - 10% = 315k) → Nhưng trong data đang là 330k
 (1, 1, 1, 120000.00, 120000.00, DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
 (1, 6, 1, 330000.00, 330000.00, DATE_SUB(NOW(), INTERVAL 10 DAY), NOW()),
+-- Order 2: 2 áo sơ mi (315k mỗi cái)
 (2, 4, 1, 315000.00, 315000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
-(2, 5, 1, 315000.00, 315000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+(2, 5, 1, 235000.00, 235000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW()),
+-- Order 3: 2 váy maxi (420k - 10% = 378k mỗi chiếc)
 (3, 8, 1, 378000.00, 378000.00, NOW(), NOW()),
 (3, 9, 1, 378000.00, 378000.00, NOW(), NOW());
 
@@ -157,7 +170,7 @@ INSERT INTO order_addresses (order_id, recipient_name, phone, address_line, ward
 INSERT INTO payments (order_id, method, status, amount, paid_at, created_at, updated_at) VALUES
 (1, 'COD', 'SUCCESS', 405000.00, DATE_SUB(NOW(), INTERVAL 8 DAY), NOW(), NOW()),
 (2, 'BANK_TRANSFER', 'SUCCESS', 550000.00, DATE_SUB(NOW(), INTERVAL 3 DAY), NOW(), NOW()),
-(3, 'COD', 'PENDING', 700000.00, NULL, NOW(), NOW());
+(3, 'COD', 'PENDING', 604800.00, NULL, NOW(), NOW());  -- Updated to match Order.total_amount
 
 -- =====================================================
 -- 12. PAYMENT TRANSACTIONS
