@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Doanh thu - ADMIN</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">Doanh thu</h4>
+        <a class="btn btn-secondary" th:href="@{/admin/reports}">Quay lại</a>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted">Tổng doanh thu (tất cả)</div>
+          <div class="display-6" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
+          <div class="text-muted mt-2">
+            Trang này đang ở bản tối thiểu để tránh lỗi Whitelabel; có thể mở rộng theo ngày/tháng/năm sau.
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

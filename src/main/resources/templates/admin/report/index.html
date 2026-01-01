@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Thống kê - ADMIN</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">Thống kê</h4>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="text-muted">Tổng đơn hàng</div>
+              <div class="h3 mb-0" th:text="${totalOrders}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="text-muted">Tổng người dùng</div>
+              <div class="h3 mb-0" th:text="${totalUsers}">0</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="text-muted">Doanh thu (tất cả)</div>
+              <div class="h3 mb-0" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3">
+        <div class="card-body">
+          <div class="text-muted">Doanh thu 7 ngày gần nhất (tổng)</div>
+          <div class="h4 mb-0" th:text="${#numbers.formatDecimal(revenue7d, 0, 'COMMA', 0, 'POINT')}">0</div>
+          <div class="mt-2">
+            <a class="btn btn-outline-primary btn-sm" th:href="@{/admin/reports/revenue}">Xem trang Doanh thu</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

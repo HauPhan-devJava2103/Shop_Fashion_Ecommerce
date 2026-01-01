@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Thêm danh mục - ADMIN</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">Thêm danh mục</h4>
+        <a class="btn btn-secondary" th:href="@{/admin/categories}">Quay lại</a>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="post" th:action="@{/admin/categories/create}" th:object="${categoryForm}">
+            <div class="mb-3">
+              <label class="form-label">Tên danh mục</label>
+              <input type="text" class="form-control" th:field="*{categoryName}" />
+              <div class="text-danger small" th:if="${#fields.hasErrors('categoryName')}" th:errors="*{categoryName}"></div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Slug</label>
+              <input type="text" class="form-control" th:field="*{slug}" placeholder="vd: ao-thun" />
+              <div class="text-danger small" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+              <div class="form-text">Nếu để trống, hệ thống sẽ tự tạo từ tên.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Ảnh (URL)</label>
+              <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="/images/... hoặc https://..." />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Danh mục cha</label>
+              <select class="form-select" th:field="*{parentId}">
+                <option value="">(Không có)</option>
+                <option th:each="c : ${allCategories}" th:value="${c.id}" th:text="${c.categoryName}"></option>
+              </select>
+            </div>
+
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" th:field="*{isActive}" />
+              <label class="form-check-label">Kích hoạt</label>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Lưu</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

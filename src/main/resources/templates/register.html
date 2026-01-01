@@ -67,6 +67,16 @@
                 </div>
               </div>
 
+              <div class="mt-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="acceptedTerms" th:field="*{acceptedTerms}" />
+                  <label class="form-check-label" for="acceptedTerms">
+                    Tôi đồng ý với <a href="#">Điều kiện</a> &amp; <a href="#">Chính sách bảo mật</a>
+                  </label>
+                </div>
+                <div class="text-danger small" th:if="${#fields.hasErrors('acceptedTerms')}" th:errors="*{acceptedTerms}"></div>
+              </div>
+
               <div class="mt-4 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
                 <a class="btn btn-outline-secondary" th:href="@{/login}">Đã có tài khoản</a>

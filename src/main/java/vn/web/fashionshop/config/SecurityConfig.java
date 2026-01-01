@@ -1,10 +1,16 @@
 package vn.web.fashionshop.config;
 
+import java.io.IOException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,7 +40,7 @@ public class SecurityConfig {
                         // Spring Security expects POST /login with parameters username/password
                         .usernameParameter("username")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/admin", true)
+                        .successHandler(this::handleLoginSuccess)
                         .failureUrl("/login?error")
                         .permitAll())
                 .logout(logout -> logout
@@ -46,4 +52,16 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+        private void handleLoginSuccess(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        Authentication authentication) throws IOException {
+
+                boolean isAdmin = authentication != null
+                                && authentication.getAuthorities() != null
+                                && authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+
+                response.sendRedirect(isAdmin ? "/admin" : "/");
+        }
 }

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Shop</title>
+  </head>
+  <body>
+    <main layout:fragment="content" class="container py-4">
+      <div class="row align-items-center mb-3">
+        <div class="col-12 col-md-6">
+          <h3 class="mb-0">Sản phẩm</h3>
+        </div>
+        <div class="col-12 col-md-6">
+          <form class="row g-2" method="get" th:action="@{/shop}">
+            <div class="col-12 col-md-6">
+              <input class="form-control" type="text" name="keyword" placeholder="Tìm theo tên/SKU" th:value="${keyword}" />
+            </div>
+            <div class="col-12 col-md-4">
+              <select class="form-select" name="categoryId">
+                <option value="" th:selected="${categoryId == null}">Tất cả danh mục</option>
+                <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.categoryName}" th:selected="${categoryId != null and c.id == categoryId}"></option>
+              </select>
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+              <button class="btn btn-dark" type="submit">Lọc</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-sm-6 col-lg-3" th:each="p : ${products.content}">
+          <div class="card h-100">
+            <a th:href="@{/products/{id}(id=${p.id})}">
+              <img
+                class="card-img-top"
+                th:src="${(p.images != null and !p.images.isEmpty()) ? p.images.get(0).urlImage : '/img/core-img/favicon.ico'}"
+                alt=""
+                style="height: 220px; object-fit: cover" />
+            </a>
+            <div class="card-body">
+              <div class="small text-muted" th:text="${p.category != null ? p.category.categoryName : ''}"></div>
+              <h6 class="card-title mb-2" th:text="${p.productName}"></h6>
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <span class="fw-bold" th:text="${#numbers.formatDecimal(p.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                  <span th:if="${p.discount != null and p.discount > 0}" class="badge text-bg-danger ms-1" th:text="${'-' + p.discount + '%'}"></span>
+                </div>
+                <a class="btn btn-sm btn-outline-dark" th:href="@{/products/{id}(id=${p.id})}">Xem</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12" th:if="${products.totalElements == 0}">
+          <div class="alert alert-secondary">Chưa có sản phẩm phù hợp.</div>
+        </div>
+      </div>
+
+      <nav class="mt-4" th:if="${totalPages > 1}">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" th:classappend="${currentPage == 1} ? ' disabled'">
+            <a class="page-link" th:href="@{/shop(page=${currentPage-1}, keyword=${keyword}, categoryId=${categoryId})}">Trước</a>
+          </li>
+          <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}" th:classappend="${i == currentPage} ? ' active'">
+            <a class="page-link" th:href="@{/shop(page=${i}, keyword=${keyword}, categoryId=${categoryId})}" th:text="${i}"></a>
+          </li>
+          <li class="page-item" th:classappend="${currentPage == totalPages} ? ' disabled'">
+            <a class="page-link" th:href="@{/shop(page=${currentPage+1}, keyword=${keyword}, categoryId=${categoryId})}">Sau</a>
+          </li>
+        </ul>
+      </nav>
+    </main>
+  </body>
+</html>

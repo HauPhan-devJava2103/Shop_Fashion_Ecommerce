@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Danh mục - ADMIN</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4 class="mb-0">Quản lý danh mục</h4>
+        <a class="btn btn-primary" th:href="@{/admin/categories/create}">
+          <i class="bi bi-plus-circle me-1"></i> Thêm danh mục
+        </a>
+      </div>
+
+      <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+      <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+      <div class="card shadow-sm">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 90px">Ảnh</th>
+                <th>Tên</th>
+                <th>Slug</th>
+                <th>Danh mục cha</th>
+                <th>Trạng thái</th>
+                <th style="width: 200px">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="c : ${categories}">
+                <td>
+                  <img
+                    th:src="${(c.imageUrl != null and !c.imageUrl.isBlank()) ? c.imageUrl : '/img/core-img/favicon.ico'}"
+                    alt=""
+                    style="width: 64px; height: 64px; object-fit: cover"
+                    class="rounded border" />
+                </td>
+                <td th:text="${c.categoryName}"></td>
+                <td th:text="${c.slug}"></td>
+                <td th:text="${c.parentCategory != null ? c.parentCategory.categoryName : '-'}"></td>
+                <td>
+                  <span
+                    class="badge"
+                    th:classappend="${c.isActive} ? ' text-bg-success' : ' text-bg-secondary'"
+                    th:text="${c.isActive} ? 'Đang dùng' : 'Đã ẩn'"></span>
+                </td>
+                <td>
+                  <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/categories/edit/{id}(id=${c.id})}">
+                    Sửa
+                  </a>
+                  <a
+                    th:if="${c.isActive}"
+                    class="btn btn-sm btn-outline-danger"
+                    th:href="@{/admin/categories/disable/{id}(id=${c.id})}"
+                    onclick="return confirm('Ẩn danh mục này?')">
+                    Ẩn
+                  </a>
+                  <a
+                    th:if="${!c.isActive}"
+                    class="btn btn-sm btn-outline-success"
+                    th:href="@{/admin/categories/enable/{id}(id=${c.id})}">
+                    Bật
+                  </a>
+                </td>
+              </tr>
+              <tr th:if="${categories == null || categories.isEmpty()}">
+                <td colspan="6" class="text-center text-muted py-4">Không có danh mục</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

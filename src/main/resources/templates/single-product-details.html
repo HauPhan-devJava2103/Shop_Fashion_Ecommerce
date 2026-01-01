@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Chi tiết sản phẩm</title>
+  </head>
+  <body>
+    <main layout:fragment="content" class="container py-4">
+      <a class="btn btn-outline-secondary mb-3" th:href="@{/shop}">← Quay lại Shop</a>
+
+      <div class="row g-4">
+        <div class="col-12 col-md-5">
+          <img
+            class="img-fluid rounded border"
+            th:src="${(product.images != null and !product.images.isEmpty()) ? product.images.get(0).urlImage : '/img/core-img/favicon.ico'}"
+            alt=""
+            style="width: 100%; object-fit: cover" />
+        </div>
+        <div class="col-12 col-md-7">
+          <div class="text-muted" th:text="${product.category != null ? product.category.categoryName : ''}"></div>
+          <h2 class="mb-2" th:text="${product.productName}"></h2>
+          <div class="mb-2">
+            <span class="badge text-bg-dark" th:text="${product.sku}"></span>
+            <span class="badge text-bg-secondary ms-2" th:text="${'Tồn: ' + product.stock}"></span>
+          </div>
+
+          <div class="fs-4 fw-bold mb-3" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></div>
+          <div th:if="${product.discount != null and product.discount > 0}" class="mb-3">
+            <span class="badge text-bg-danger" th:text="${'Giảm ' + product.discount + '%'}"></span>
+          </div>
+
+          <p class="text-muted" th:text="${product.description}"></p>
+
+          <div class="mt-4">
+            <button class="btn btn-dark" type="button" disabled>Thêm vào giỏ (sẽ làm ở phần Cart)</button>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4" />
+
+      <div th:if="${product.images != null and product.images.size() > 1}">
+        <h5 class="mb-3">Ảnh khác</h5>
+        <div class="row g-2">
+          <div class="col-6 col-md-3" th:each="img, it : ${product.images}" th:if="${it.index > 0}">
+            <img class="img-fluid rounded border" th:src="${img.urlImage}" alt="" style="height: 140px; width: 100%; object-fit: cover" />
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
