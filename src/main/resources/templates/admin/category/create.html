@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Tạo Danh Mục Mới</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">Tạo Danh Mục Mới</h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}" class="text-decoration-none"
+                  >Dashboard</a
+                >
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/categories}" class="text-decoration-none"
+                  >Danh Mục</a
+                >
+              </li>
+              <li class="breadcrumb-item active">Tạo mới</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        th:if="${errorMessage}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Form Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+          <h5 class="mb-0 fw-semibold">
+            <i class="bi bi-folder-plus text-primary me-2"></i>Thông tin danh
+            mục
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <form
+            th:action="@{/admin/categories/create}"
+            th:object="${category}"
+            method="post">
+            <div class="row">
+              <!-- Left Column -->
+              <div class="col-md-8">
+                <!-- Category Name -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">
+                    Tên danh mục <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    th:field="*{categoryName}"
+                    class="form-control"
+                    th:classappend="${#fields.hasErrors('categoryName')} ? 'is-invalid' : ''"
+                    placeholder="VD: Thoi trang nam, Electronics..."
+                    required />
+                  <div
+                    class="invalid-feedback"
+                    th:if="${#fields.hasErrors('categoryName')}">
+                    <span th:errors="*{categoryName}"></span>
+                  </div>
+                </div>
+
+                <!-- Slug -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">
+                    Slug <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    th:field="*{slug}"
+                    class="form-control"
+                    th:classappend="${#fields.hasErrors('slug')} ? 'is-invalid' : ''"
+                    placeholder="VD: thoi-trang-nam, electronics..."
+                    required />
+                  <small class="form-text text-muted">
+                    Chi dung chu thuong, so va dau gach ngang
+                  </small>
+                  <div
+                    class="invalid-feedback"
+                    th:if="${#fields.hasErrors('slug')}">
+                    <span th:errors="*{slug}"></span>
+                  </div>
+                </div>
+
+                <!-- Parent Category -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Danh mục gốc</label>
+                  <select name="parentCategory.id" class="form-select">
+                    <option value="">Root Category</option>
+                    <option
+                      th:each="cat : ${categories}"
+                      th:value="${cat.id}"
+                      th:text="${cat.categoryName}"></option>
+                  </select>
+                  <small class="form-text text-muted">
+                    Để trống nếu là danh mục gốc
+                  </small>
+                </div>
+
+                <!-- Active Status -->
+                <div class="mb-3 form-check">
+                  <input
+                    type="checkbox"
+                    th:field="*{isActive}"
+                    class="form-check-input"
+                    id="isActiveCheck" />
+                  <label class="form-check-label" for="isActiveCheck">
+                    Kích hoạt danh mục
+                  </label>
+                </div>
+              </div>
+
+              <!-- Right Column - Image Upload -->
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Ảnh danh mục</label>
+
+                  <!-- Hidden input for image URL -->
+                  <input
+                    type="hidden"
+                    th:field="*{imageUrl}"
+                    id="imageUrlInput" />
+
+                  <!-- Upload Area -->
+                  <div class="border rounded p-3 text-center bg-light">
+                    <!-- Preview Container -->
+                    <div id="imagePreviewContainer" style="display: none">
+                      <img
+                        id="previewImg"
+                        class="rounded mb-2"
+                        style="
+                          max-width: 100%;
+                          max-height: 200px;
+                          object-fit: contain;
+                        " />
+                      <p class="text-success small mb-2">
+                        <i class="bi bi-check-circle-fill"></i> Ảnh dả upload
+                      </p>
+                      <button
+                        type="button"
+                        onclick="removeImage()"
+                        class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i> Xóa ảnh
+                      </button>
+                    </div>
+
+                    <!-- Upload Controls -->
+                    <div id="uploadControls">
+                      <i
+                        class="bi bi-cloud-upload text-muted display-4 d-block mb-2"></i>
+                      <input
+                        type="file"
+                        id="imageFile"
+                        accept="image/*"
+                        class="form-control form-control-sm mb-2"
+                        onchange="enableUpload()" />
+                      <button
+                        type="button"
+                        onclick="uploadImage()"
+                        id="uploadBtn"
+                        class="btn btn-sm btn-secondary"
+                        disabled>
+                        <i class="bi bi-upload"></i> Upload ảnh
+                      </button>
+                      <p class="text-muted small mt-2 mb-0">
+                        PNG, JPG, WEBP tối đa 10MB
+                      </p>
+                    </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="uploadSpinner" style="display: none">
+                      <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Đang upload...</span>
+                      </div>
+                      <p class="text-muted small mt-2">Đang upload ảnh...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="border-top pt-3 mt-4">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>Tạo danh mục
+              </button>
+              <a
+                th:href="@{/admin/categories}"
+                class="btn btn-outline-secondary ms-2">
+                <i class="bi bi-x-lg me-1"></i>Hủy
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <th:block layout:fragment="scripts">
+      <script>
+        function enableUpload() {
+          var fileInput = document.getElementById("imageFile");
+          var uploadBtn = document.getElementById("uploadBtn");
+          uploadBtn.disabled = !(fileInput.files && fileInput.files[0]);
+        }
+
+        function uploadImage() {
+          var fileInput = document.getElementById("imageFile");
+          var file = fileInput.files[0];
+
+          if (!file) {
+            alert("Vui long chon anh!");
+            return;
+          }
+
+          // Show loading
+          document.getElementById("uploadControls").style.display = "none";
+          document.getElementById("uploadSpinner").style.display = "block";
+
+          // Create FormData
+          var formData = new FormData();
+          formData.append("file", file);
+
+          // Get CSRF token from meta tag or cookie
+          var csrfToken = document.querySelector('meta[name="_csrf"]');
+          var csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+
+          var headers = {};
+          if (csrfToken && csrfHeader) {
+            headers[csrfHeader.content] = csrfToken.content;
+          }
+
+          // Upload via AJAX
+          fetch("/admin/upload/image", {
+            method: "POST",
+            body: formData,
+            headers: headers,
+          })
+            .then(function (response) {
+              if (!response.ok) {
+                throw new Error("Upload failed: " + response.status);
+              }
+              return response.json();
+            })
+            .then(function (data) {
+              console.log("Upload success:", data);
+
+              // Set URL to hidden input
+              document.getElementById("imageUrlInput").value = data.url;
+
+              // Show preview
+              document.getElementById("previewImg").src = data.url;
+              document.getElementById("imagePreviewContainer").style.display =
+                "block";
+              document.getElementById("uploadSpinner").style.display = "none";
+            })
+            .catch(function (error) {
+              console.error("Upload error:", error);
+              alert("Upload that bai: " + error.message);
+
+              document.getElementById("uploadSpinner").style.display = "none";
+              document.getElementById("uploadControls").style.display = "block";
+            });
+        }
+
+        function removeImage() {
+          document.getElementById("imageUrlInput").value = "";
+          document.getElementById("imagePreviewContainer").style.display =
+            "none";
+          document.getElementById("uploadControls").style.display = "block";
+          document.getElementById("imageFile").value = "";
+          document.getElementById("uploadBtn").disabled = true;
+        }
+      </script>
+    </th:block>
+  </body>
+</html>

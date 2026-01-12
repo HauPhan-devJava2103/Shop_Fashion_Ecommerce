@@ -32,7 +32,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
         @Query("SELECT COUNT(u) FROM User u WHERE MONTH(u.createdAt) = MONTH(CURRENT_DATE()) AND YEAR(u.createdAt) = YEAR(CURRENT_DATE())")
         Long countUserThisMonth();
 
-        // Đếm số lượng User thêm vào theo từng ngày (Native SQL for MySQL)
+        // Đếm user là khách hàng có trong tháng hiện tại
+        @Query("SELECT COUNT(u) FROM User u WHERE u.role.roleName = 'CUSTOMER' AND MONTH(u.createdAt) = MONTH(CURRENT_DATE()) AND YEAR(u.createdAt) = YEAR(CURRENT_DATE())")
+        Long countCustomerThisMonth();
+
+        // Đếm số lượng User thêm vào theo từng ngày
         @Query(value = "SELECT DATE(created_at) as date, COUNT(*) as count " +
                         "FROM users " +
                         "WHERE created_at >= :startDate " +

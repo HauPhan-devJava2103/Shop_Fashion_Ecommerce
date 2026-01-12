@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Quản lý hình ảnh - [[${product.productName}]]</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-images text-primary me-2"></i>Quản lý hình ảnh
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}">Dashboard</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/products}">Sản phẩm</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a
+                  th:href="@{/admin/products/{id}(id=${product.id})}"
+                  th:text="${product.productName}"></a>
+              </li>
+              <li class="breadcrumb-item active">Hình ảnh</li>
+            </ol>
+          </nav>
+        </div>
+        <div>
+          <a
+            th:href="@{/admin/products/{id}(id=${product.id})}"
+            class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại sản phẩm
+          </a>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <div
+        th:if="${success}"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"></button>
+      </div>
+
+      <div
+        th:if="${error}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"></button>
+      </div>
+
+      <div class="row g-4">
+        <!-- LEFT COLUMN - Upload -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm sticky-top" style="top: 20px">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-upload text-success me-2"></i>Upload hình ảnh
+              </h5>
+            </div>
+            <div class="card-body">
+              <form
+                th:action="@{/admin/products/{id}/images/upload(id=${product.id})}"
+                method="post"
+                enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="files" class="form-label fw-semibold"
+                    >Chọn hình ảnh</label
+                  >
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="files"
+                    name="files"
+                    accept="image/*"
+                    multiple
+                    required />
+                  <small class="text-muted"
+                    >Có thể chọn nhiều ảnh cùng lúc</small
+                  >
+                </div>
+
+                <div id="preview" class="mb-3"></div>
+
+                <button type="submit" class="btn btn-success w-100">
+                  <i class="bi bi-cloud-upload me-2"></i>Upload
+                </button>
+              </form>
+
+              <hr class="my-4" />
+
+              <div class="text-muted small">
+                <p class="mb-2">
+                  <i class="bi bi-info-circle me-1"></i> <strong>Lưu ý:</strong>
+                </p>
+                <ul class="mb-0 ps-3">
+                  <li>Chỉ chấp nhận file ảnh (JPG, PNG, GIF)</li>
+                  <li>Kích thước tối đa: 5MB/ảnh</li>
+                  <li>Nên upload ảnh có tỷ lệ vuông (1:1)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN - Image Gallery -->
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-semibold">
+                  <i class="bi bi-grid-3x3-gap text-primary me-2"></i>Hình ảnh
+                  hiện tại
+                </h5>
+                <span
+                  class="badge bg-primary"
+                  th:text="${images.size()} + ' ảnh'"></span>
+              </div>
+            </div>
+            <div class="card-body p-4">
+              <!-- Empty State -->
+              <div
+                th:if="${images == null || images.isEmpty()}"
+                class="text-center py-5">
+                <i class="bi bi-image fs-1 text-muted d-block mb-3"></i>
+                <p class="text-muted mb-0">
+                  Chưa có hình ảnh nào. Upload ảnh đầu tiên!
+                </p>
+              </div>
+
+              <!-- Image Grid -->
+              <div
+                th:if="${images != null && !images.isEmpty()}"
+                class="row g-3">
+                <div th:each="image : ${images}" class="col-md-4 col-sm-6">
+                  <div class="card border h-100 position-relative image-card">
+                    <!-- Main Badge -->
+                    <span
+                      th:if="${image.isMain}"
+                      class="position-absolute top-0 start-0 m-2 badge bg-success">
+                      <i class="bi bi-star-fill me-1"></i>Ảnh chính
+                    </span>
+
+                    <!-- Image -->
+                    <img
+                      th:src="${image.urlImage}"
+                      th:alt="${image.altText}"
+                      class="card-img-top"
+                      style="height: 200px; object-fit: cover" />
+
+                    <!-- Actions -->
+                    <div class="card-body p-2">
+                      <div class="d-grid gap-2">
+                        <!-- Set Main Button -->
+                        <form
+                          th:if="${!image.isMain}"
+                          th:action="@{/admin/products/{pid}/images/{iid}/set-main(pid=${product.id}, iid=${image.id})}"
+                          method="post"
+                          class="d-inline">
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-primary w-100">
+                            <i class="bi bi-star me-1"></i>Đặt làm ảnh chính
+                          </button>
+                        </form>
+
+                        <!-- Delete Button -->
+                        <form
+                          th:action="@{/admin/products/{pid}/images/{iid}/delete(pid=${product.id}, iid=${image.id})}"
+                          method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn xóa ảnh này?');"
+                          class="d-inline">
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-danger w-100">
+                            <i class="bi bi-trash me-1"></i>Xóa
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+
+                    <!-- Image Info -->
+                    <div class="card-footer bg-light py-1 px-2">
+                      <small class="text-muted d-block text-truncate">
+                        ID: <span th:text="${image.id}"></span>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script layout:fragment="scripts">
+      // File input preview
+      const fileInput = document.getElementById("files");
+      const previewDiv = document.getElementById("preview");
+
+      fileInput.addEventListener("change", function (e) {
+        previewDiv.innerHTML = "";
+
+        const files = e.target.files;
+        if (files.length === 0) return;
+
+        const previewTitle = document.createElement("p");
+        previewTitle.className = "fw-semibold mb-2";
+        previewTitle.textContent = "Preview (" + files.length + " ảnh):";
+        previewDiv.appendChild(previewTitle);
+
+        const previewContainer = document.createElement("div");
+        previewContainer.className = "row g-2";
+
+        for (let i = 0; i < files.length && i < 6; i++) {
+          const file = files[i];
+
+          if (file.type.startsWith("image/")) {
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+              const col = document.createElement("div");
+              col.className = "col-4";
+
+              const img = document.createElement("img");
+              img.src = event.target.result;
+              img.className = "img-thumbnail";
+              img.style.height = "80px";
+              img.style.objectFit = "cover";
+              img.style.width = "100%";
+
+              col.appendChild(img);
+              previewContainer.appendChild(col);
+            };
+
+            reader.readAsDataURL(file);
+          }
+        }
+
+        previewDiv.appendChild(previewContainer);
+
+        if (files.length > 6) {
+          const moreText = document.createElement("small");
+          moreText.className = "text-muted d-block mt-2";
+          moreText.textContent = "...và " + (files.length - 6) + " ảnh nữa";
+          previewDiv.appendChild(moreText);
+        }
+      });
+
+      // Image card hover effect
+      const imageCards = document.querySelectorAll(".image-card");
+      imageCards.forEach((card) => {
+        card.addEventListener("mouseenter", function () {
+          this.style.transform = "translateY(-5px)";
+          this.style.transition = "transform 0.3s ease";
+          this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+        });
+
+        card.addEventListener("mouseleave", function () {
+          this.style.transform = "translateY(0)";
+          this.style.boxShadow = "";
+        });
+      });
+    </script>
+  </body>
+</html>

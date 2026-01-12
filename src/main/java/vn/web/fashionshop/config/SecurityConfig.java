@@ -2,48 +2,72 @@ package vn.web.fashionshop.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import vn.web.fashionshop.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        private final JwtAuthFilter jwtAuthFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth
-                        // Static resources
-                        .requestMatchers("/css/**", "/js/**", "/fonts/**", "/img/**", "/assets/**", "/images/**").permitAll()
-                        // Public pages
-                        .requestMatchers("/", "/home", "/login", "/register").permitAll()
-                        // Admin area
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/login")
-                        // Spring Security expects POST /login with parameters username/password
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/admin", true)
-                        .failureUrl("/login?error")
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll())
-                // Keep CSRF enabled for browser forms.
-                .csrf(Customizer.withDefaults());
+        public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+                this.jwtAuthFilter = jwtAuthFilter;
+        }
 
-        return http.build();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
+
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+                return config.getAuthenticationManager();
+        }
+
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+                http
+                                // CSRF disabled - JWT doesn't need CSRF
+                                .csrf(csrf -> csrf.disable())
+                                // Fully stateless - no sessions
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                // Authorization rules
+                                .authorizeHttpRequests(auth -> auth
+                                                // Static resources
+                                                .requestMatchers("/css/**", "/js/**", "/fonts/**", "/img/**",
+                                                                "/assets/**", "/images/**")
+                                                .permitAll()
+                                                // WebSocket endpoints
+                                                .requestMatchers("/ws/**").permitAll()
+                                                // Public chat API (for guests)
+                                                .requestMatchers("/api/chat/rooms/guest", "/api/chat/rooms/*/messages")
+                                                .permitAll()
+                                                // Public pages
+                                                .requestMatchers("/", "/home", "/login", "/register", "/verify-otp",
+                                                                "/resend-otp", "/forgot-password", "/reset-password",
+                                                                "/resend-reset-otp")
+                                                .permitAll()
+                                                // API auth endpoints
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                // Admin area
+                                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // All other requests need authentication
+                                                .anyRequest().authenticated())
+                                // Add JWT filter
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 }

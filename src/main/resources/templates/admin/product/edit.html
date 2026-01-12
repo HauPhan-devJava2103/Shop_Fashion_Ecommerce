@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/admin}">
+  <head>
+    <title>Chỉnh sửa sản phẩm - [[${product.productName}]]</title>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <!-- Page Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 fw-bold text-dark mb-1">
+            <i class="bi bi-pencil-square text-primary me-2"></i>Chỉnh sửa sản
+            phẩm
+          </h1>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin}">Dashboard</a>
+              </li>
+              <li class="breadcrumb-item">
+                <a th:href="@{/admin/products}">Sản phẩm</a>
+              </li>
+              <li class="breadcrumb-item active">Chỉnh sửa</li>
+            </ol>
+          </nav>
+        </div>
+        <div>
+          <a
+            th:href="@{/admin/products/{id}(id=${product.id})}"
+            class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Quay lại
+          </a>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      <div
+        th:if="${success}"
+        class="alert alert-success alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"></button>
+      </div>
+
+      <div
+        th:if="${error}"
+        class="alert alert-danger alert-dismissible fade show"
+        role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span th:text="${error}"></span>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Edit Form -->
+      <form
+        th:action="@{/admin/products/edit/{id}(id=${product.id})}"
+        method="post"
+        class="needs-validation"
+        novalidate
+        id="productForm">
+        <div class="row g-4">
+          <!-- LEFT COLUMN -->
+          <div class="col-lg-8">
+            <!-- Basic Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold">
+                  <i class="bi bi-info-circle text-primary me-2"></i>Thông tin
+                  cơ bản
+                </h5>
+              </div>
+              <div class="card-body p-4">
+                <div class="row g-3">
+                  <!-- Product Name -->
+                  <div class="col-12">
+                    <label for="productName" class="form-label fw-semibold">
+                      Tên sản phẩm <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="productName"
+                      name="productName"
+                      th:value="${product.productName}"
+                      required />
+                    <div class="invalid-feedback">
+                      Vui lòng nhập tên sản phẩm
+                    </div>
+                  </div>
+
+                  <!-- SKU & Category -->
+                  <div class="col-md-6">
+                    <label for="sku" class="form-label fw-semibold">
+                      SKU <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="sku"
+                      name="sku"
+                      th:value="${product.sku}"
+                      required />
+                    <div class="invalid-feedback">Vui lòng nhập SKU</div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="categoryId" class="form-label fw-semibold">
+                      Danh mục <span class="text-danger">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      id="categoryId"
+                      name="categoryId"
+                      required>
+                      <option value="">-- Chọn danh mục --</option>
+                      <option
+                        th:each="category : ${categories}"
+                        th:value="${category.id}"
+                        th:text="${category.categoryName}"
+                        th:selected="${category.id == product.category.id}"></option>
+                    </select>
+                    <div class="invalid-feedback">Vui lòng chọn danh mục</div>
+                  </div>
+
+                  <!-- Price, Discount, Stock -->
+                  <div class="col-md-4">
+                    <label for="price" class="form-label fw-semibold">
+                      Giá <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="price"
+                        name="price"
+                        th:value="${product.price}"
+                        min="0"
+                        step="1000"
+                        required />
+                      <span class="input-group-text">₫</span>
+                    </div>
+                    <div class="invalid-feedback">Vui lòng nhập giá</div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="discount" class="form-label fw-semibold"
+                      >Giảm giá (%)</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="discount"
+                      name="discount"
+                      th:value="${product.discount}"
+                      min="0"
+                      max="100"
+                      step="0.01" />
+                  </div>
+
+                  <div class="col-md-4">
+                    <label for="stock" class="form-label fw-semibold"
+                      >Tổng tồn kho</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control bg-light"
+                      id="stock"
+                      name="stock"
+                      th:value="${product.stock}"
+                      min="0"
+                      readonly />
+                    <small class="text-muted">Tự động tính từ variants</small>
+                  </div>
+
+                  <!-- Description -->
+                  <div class="col-12">
+                    <label for="description" class="form-label fw-semibold"
+                      >Mô tả</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      name="description"
+                      rows="5"
+                      th:text="${product.description}"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variants Card -->
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0 fw-semibold">
+                    <i class="bi bi-grid-3x3 text-primary me-2"></i>Phiên bản
+                    sản phẩm
+                  </h5>
+                  <div class="d-flex gap-2 align-items-center">
+                    <span class="badge bg-success fs-6">
+                      Tổng: <span id="totalVariantStock">0</span> sp
+                    </span>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      onclick="addVariantRow()">
+                      <i class="bi bi-plus-circle me-1"></i>Thêm variant
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div class="table-responsive">
+                  <table
+                    class="table table-hover align-middle mb-0"
+                    id="variantsTable">
+                    <thead class="table-light">
+                      <tr>
+                        <th style="width: 200px">
+                          SKU Variant <span class="text-danger">*</span>
+                        </th>
+                        <th style="width: 120px">Size</th>
+                        <th style="width: 150px">Màu sắc</th>
+                        <th style="width: 120px" class="text-center">
+                          Tồn kho
+                        </th>
+                        <th style="width: 80px" class="text-center">Xóa</th>
+                      </tr>
+                    </thead>
+                    <tbody id="variantsBody">
+                      <!-- Existing variants from server -->
+                      <tr
+                        th:each="variant, iterStat : ${product.variants}"
+                        class="variant-row"
+                        th:data-variant-id="${variant.id}">
+                        <input
+                          type="hidden"
+                          th:name="|variants[${iterStat.index}].id|"
+                          th:value="${variant.id}"
+                          class="variant-id-input" />
+
+                        <td>
+                          <input
+                            type="text"
+                            class="form-control form-control-sm variant-sku-input"
+                            th:name="|variants[${iterStat.index}].skuVariant|"
+                            th:value="${variant.skuVariant}"
+                            required />
+                        </td>
+                        <td>
+                          <select
+                            class="form-select form-select-sm"
+                            th:name="|variants[${iterStat.index}].size|">
+                            <option value="">-</option>
+                            <option
+                              th:each="size : ${ {'XS', 'S', 'M', 'L', 'XL', 'XXL'} }"
+                              th:value="${size}"
+                              th:text="${size}"
+                              th:selected="${variant.size != null && variant.size.name() == size}"></option>
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            class="form-control form-control-sm"
+                            th:name="|variants[${iterStat.index}].color|"
+                            th:value="${variant.color}" />
+                        </td>
+                        <td class="text-center">
+                          <input
+                            type="number"
+                            class="form-control form-control-sm text-center variant-stock-input"
+                            th:name="|variants[${iterStat.index}].stock|"
+                            th:value="${variant.stock}"
+                            min="0"
+                            required />
+                        </td>
+                        <td class="text-center">
+                          <input
+                            type="hidden"
+                            th:name="|variants[${iterStat.index}]._delete|"
+                            value="false"
+                            class="delete-flag" />
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-danger"
+                            onclick="deleteVariantRow(this)"
+                            title="Xóa variant">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  th:if="${product.variants == null || product.variants.isEmpty()}"
+                  class="text-center py-4 text-muted"
+                  id="emptyVariantsMessage">
+                  <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                  Chưa có variant nào. Nhấn "Thêm variant" để thêm mới.
+                </div>
+                <div class="card-footer bg-light py-2">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    SKU variant phải unique. Nhấn "Thêm variant" để thêm phiên
+                    bản mới.
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold">
+                  <i class="bi bi-gear text-primary me-2"></i>Trạng thái
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    value="true"
+                    th:checked="${product.isActive}" />
+                  <label class="form-check-label" for="isActive">
+                    Đang hoạt động
+                  </label>
+                </div>
+
+                <hr class="my-3" />
+
+                <div class="mb-2">
+                  <label class="text-muted small fw-semibold">Ngày tạo</label>
+                  <p
+                    class="mb-0"
+                    th:text="${#temporals.format(product.createdAt, 'dd/MM/yyyy HH:mm')}"></p>
+                </div>
+
+                <div th:if="${product.updatedAt != null}">
+                  <label class="text-muted small fw-semibold"
+                    >Cập nhật lần cuối</label
+                  >
+                  <p
+                    class="mb-0"
+                    th:text="${#temporals.format(product.updatedAt, 'dd/MM/yyyy HH:mm')}"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons Card -->
+            <div class="card border-0 shadow-sm">
+              <div class="card-body d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  <i class="bi bi-check-circle me-2"></i>Lưu thay đổi
+                </button>
+                <a
+                  th:href="@{/admin/products/{id}(id=${product.id})}"
+                  class="btn btn-outline-secondary">
+                  <i class="bi bi-x-circle me-2"></i>Hủy
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Scripts -->
+    <script layout:fragment="scripts">
+      let variantIndex = /*[[${#lists.size(product.variants)}]]*/ 0;
+
+      // Bootstrap form validation
+      (function () {
+        "use strict";
+        var forms = document.querySelectorAll(".needs-validation");
+        Array.prototype.slice.call(forms).forEach(function (form) {
+          form.addEventListener(
+            "submit",
+            function (event) {
+              // Reindex variants before submit
+              reindexVariants();
+
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false
+          );
+        });
+      })();
+
+      // Add new variant row
+      function addVariantRow() {
+        const tbody = document.getElementById("variantsBody");
+        const emptyMsg = document.getElementById("emptyVariantsMessage");
+
+        if (emptyMsg) {
+          emptyMsg.style.display = "none";
+        }
+
+        const row = document.createElement("tr");
+        row.className = "variant-row";
+        row.innerHTML = `
+                <input type="hidden" name="variants[${variantIndex}].id" value="0" class="variant-id-input">
+                <td>
+                    <input type="text" 
+                           class="form-control form-control-sm variant-sku-input" 
+                           name="variants[${variantIndex}].skuVariant" 
+                           placeholder="VR-XXX"
+                           required>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm" name="variants[${variantIndex}].size">
+                        <option value="">-</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" 
+                           class="form-control form-control-sm" 
+                           name="variants[${variantIndex}].color" 
+                           placeholder="Red, Blue...">
+                </td>
+                <td class="text-center">
+                    <input type="number" 
+                           class="form-control form-control-sm text-center variant-stock-input" 
+                           name="variants[${variantIndex}].stock" 
+                           value="0" 
+                           min="0"
+                           required>
+                </td>
+                <td class="text-center">
+                    <input type="hidden" name="variants[${variantIndex}]._delete" value="false" class="delete-flag">
+                    <button type="button" 
+                            class="btn btn-sm btn-danger" 
+                            onclick="deleteVariantRow(this)"
+                            title="Xóa variant">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            `;
+
+        tbody.appendChild(row);
+        variantIndex++;
+
+        // Attach event listener for stock calculation
+        attachStockListeners();
+        updateVariantTotal();
+      }
+
+      // Delete variant row
+      function deleteVariantRow(button) {
+        const row = button.closest(".variant-row");
+        const variantIdInput = row.querySelector(".variant-id-input");
+        const variantId = variantIdInput ? variantIdInput.value : "0";
+
+        if (variantId === "0" || variantId === "") {
+          // New variant - just remove row
+          row.remove();
+        } else {
+          // Existing variant - mark for deletion
+          const deleteFlag = row.querySelector(".delete-flag");
+          deleteFlag.value = "true";
+          row.style.display = "none";
+        }
+
+        updateVariantTotal();
+
+        // Show empty message if no visible rows
+        const visibleRows = document.querySelectorAll(
+          '.variant-row:not([style*="display: none"])'
+        );
+        const emptyMsg = document.getElementById("emptyVariantsMessage");
+        if (visibleRows.length === 0 && emptyMsg) {
+          emptyMsg.style.display = "block";
+        }
+      }
+
+      // Reindex variant form fields before submit
+      function reindexVariants() {
+        const rows = document.querySelectorAll(
+          '.variant-row:not([style*="display: none"])'
+        );
+        rows.forEach((row, index) => {
+          const inputs = row.querySelectorAll("input, select");
+          inputs.forEach((input) => {
+            const name = input.getAttribute("name");
+            if (name && name.startsWith("variants[")) {
+              const fieldName = name.match(/variants\[\d+\]\.(.+)/)[1];
+              input.setAttribute("name", `variants[${index}].${fieldName}`);
+            }
+          });
+        });
+      }
+
+      // Calculate total stock
+      function updateVariantTotal() {
+        let total = 0;
+        const visibleRows = document.querySelectorAll(
+          '.variant-row:not([style*="display: none"])'
+        );
+        visibleRows.forEach((row) => {
+          const stockInput = row.querySelector(".variant-stock-input");
+          if (stockInput) {
+            total += parseInt(stockInput.value) || 0;
+          }
+        });
+
+        document.getElementById("totalVariantStock").textContent = total;
+        document.getElementById("stock").value = total;
+      }
+
+      // Attach stock input listeners
+      function attachStockListeners() {
+        const stockInputs = document.querySelectorAll(".variant-stock-input");
+        stockInputs.forEach((input) => {
+          input.removeEventListener("input", updateVariantTotal);
+          input.addEventListener("input", updateVariantTotal);
+        });
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        attachStockListeners();
+        updateVariantTotal();
+      });
+    </script>
+  </body>
+</html>
