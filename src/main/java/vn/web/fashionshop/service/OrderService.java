@@ -58,10 +58,8 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
     }
 
-    /**
-     * Update order (status, payment status, address)
-     */
-    @org.springframework.transaction.annotation.Transactional
+    // Update order (status, payment status, address)
+    @Transactional
     public Order updateOrder(Long id, EOrderStatus orderStatus,
             EPaymentStatus paymentStatus,
             OrderAddress address) {
@@ -207,9 +205,7 @@ public class OrderService {
                 pageable);
     }
 
-    /**
-     * Search orders and convert to DTO for AJAX response
-     */
+    // Search orders and convert to DTO for AJAX response
     public Map<String, Object> searchOrdersForAjax(String keyword, String status, String paymentMethod,
             String period, int page) {
 
@@ -246,51 +242,37 @@ public class OrderService {
 
     // ORDER CALCULATION METHODS
 
-    /**
-     * Tính unit price từ Product (delegate to OrderCalculator)
-     */
+    // Tính unit price từ Product (delegate to OrderCalculator)
     public BigDecimal calculateUnitPrice(Product product) {
         return OrderCalculator.calculateUnitPriceFromProduct(product);
     }
 
-    /**
-     * Tính total price cho OrderItem (delegate to OrderCalculator)
-     */
+    // Tính total price cho OrderItem (delegate to OrderCalculator)
     public BigDecimal calculateItemTotal(BigDecimal unitPrice, Integer quantity) {
         return OrderCalculator.calculateOrderItemTotal(unitPrice, quantity);
     }
 
-    /**
-     * Tính sub total từ OrderItems (delegate to OrderCalculator)
-     */
+    // Tính sub total từ OrderItems (delegate to OrderCalculator)
     public BigDecimal calculateSubTotal(List<OrderItem> orderItems) {
         return OrderCalculator.calculateSubTotal(orderItems);
     }
 
-    /**
-     * Tính voucher discount (delegate to OrderCalculator)
-     */
+    // Tính voucher discount (delegate to OrderCalculator)
     public BigDecimal calculateVoucherDiscount(BigDecimal subTotal, Voucher voucher) {
         return OrderCalculator.calculateVoucherDiscount(subTotal, voucher);
     }
 
-    /**
-     * Tính total amount (delegate to OrderCalculator)
-     */
+    // Tính total amount (delegate to OrderCalculator)
     public BigDecimal calculateTotalAmount(BigDecimal subTotal, BigDecimal discountAmount) {
         return OrderCalculator.calculateTotalAmount(subTotal, discountAmount);
     }
 
-    /**
-     * Validate voucher
-     */
+    // Validate voucher
     public void validateVoucher(Voucher voucher, BigDecimal subTotal) {
         OrderCalculator.validateVoucher(voucher, subTotal);
     }
 
-    /**
-     * Update OrderItem quantity và recalculate totals
-     */
+    // Update OrderItem quantity và recalculate totals
     @Transactional
     public Order updateOrderItemQuantity(Long orderId, Long orderItemId, Integer newQuantity) {
         if (newQuantity <= 0) {

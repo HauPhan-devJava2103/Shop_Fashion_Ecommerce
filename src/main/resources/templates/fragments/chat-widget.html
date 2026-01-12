@@ -128,27 +128,29 @@
         guestName = userFullName;
       }
 
-      // Initialize on page load
+      // Initialize on page load - CHỈ load room đã có, KHÔNG tạo mới
       document.addEventListener("DOMContentLoaded", function () {
-        if (isLoggedIn) {
-          // User đã đăng nhập - tự động tạo/lấy room
-          initMemberChat();
-        } else if (sessionId) {
-          // Guest đã có session
-          const savedRoom = localStorage.getItem("chatRoomId");
-          if (savedRoom) {
-            roomId = savedRoom;
-            document.getElementById("guestForm").style.display = "none";
-            document.getElementById("chatArea").style.display = "block";
+        const savedRoom = localStorage.getItem("chatRoomId");
+        if (savedRoom) {
+          roomId = savedRoom;
+          if (isLoggedIn) {
+            guestName = userFullName;
+          } else {
             guestName = localStorage.getItem("chatGuestName") || "Khách";
-            connectAndSubscribe();
-            loadMessages();
           }
+          document.getElementById("guestForm").style.display = "none";
+          document.getElementById("chatArea").style.display = "block";
+          connectAndSubscribe();
+          loadMessages();
+        } else if (isLoggedIn) {
+          // User đã đăng nhập nhưng chưa có room - ẩn guest form, hiện chat area
+          document.getElementById("guestForm").style.display = "none";
+          document.getElementById("chatArea").style.display = "block";
         }
       });
 
-      // Tự động tạo room cho user đã đăng nhập
-      function initMemberChat() {
+      // Tạo room cho member đã đăng nhập (khi gửi tin nhắn đầu tiên)
+      function createMemberRoomAndSend(content) {
         fetch("/api/chat/rooms/member", {
           method: "POST",
           headers: {
@@ -160,16 +162,15 @@
           .then((room) => {
             roomId = room.id;
             localStorage.setItem("chatRoomId", roomId);
-
-            document.getElementById("guestForm").style.display = "none";
-            document.getElementById("chatArea").style.display = "block";
-
             connectAndSubscribe();
-            loadMessages();
+
+            // Sau khi tạo room và connect, gửi tin nhắn
+            setTimeout(() => {
+              sendChatMessage(content);
+            }, 500);
           })
           .catch((e) => {
             console.log("Member chat init error:", e);
-            // Fallback to guest mode
             isLoggedIn = false;
           });
       }
@@ -303,7 +304,25 @@
         container.scrollTop = container.scrollHeight;
       }
 
-      // Send message
+      // Send message helper
+      function sendChatMessage(content) {
+        if (content && roomId && stompClient && stompClient.connected) {
+          const message = {
+            roomId: roomId,
+            senderName: guestName || "Khách",
+            content: content,
+            isFromStaff: false,
+          };
+
+          stompClient.send(
+            "/app/chat.send/" + roomId,
+            {},
+            JSON.stringify(message)
+          );
+        }
+      }
+
+      // Send message form handler
       document
         .getElementById("widgetSendForm")
         ?.addEventListener("submit", function (e) {
@@ -311,19 +330,18 @@
           const input = document.getElementById("widgetInput");
           const content = input.value.trim();
 
-          if (content && roomId && stompClient) {
-            const message = {
-              roomId: roomId,
-              senderName: guestName || "Khách",
-              content: content,
-              isFromStaff: false,
-            };
+          if (!content) return;
 
-            stompClient.send(
-              "/app/chat.send/" + roomId,
-              {},
-              JSON.stringify(message)
-            );
+          // Nếu chưa có room - tạo room trước rồi gửi tin nhắn
+          if (!roomId && isLoggedIn) {
+            createMemberRoomAndSend(content);
+            input.value = "";
+            return;
+          }
+
+          // Đã có room - gửi bình thường
+          if (roomId && stompClient) {
+            sendChatMessage(content);
             input.value = "";
           }
         });
