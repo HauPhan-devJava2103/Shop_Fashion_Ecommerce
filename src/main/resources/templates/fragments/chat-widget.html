@@ -1,0 +1,350 @@
+<!-- Chat Widget Fragment - Include in main layout -->
+<div th:fragment="chat-widget" id="chatWidget">
+  <!-- Floating Chat Button -->
+  <button
+    id="chatToggleBtn"
+    class="btn btn-primary rounded-circle shadow-lg position-fixed"
+    style="bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 1050"
+    onclick="toggleChatWidget()">
+    <i class="bi bi-chat-dots-fill fs-4"></i>
+  </button>
+
+  <!-- Chat Box -->
+  <div
+    id="chatBox"
+    class="card shadow-lg position-fixed"
+    style="
+      bottom: 100px;
+      right: 30px;
+      width: 380px;
+      max-height: 500px;
+      z-index: 1050;
+      display: none;
+    ">
+    <!-- Header -->
+    <div
+      class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-headset fs-4 me-2"></i>
+        <span class="fw-semibold">Hỗ trợ trực tuyến</span>
+      </div>
+      <button class="btn btn-link text-white p-0" onclick="toggleChatWidget()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Guest Form (initial state) -->
+    <div id="guestForm" class="card-body">
+      <p class="text-muted mb-3">Vui lòng nhập thông tin để bắt đầu chat:</p>
+      <form id="startChatForm">
+        <div class="mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="guestName"
+            placeholder="Tên của bạn *"
+            required />
+        </div>
+        <div class="mb-3">
+          <input
+            type="email"
+            class="form-control"
+            id="guestEmail"
+            placeholder="Email (tùy chọn)" />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-chat-dots me-2"></i>Bắt đầu chat
+        </button>
+      </form>
+    </div>
+
+    <!-- Chat Area (after starting) -->
+    <div id="chatArea" style="display: none">
+      <!-- Messages -->
+      <div
+        id="widgetMessages"
+        class="card-body overflow-auto"
+        style="height: 320px; background: #f8f9fa">
+        <div class="text-center text-muted py-3">
+          <p class="mb-0">Xin chào! Chúng tôi có thể giúp gì cho bạn?</p>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="card-footer bg-white py-2">
+        <form id="widgetSendForm" class="d-flex gap-2">
+          <input
+            type="text"
+            class="form-control form-control-sm"
+            id="widgetInput"
+            placeholder="Nhập tin nhắn..."
+            autocomplete="off" />
+          <button type="submit" class="btn btn-primary btn-sm px-3">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Widget Styles -->
+  <style>
+    #chatWidget .widget-message {
+      max-width: 85%;
+      padding: 0.5rem 0.75rem;
+      border-radius: 1rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    #chatWidget .widget-msg-customer {
+      background: #0d6efd;
+      color: white;
+      margin-left: auto;
+    }
+    #chatWidget .widget-msg-staff {
+      background: white;
+      border: 1px solid #dee2e6;
+      margin-right: auto;
+    }
+  </style>
+
+  <!-- Chat Widget Script -->
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <script>
+    (function () {
+      let stompClient = null;
+      let roomId = null;
+      let sessionId = localStorage.getItem("chatSessionId");
+      let guestName = "";
+      let isLoggedIn = false;
+
+      // Check if user is logged in
+      const jwtToken = localStorage.getItem("jwt_token");
+      const userFullName = localStorage.getItem("user_fullName");
+
+      if (jwtToken && userFullName) {
+        isLoggedIn = true;
+        guestName = userFullName;
+      }
+
+      // Initialize on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        if (isLoggedIn) {
+          // User đã đăng nhập - tự động tạo/lấy room
+          initMemberChat();
+        } else if (sessionId) {
+          // Guest đã có session
+          const savedRoom = localStorage.getItem("chatRoomId");
+          if (savedRoom) {
+            roomId = savedRoom;
+            document.getElementById("guestForm").style.display = "none";
+            document.getElementById("chatArea").style.display = "block";
+            guestName = localStorage.getItem("chatGuestName") || "Khách";
+            connectAndSubscribe();
+            loadMessages();
+          }
+        }
+      });
+
+      // Tự động tạo room cho user đã đăng nhập
+      function initMemberChat() {
+        fetch("/api/chat/rooms/member", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + jwtToken,
+          },
+        })
+          .then((res) => res.json())
+          .then((room) => {
+            roomId = room.id;
+            localStorage.setItem("chatRoomId", roomId);
+
+            document.getElementById("guestForm").style.display = "none";
+            document.getElementById("chatArea").style.display = "block";
+
+            connectAndSubscribe();
+            loadMessages();
+          })
+          .catch((e) => {
+            console.log("Member chat init error:", e);
+            // Fallback to guest mode
+            isLoggedIn = false;
+          });
+      }
+
+      // Toggle chat widget
+      window.toggleChatWidget = function () {
+        const chatBox = document.getElementById("chatBox");
+        chatBox.style.display =
+          chatBox.style.display === "none" ? "block" : "none";
+      };
+
+      // Start chat form
+      document
+        .getElementById("startChatForm")
+        ?.addEventListener("submit", function (e) {
+          e.preventDefault();
+          guestName = document.getElementById("guestName").value;
+          const email = document.getElementById("guestEmail").value;
+
+          // Generate session ID if not exists
+          if (!sessionId) {
+            sessionId = "guest_" + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem("chatSessionId", sessionId);
+          }
+          localStorage.setItem("chatGuestName", guestName);
+
+          // Create room
+          fetch("/api/chat/rooms/guest", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionId: sessionId,
+              name: guestName,
+              email: email,
+            }),
+          })
+            .then((res) => res.json())
+            .then((room) => {
+              roomId = room.id;
+              localStorage.setItem("chatRoomId", roomId);
+
+              // Switch to chat area
+              document.getElementById("guestForm").style.display = "none";
+              document.getElementById("chatArea").style.display = "block";
+
+              // Connect WebSocket
+              connectAndSubscribe();
+            });
+        });
+
+      // Connect to WebSocket
+      function connectAndSubscribe() {
+        const socket = new SockJS("/ws");
+        stompClient = Stomp.over(socket);
+        stompClient.debug = null;
+
+        stompClient.connect({}, function (frame) {
+          console.log("Chat widget connected");
+
+          // Subscribe to room messages
+          stompClient.subscribe("/topic/room/" + roomId, function (msg) {
+            const message = JSON.parse(msg.body);
+            appendWidgetMessage(message);
+          });
+
+          // Subscribe to room closure
+          stompClient.subscribe(
+            "/topic/room/" + roomId + "/closed",
+            function (msg) {
+              // Room đã đóng - hiện thông báo và nút bắt đầu mới
+              const container = document.getElementById("widgetMessages");
+              container.innerHTML +=
+                '<div class="widget-message" style="background: #ffc107; color: #000; text-align: center; max-width: 100%; margin: 10px 0;">Cuộc hội thoại đã kết thúc. Cảm ơn bạn đã liên hệ!</div>';
+              container.innerHTML +=
+                '<div style="text-align: center; margin-top: 15px;"><button onclick="startNewChat()" class="btn btn-primary btn-sm">Bắt đầu cuộc trò chuyện mới</button></div>';
+
+              // Disable input
+              document.getElementById("widgetInput").disabled = true;
+              document.getElementById("widgetInput").placeholder =
+                "Cuộc hội thoại đã đóng";
+              document.querySelector("#widgetSendForm button").disabled = true;
+
+              // Clear session
+              localStorage.removeItem("chatSessionId");
+              localStorage.removeItem("chatRoomId");
+              localStorage.removeItem("chatGuestName");
+              roomId = null;
+              sessionId = null;
+            }
+          );
+        });
+      }
+
+      // Load messages
+      function loadMessages() {
+        if (!roomId) return;
+        fetch("/api/chat/rooms/" + roomId + "/messages")
+          .then((res) => {
+            if (!res.ok) {
+              // Room not found - clear session and reset to guest form
+              localStorage.removeItem("chatSessionId");
+              localStorage.removeItem("chatRoomId");
+              localStorage.removeItem("chatGuestName");
+              roomId = null;
+              sessionId = null;
+              document.getElementById("guestForm").style.display = "block";
+              document.getElementById("chatArea").style.display = "none";
+              throw new Error("Room not found");
+            }
+            return res.json();
+          })
+          .then((messages) => {
+            const container = document.getElementById("widgetMessages");
+            container.innerHTML = "";
+            messages.forEach((msg) => appendWidgetMessage(msg));
+          })
+          .catch((e) => console.log("Chat error:", e.message));
+      }
+
+      // Append message
+      function appendWidgetMessage(msg) {
+        const container = document.getElementById("widgetMessages");
+        const cssClass = msg.isFromStaff
+          ? "widget-msg-staff"
+          : "widget-msg-customer";
+        container.innerHTML += `
+          <div class="widget-message ${cssClass}">
+            ${msg.content}
+          </div>
+        `;
+        container.scrollTop = container.scrollHeight;
+      }
+
+      // Send message
+      document
+        .getElementById("widgetSendForm")
+        ?.addEventListener("submit", function (e) {
+          e.preventDefault();
+          const input = document.getElementById("widgetInput");
+          const content = input.value.trim();
+
+          if (content && roomId && stompClient) {
+            const message = {
+              roomId: roomId,
+              senderName: guestName || "Khách",
+              content: content,
+              isFromStaff: false,
+            };
+
+            stompClient.send(
+              "/app/chat.send/" + roomId,
+              {},
+              JSON.stringify(message)
+            );
+            input.value = "";
+          }
+        });
+
+      // Function to start new chat after closed
+      window.startNewChat = function () {
+        // Reset UI
+        document.getElementById("guestForm").style.display = "block";
+        document.getElementById("chatArea").style.display = "none";
+        document.getElementById("widgetMessages").innerHTML =
+          '<div class="text-center text-muted py-3"><p class="mb-0">Xin chào! Chúng tôi có thể giúp gì cho bạn?</p></div>';
+
+        // Re-enable input
+        document.getElementById("widgetInput").disabled = false;
+        document.getElementById("widgetInput").placeholder = "Nhập tin nhắn...";
+        document.querySelector("#widgetSendForm button").disabled = false;
+
+        // Clear form
+        document.getElementById("guestName").value = "";
+        document.getElementById("guestEmail").value = "";
+      };
+    })();
+  </script>
+</div>

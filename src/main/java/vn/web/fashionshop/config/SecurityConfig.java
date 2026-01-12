@@ -48,6 +48,11 @@ public class SecurityConfig {
                                                 .requestMatchers("/css/**", "/js/**", "/fonts/**", "/img/**",
                                                                 "/assets/**", "/images/**")
                                                 .permitAll()
+                                                // WebSocket endpoints
+                                                .requestMatchers("/ws/**").permitAll()
+                                                // Public chat API (for guests)
+                                                .requestMatchers("/api/chat/rooms/guest", "/api/chat/rooms/*/messages")
+                                                .permitAll()
                                                 // Public pages
                                                 .requestMatchers("/", "/home", "/login", "/register", "/verify-otp",
                                                                 "/resend-otp", "/forgot-password", "/reset-password",

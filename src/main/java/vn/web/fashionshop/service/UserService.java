@@ -209,6 +209,10 @@ public class UserService {
         return userRepository.countUserThisMonth();
     }
 
+    public Long countCustomerThisMonth() {
+        return userRepository.countCustomerThisMonth();
+    }
+
     public List<Object[]> countUserByDateRange(int days) {
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
         return userRepository.countUserByDateRange(startDate);

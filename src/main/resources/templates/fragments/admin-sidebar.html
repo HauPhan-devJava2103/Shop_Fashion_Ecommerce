@@ -62,7 +62,7 @@
           <div class="sidebar-heading">Quản lý</div>
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link active" th:href="@{/admin}">
+              <a class="nav-link" th:href="@{/admin}">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
               </a>
@@ -108,17 +108,17 @@
                 <span>Đánh giá</span>
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/chat}">
+                <i class="bi bi-chat-dots"></i>
+                <span>Chat Hỗ trợ</span>
+              </a>
+            </li>
           </ul>
 
           <!-- Reports -->
           <div class="sidebar-heading">Báo cáo</div>
           <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/admin/reports}">
-                <i class="bi bi-graph-up"></i>
-                <span>Thống kê</span>
-              </a>
-            </li>
             <li class="nav-item">
               <a class="nav-link" th:href="@{/admin/reports/revenue}">
                 <i class="bi bi-cash-stack"></i>
@@ -127,26 +127,39 @@
             </li>
           </ul>
 
-          <!-- System -->
-          <div class="sidebar-heading">Hệ thống</div>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/admin/settings}">
-                <i class="bi bi-gear"></i>
-                <span>Cài đặt</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-
         <!-- Footer -->
         <div class="p-3 border-top border-secondary mt-auto">
-          <a class="nav-link text-danger" th:href="@{/logout}">
+          <a class="nav-link text-danger" href="#" onclick="logoutAdmin(); return false;">
             <i class="bi bi-box-arrow-left"></i>
             <span>Đăng xuất</span>
           </a>
         </div>
       </div>
+      
+      <!-- Auto-detect active menu -->
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          const currentPath = window.location.pathname;
+          const navLinks = document.querySelectorAll('.admin-sidebar .nav-link');
+          
+          // Remove all active classes first
+          navLinks.forEach(link => link.classList.remove('active'));
+          
+          // Find matching link and add active
+          navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href !== '#') {
+              // Exact match or starts with (for sub-pages)
+              if (currentPath === href || 
+                  (href !== '/admin' && currentPath.startsWith(href))) {
+                link.classList.add('active');
+              } else if (href === '/admin' && currentPath === '/admin') {
+                link.classList.add('active');
+              }
+            }
+          });
+        });
+      </script>
     </aside>
   </body>
 </html>

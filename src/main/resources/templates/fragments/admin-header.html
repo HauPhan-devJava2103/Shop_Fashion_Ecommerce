@@ -167,6 +167,10 @@
           localStorage.removeItem("user_role");
           localStorage.removeItem("user_email");
           localStorage.removeItem("user_fullName");
+          // Clear chat session
+          localStorage.removeItem("chatSessionId");
+          localStorage.removeItem("chatRoomId");
+          localStorage.removeItem("chatGuestName");
 
           // Redirect to login
           window.location.href = "/login";
