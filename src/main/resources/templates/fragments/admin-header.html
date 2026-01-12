@@ -43,7 +43,7 @@
             <!-- Brand -->
             <a
               class="navbar-brand d-flex align-items-center me-0"
-              th:href="@{/admin}">
+              th:href="@{/home}">
               <img
                 src="https://static.vecteezy.com/system/resources/previews/013/223/348/non_2x/fashion-shop-logo-design-with-creative-concept-premium-vector.jpg"
                 alt="Logo"
@@ -53,20 +53,6 @@
                 >Fashion Admin</span
               >
             </a>
-          </div>
-
-          <!-- Center: Search -->
-          <div class="search-box mx-3 flex-grow-1" style="max-width: 400px">
-            <div class="input-group">
-              <span class="input-group-text bg-light border-end-0">
-                <i class="bi bi-search text-muted"></i>
-              </span>
-              <input
-                type="search"
-                class="form-control bg-light border-start-0"
-                placeholder="Tìm kiếm..."
-                aria-label="Tìm kiếm" />
-            </div>
           </div>
 
           <!-- Right: Actions -->
@@ -95,12 +81,15 @@
                 class="btn btn-light border-0 d-flex align-items-center gap-2 rounded-pill px-2 px-md-3 py-1"
                 data-bs-toggle="dropdown">
                 <img
+                  id="adminAvatar"
                   src="https://ui-avatars.com/api/?name=Admin&background=6366f1&color=fff&size=32"
                   alt="Avatar"
                   width="32"
                   height="32"
                   class="rounded-circle" />
-                <span class="d-none d-lg-inline fw-medium user-name"
+                <span
+                  class="d-none d-lg-inline fw-medium user-name"
+                  id="adminDisplayName"
                   >Admin</span
                 >
                 <i
@@ -109,8 +98,10 @@
               <ul
                 class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2">
                 <li class="px-3 py-2 border-bottom">
-                  <div class="fw-bold">Administrator</div>
-                  <small class="text-muted">admin@fashionshop.com</small>
+                  <div class="fw-bold" id="adminFullName">Administrator</div>
+                  <small class="text-muted" id="adminEmail"
+                    >admin@fashionshop.com</small
+                  >
                 </li>
                 <li>
                   <a class="dropdown-item py-2" href="#">
@@ -124,7 +115,10 @@
                 </li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
-                  <a class="dropdown-item py-2 text-danger" href="#">
+                  <a
+                    class="dropdown-item py-2 text-danger"
+                    href="#"
+                    onclick="logoutAdmin(); return false;">
                     <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
                   </a>
                 </li>
@@ -133,6 +127,51 @@
           </div>
         </div>
       </nav>
+
+      <!-- Admin Logout Script -->
+      <script>
+        // Display admin info from localStorage
+        document.addEventListener("DOMContentLoaded", function () {
+          const fullName = localStorage.getItem("user_fullName") || "Admin";
+          const email =
+            localStorage.getItem("user_email") || "admin@fashionshop.com";
+
+          // Update UI
+          const displayName = document.getElementById("adminDisplayName");
+          const fullNameEl = document.getElementById("adminFullName");
+          const emailEl = document.getElementById("adminEmail");
+          const avatarEl = document.getElementById("adminAvatar");
+
+          if (displayName)
+            displayName.textContent = fullName.trim().split(" ").pop();
+          if (fullNameEl) fullNameEl.textContent = fullName;
+          if (emailEl) emailEl.textContent = email;
+          if (avatarEl) {
+            avatarEl.src =
+              "https://ui-avatars.com/api/?name=" +
+              encodeURIComponent(fullName) +
+              "&background=6366f1&color=fff&size=32";
+          }
+        });
+
+        // Logout function
+        async function logoutAdmin() {
+          try {
+            await fetch("/api/auth/logout", { method: "POST" });
+          } catch (e) {
+            console.error("Logout API error:", e);
+          }
+
+          // Clear localStorage
+          localStorage.removeItem("jwt_token");
+          localStorage.removeItem("user_role");
+          localStorage.removeItem("user_email");
+          localStorage.removeItem("user_fullName");
+
+          // Redirect to login
+          window.location.href = "/login";
+        }
+      </script>
     </header>
   </body>
 </html>

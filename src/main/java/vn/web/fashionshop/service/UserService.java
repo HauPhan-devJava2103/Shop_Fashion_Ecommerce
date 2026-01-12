@@ -58,6 +58,10 @@ public class UserService {
         return userRepository.existsByPhone(phone);
     }
 
+    public User saveDirectly(User user) {
+        return userRepository.save(user);
+    }
+
     public User create(User user) {
         if (user == null) {
             return null;
@@ -67,7 +71,8 @@ public class UserService {
         final String phone = user.getPhone();
         final String rawPassword = user.getPassword();
 
-        if (email == null || email.isBlank() || phone == null || phone.isBlank() || rawPassword == null || rawPassword.isBlank()) {
+        if (email == null || email.isBlank() || phone == null || phone.isBlank() || rawPassword == null
+                || rawPassword.isBlank()) {
             return null;
         }
         // Check duplicate email and phone

@@ -22,11 +22,6 @@
               th:action="@{/register}"
               th:object="${registerUser}"
               method="post">
-              <input
-                type="hidden"
-                th:name="${_csrf.parameterName}"
-                th:value="${_csrf.token}" />
-
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Họ tên</label>

@@ -8,7 +8,7 @@
         <!-- Classy Menu -->
         <nav class="classy-navbar" id="essenceNav">
           <!-- Logo -->
-          <a class="nav-brand" href="index.html"
+          <a class="nav-brand" href="home"
             ><img src="img/core-img/logo.png" alt=""
           /></a>
           <!-- Navbar Toggler -->
@@ -107,11 +107,53 @@
           <!-- User Login Info -->
           <div class="user-login-info">
             <a href="#"><img src="img/core-img/user.svg" alt="" /></a>
-            <ul class="user-dropdown">
-              <li><a href="login.html">Login</a></li>
-              <li><a href="#">Logout</a></li>
+            <ul class="user-dropdown" id="userDropdown">
+              <!-- Will be populated by JavaScript -->
             </ul>
           </div>
+          <script>
+            // Check auth status and update dropdown
+            function updateUserDropdown() {
+              const dropdown = document.getElementById("userDropdown");
+              const token = localStorage.getItem("jwt_token");
+              const userName = localStorage.getItem("user_fullName");
+              const userRole = localStorage.getItem("user_role");
+
+              if (token) {
+                let html = "";
+                if (userName) {
+                  html +=
+                    '<li><span class="px-3 py-1 text-muted">Xin chào, ' +
+                    userName +
+                    "</span></li>";
+                }
+                if (userRole === "ADMIN") {
+                  html += '<li><a href="/admin">Quản trị</a></li>';
+                }
+                html +=
+                  '<li><a href="#" onclick="logoutUser()">Đăng xuất</a></li>';
+                dropdown.innerHTML = html;
+              } else {
+                dropdown.innerHTML =
+                  '<li><a href="/login">Đăng nhập</a></li><li><a href="/register">Đăng ký</a></li>';
+              }
+            }
+
+            // Logout function
+            async function logoutUser() {
+              try {
+                await fetch("/api/auth/logout", { method: "POST" });
+              } catch (e) {}
+              localStorage.removeItem("jwt_token");
+              localStorage.removeItem("user_role");
+              localStorage.removeItem("user_email");
+              localStorage.removeItem("user_fullName");
+              window.location.href = "/login";
+            }
+
+            // Run on page load
+            document.addEventListener("DOMContentLoaded", updateUserDropdown);
+          </script>
           <!-- Cart Area -->
           <div class="cart-area">
             <a href="#" id="essenceCartBtn"
