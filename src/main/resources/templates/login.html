@@ -83,6 +83,11 @@
       </div>
 
       <script>
+        // Tự động xóa token cũ khi vào trang login
+        document.cookie = "jwt_token=; path=/; max-age=0";
+        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("user_role");
+
         document
           .getElementById("loginForm")
           .addEventListener("submit", async function (e) {
@@ -118,13 +123,20 @@
                 localStorage.setItem("user_email", data.data.email);
                 localStorage.setItem("user_fullName", data.data.fullName);
 
+                // Set cookie for server-side authentication (needed for page navigation)
+                document.cookie =
+                  "jwt_token=" + data.data.token + "; path=/; max-age=86400";
+
                 successMsg.textContent =
                   "Đăng nhập thành công! Đang chuyển hướng...";
                 successMsg.style.display = "block";
 
                 // Redirect based on role
                 setTimeout(() => {
-                  if (data.data.role === "ADMIN") {
+                  if (
+                    data.data.role === "ADMIN" ||
+                    data.data.role === "STAFF"
+                  ) {
                     window.location.href = "/admin";
                   } else {
                     window.location.href = "/";

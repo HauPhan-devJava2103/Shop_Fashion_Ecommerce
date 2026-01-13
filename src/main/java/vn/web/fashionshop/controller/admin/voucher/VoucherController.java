@@ -1,6 +1,7 @@
 package vn.web.fashionshop.controller.admin.voucher;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,6 +30,7 @@ public class VoucherController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String index(Model model,
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -61,6 +63,7 @@ public class VoucherController {
 
     // Search vouchers using AJAX
     @GetMapping("/api/search")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     @ResponseBody
     public Page<Voucher> searchVouchersAjax(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
@@ -175,6 +178,7 @@ public class VoucherController {
     }
 
     @GetMapping("/view/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String viewDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Voucher voucher = voucherService.findById(id);

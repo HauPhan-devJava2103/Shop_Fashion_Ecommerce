@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import vn.web.fashionshop.service.PaymentService;
 
 @Controller
 @RequestMapping("/admin/reports")
+@PreAuthorize("hasAuthority('ROLE_ADMIN')")
 public class ReportsController {
 
     private final PaymentService paymentService;

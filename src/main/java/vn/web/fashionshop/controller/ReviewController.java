@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,10 +29,8 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    /**
-     * Display review management page with stats widgets
-     */
     @GetMapping({ "", "/" })
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String index(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -40,13 +39,9 @@ public class ReviewController {
             @RequestParam(required = false) Integer rating,
             Model model) {
 
-        // Create pageable with sorting by created date descending
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by("createdAt").descending());
-
-        // Get reviews with filters
         Page<Review> reviewsPage = reviewService.searchReviews(keyword, status, rating, pageable);
 
-        // Stats Widgets Data
         model.addAttribute("totalReviews", reviewService.getTotalReviews());
         model.addAttribute("pendingReviews", reviewService.getPendingReviews());
         model.addAttribute("approvedReviews", reviewService.getApprovedReviews());
@@ -89,6 +84,7 @@ public class ReviewController {
 
     // AJAX Search Reviews
     @GetMapping("/api/search")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     @ResponseBody
     public Page<Review> searchReviewsAjax(
             @RequestParam(defaultValue = "1") int page,
@@ -116,6 +112,7 @@ public class ReviewController {
 
     // Approve a review
     @GetMapping("/approve/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public String approve(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.approveReview(id);
@@ -128,6 +125,7 @@ public class ReviewController {
 
     // Reject/Unapprove a review
     @GetMapping("/reject/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public String reject(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.rejectReview(id);
@@ -140,6 +138,7 @@ public class ReviewController {
 
     // Delete a review
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.deleteReview(id);
