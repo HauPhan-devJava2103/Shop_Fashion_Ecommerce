@@ -99,8 +99,11 @@
                 class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2">
                 <li class="px-3 py-2 border-bottom">
                   <div class="fw-bold" id="adminFullName">Administrator</div>
-                  <small class="text-muted" id="adminEmail"
+                  <small class="text-muted d-block" id="adminEmail"
                     >admin@fashionshop.com</small
+                  >
+                  <span class="badge bg-primary mt-1" id="adminRoleBadge"
+                    >Quản trị viên</span
                   >
                 </li>
                 <li>
@@ -135,12 +138,14 @@
           const fullName = localStorage.getItem("user_fullName") || "Admin";
           const email =
             localStorage.getItem("user_email") || "admin@fashionshop.com";
+          const role = localStorage.getItem("user_role") || "ADMIN";
 
           // Update UI
           const displayName = document.getElementById("adminDisplayName");
           const fullNameEl = document.getElementById("adminFullName");
           const emailEl = document.getElementById("adminEmail");
           const avatarEl = document.getElementById("adminAvatar");
+          const roleBadge = document.getElementById("adminRoleBadge");
 
           if (displayName)
             displayName.textContent = fullName.trim().split(" ").pop();
@@ -151,6 +156,17 @@
               "https://ui-avatars.com/api/?name=" +
               encodeURIComponent(fullName) +
               "&background=6366f1&color=fff&size=32";
+          }
+
+          // Update role badge
+          if (roleBadge) {
+            if (role === "STAFF") {
+              roleBadge.textContent = "Nhân viên";
+              roleBadge.className = "badge bg-success mt-1";
+            } else {
+              roleBadge.textContent = "Quản trị viên";
+              roleBadge.className = "badge bg-primary mt-1";
+            }
           }
         });
 

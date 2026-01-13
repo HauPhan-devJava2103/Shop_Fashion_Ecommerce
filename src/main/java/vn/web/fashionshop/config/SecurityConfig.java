@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +17,7 @@ import vn.web.fashionshop.security.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
         private final JwtAuthFilter jwtAuthFilter;
@@ -60,9 +62,11 @@ public class SecurityConfig {
                                                 .permitAll()
                                                 // API auth endpoints
                                                 .requestMatchers("/api/auth/**").permitAll()
-                                                // Admin area
-                                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // Admin area - ADMIN và STAFF đều truy cập được
+                                                .requestMatchers("/admin/**")
+                                                .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
+                                                .requestMatchers("/api/admin/**")
+                                                .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")
                                                 // All other requests need authentication
                                                 .anyRequest().authenticated())
                                 // Add JWT filter

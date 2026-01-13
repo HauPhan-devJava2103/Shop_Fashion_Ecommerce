@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -43,6 +44,7 @@ public class ProductController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String index(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(required = false) String keyword,
@@ -83,6 +85,7 @@ public class ProductController {
     // Search product using AJAX
     @GetMapping("/api/search")
     @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public java.util.Map<String, Object> searchProductsAjax(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "6") int size,
@@ -98,6 +101,7 @@ public class ProductController {
     // API endpoint for pie chart data
     @GetMapping("/api/stats/category-distribution")
     @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ChartResponse getProductCategoryDistribution() {
         List<Object[]> data = productService.getProductCountByCategory();
 
@@ -114,6 +118,7 @@ public class ProductController {
 
     // View Product Details
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String viewProduct(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id);
         model.addAttribute("product", product);
@@ -121,6 +126,7 @@ public class ProductController {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String createProductForm(Model model) {
         List<Category> categories = categoryService.getAll();
         model.addAttribute("categories", categories);
@@ -129,6 +135,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String createProduct(
             @Valid @ModelAttribute ProductCreateDTO productDTO,
             BindingResult result,
@@ -163,6 +170,7 @@ public class ProductController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String editProductForm(@PathVariable Long id, Model model) {
         // Get product with all relationships
         Product product = productService.getProductById(id);
@@ -179,6 +187,7 @@ public class ProductController {
 
     // Update Product POST
     @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String updateProduct(
             @PathVariable Long id,
             @Valid @ModelAttribute ProductUpdateDTO productDTO,

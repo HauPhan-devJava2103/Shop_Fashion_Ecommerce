@@ -36,6 +36,9 @@ public class DatabaseUserDetailsService implements UserDetailsService {
                 ? "CUSTOMER"
                 : u.getRole().getRoleName().name();
 
+        // DEBUG: Log role being loaded
+        System.out.println("DEBUG UserDetailsService: Loading user " + username + " with role: " + role);
+
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
         return org.springframework.security.core.userdetails.User

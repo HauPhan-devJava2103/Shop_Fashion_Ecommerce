@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import vn.web.fashionshop.enums.EPaymentStatus;
 import vn.web.fashionshop.service.OrderService;
 
 @Controller
+@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
 public class OrderController {
 
     private final OrderService orderService;

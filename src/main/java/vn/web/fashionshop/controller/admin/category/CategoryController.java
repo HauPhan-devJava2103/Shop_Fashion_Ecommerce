@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,6 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String index(Model model,
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(required = false) String keyword,
@@ -67,6 +69,7 @@ public class CategoryController {
     // Search category using AJAX
     @GetMapping("/api/search")
     @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public Page<Category> searchCategoriesAjax(
             @RequestParam(name = "page", defaultValue = "1") Integer page,
             @RequestParam(name = "keyword", required = false) String keyword,
@@ -79,6 +82,7 @@ public class CategoryController {
     // Category Performance Chart
     @GetMapping("/api/stats/performance")
     @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public ChartResponse getCategoryPerformance(
             @RequestParam(name = "limit", defaultValue = "5") Integer limit) {
 
@@ -95,6 +99,7 @@ public class CategoryController {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String create(Model model) {
         model.addAttribute("category", new CategoryDTO());
         model.addAttribute("categories", categoryService.getAll()); // For parent category selection
@@ -102,6 +107,7 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String create(@Valid @ModelAttribute("category") CategoryDTO categoryDTO,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
@@ -137,6 +143,7 @@ public class CategoryController {
     }
 
     @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Category category = categoryService.findById(id);
@@ -160,6 +167,7 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String update(@PathVariable Long id,
             @Valid @ModelAttribute("category") CategoryDTO categoryDTO,
             BindingResult bindingResult,

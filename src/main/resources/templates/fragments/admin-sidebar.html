@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
   <body>
     <!-- Sidebar -->
     <aside
@@ -67,19 +68,22 @@
                 <span>Dashboard</span>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- Chỉ ADMIN mới thấy -->
+            <li class="nav-item" sec:authorize="hasAuthority('ROLE_ADMIN')">
               <a class="nav-link" th:href="@{/admin/users}">
                 <i class="bi bi-people"></i>
                 <span>Người dùng</span>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- ADMIN + STAFF xem được -->
+            <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')">
               <a class="nav-link" th:href="@{/admin/categories}">
                 <i class="bi bi-grid"></i>
                 <span>Danh mục</span>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- ADMIN + STAFF xem được -->
+            <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')">
               <a class="nav-link" th:href="@{/admin/products}">
                 <i class="bi bi-box-seam"></i>
                 <span>Sản phẩm</span>
@@ -96,13 +100,15 @@
                 <span>Đơn hàng</span>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- Chỉ ADMIN + STAFF mới thấy -->
+            <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')">
               <a class="nav-link" th:href="@{/admin/vouchers}">
                 <i class="bi bi-ticket-perforated"></i>
                 <span>Voucher</span>
               </a>
             </li>
-            <li class="nav-item">
+            <!-- Chỉ ADMIN + STAFF mới thấy -->
+            <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')">
               <a class="nav-link" th:href="@{/admin/reviews}">
                 <i class="bi bi-star"></i>
                 <span>Đánh giá</span>
@@ -116,9 +122,9 @@
             </li>
           </ul>
 
-          <!-- Reports -->
-          <div class="sidebar-heading">Báo cáo</div>
-          <ul class="nav flex-column">
+          <!-- Reports - Chỉ ADMIN -->
+          <div class="sidebar-heading" sec:authorize="hasRole('ADMIN')">Báo cáo</div>
+          <ul class="nav flex-column" sec:authorize="hasRole('ADMIN')">
             <li class="nav-item">
               <a class="nav-link" th:href="@{/admin/reports/revenue}">
                 <i class="bi bi-cash-stack"></i>

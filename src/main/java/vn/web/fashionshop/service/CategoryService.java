@@ -1,7 +1,9 @@
 package vn.web.fashionshop.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -205,6 +207,18 @@ public class CategoryService {
         }
 
         return false; // Không có vòng lặp
+    }
+
+    // Đếm số danh mục con của mỗi root category
+    public Map<Long, Long> countChildCategoriesByRootCategory() {
+        List<Category> listRoot = categoryRepository.findByParentCategoryIsNull();
+        Map<Long, Long> countMap = new HashMap<>();
+        for (Category cat : listRoot) {
+            // Đếm số danh mục con có parentCategory = cat
+            Long count = categoryRepository.countByParentCategoryId(cat.getId());
+            countMap.put(cat.getId(), count != null ? count : 0L);
+        }
+        return countMap;
     }
 
 }

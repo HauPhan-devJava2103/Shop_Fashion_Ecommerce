@@ -128,13 +128,17 @@
                   '<div style="font-weight: 600; color: #333; font-size: 14px;">' +
                   (userName || "User") +
                   "</div>";
+                // Hiển thị role đúng
+                let roleText = "Khách hàng";
+                if (userRole === "ADMIN") roleText = "Quản trị viên";
+                else if (userRole === "STAFF") roleText = "Nhân viên";
                 html +=
                   '<div style="font-size: 12px; color: #888;">' +
-                  (userRole === "ADMIN" ? "Quản trị viên" : "Khách hàng") +
+                  roleText +
                   "</div>";
                 html += "</li>";
-                // Menu items
-                if (userRole === "ADMIN") {
+                // Menu items - ADMIN và STAFF đều thấy link Quản trị
+                if (userRole === "ADMIN" || userRole === "STAFF") {
                   html +=
                     '<li><a href="/admin" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-dashboard"></i> Quản trị</a></li>';
                 }

@@ -130,6 +130,12 @@ public class ProductService {
         return productRepository.getProductCountByCategory();
     }
 
+    // Lấy sản phẩm mới nhất theo category slug (cho trang chủ)
+    public List<Product> getNewArrivalsByCategory(String categorySlug, int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        return productRepository.findNewArrivalsByCategorySlug(categorySlug, pageable);
+    }
+
     public Page<Product> searchProductAdvanced(String keyword, Long category, String stock, String sku, String isActive,
             int pageNo) {
         int pageSize = 6;
