@@ -18,6 +18,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
         long countByParentCategoryIsNull();
 
+        // Đếm số danh mục con của một danh mục cha
+        Long countByParentCategoryId(Long parentId);
+
         // Kiểm tra category có tồn tại không
         boolean existsByCategoryName(String categoryName);
 

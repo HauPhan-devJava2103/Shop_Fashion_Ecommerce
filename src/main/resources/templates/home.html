@@ -5,6 +5,28 @@
   layout:decorate="~{layout/main}">
   <head>
     <title>Trang chủ</title>
+    <style>
+      /* Override default strikethrough on price */
+      .single-product-wrapper .product-description p.product-price span {
+        text-decoration: none !important;
+        color: #000000 !important;
+      }
+
+      /* Fix product image height for consistent display */
+      .single-product-wrapper .product-img {
+        height: 350px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+      }
+      .single-product-wrapper .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    </style>
   </head>
   <body>
     <main layout:fragment="content">
@@ -54,6 +76,292 @@
         </div>
       </section>
       <!-- END HERO SECTION -->
+
+      <!-- SHIPPING INFOR -->
+      <section id="shipping-information">
+        <hr />
+        <div class="container">
+          <div
+            class="row d-flex flex-wrap align-items-center justify-content-between">
+            <div class="col-md-3 col-sm-6">
+              <div class="icon-box">
+                <img src="img/icon-img/icon-struck.png" alt="" />
+                <h4 class="block-title">
+                  <strong>Free shipping</strong>
+                </h4>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="icon-box">
+                <img src="img/icon-img/money-img.png" alt="" />
+                <h4 class="block-title">
+                  <strong>Money back</strong> Return within 7 days
+                </h4>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="icon-box">
+                <img src="img/icon-img/sell-img.png" alt="" />
+                <h4 class="block-title">
+                  <strong>Buy 4 get 5th</strong> 50% off
+                </h4>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="icon-box">
+                <img src="img/icon-img/help-img.png" alt="" />
+                <h4 class="block-title">
+                  <strong>Any questions?</strong> experts are ready
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr />
+      </section>
+      <!-- END SHIPPING INFOR -->
+
+      <!-- Discover Collection -->
+      <div class="site-section">
+        <div class="container">
+          <div class="title-section mb-5">
+            <h2 class="text-uppercase">
+              <span class="d-block">Discover</span> The Collections
+            </h2>
+          </div>
+          <div class="row align-items-stretch">
+            <!-- Category 1 - Women (Large) -->
+            <div class="col-lg-8">
+              <div class="product-item sm-height full-height bg-gray">
+                <a
+                  th:if="${featuredCategories != null and featuredCategories.size() > 0}"
+                  th:href="@{/shop(category=${featuredCategories[0].slug})}"
+                  class="product-category">
+                  <span th:text="${featuredCategories[0].categoryName}"
+                    >Women</span
+                  >
+                  <span
+                    th:text="${categoryChildCounts[featuredCategories[0].id]} + ' items'"></span>
+                </a>
+                <a
+                  th:unless="${featuredCategories != null and featuredCategories.size() > 0}"
+                  href="#"
+                  class="product-category"
+                  >Women <span>25 items</span></a
+                >
+                <img
+                  src="img/bg-img/model_4.png"
+                  alt="Image"
+                  class="img-fluid" />
+              </div>
+            </div>
+
+            <!-- Category 2 & 3 - Men, Phụ kiện -->
+            <div class="col-lg-4 d-flex flex-column">
+              <div class="product-item sm-height bg-gray mb-4">
+                <a
+                  th:if="${featuredCategories != null and featuredCategories.size() > 1}"
+                  th:href="@{/shop(category=${featuredCategories[1].slug})}"
+                  class="product-category">
+                  <span th:text="${featuredCategories[1].categoryName}"
+                    >Men</span
+                  >
+                  <span
+                    th:text="${categoryChildCounts[featuredCategories[1].id]} + ' items'"></span>
+                </a>
+                <a
+                  th:unless="${featuredCategories != null and featuredCategories.size() > 1}"
+                  href="#"
+                  class="product-category"
+                  >Men <span>25 items</span></a
+                >
+                <img
+                  src="img/bg-img/model_5.png"
+                  alt="Image"
+                  class="img-fluid" />
+              </div>
+
+              <div class="product-item sm-height bg-gray">
+                <a
+                  th:if="${featuredCategories != null and featuredCategories.size() > 2}"
+                  th:href="@{/shop(category=${featuredCategories[2].slug})}"
+                  class="product-category">
+                  <span th:text="${featuredCategories[2].categoryName}"
+                    >Phụ kiện</span
+                  >
+                  <span
+                    th:text="${categoryChildCounts[featuredCategories[2].id]} + ' items'"></span>
+                </a>
+                <a
+                  th:unless="${featuredCategories != null and featuredCategories.size() > 2}"
+                  href="#"
+                  class="product-category"
+                  >Phụ kiện <span>25 items</span></a
+                >
+                <img
+                  src="img/bg-img/model_6.png"
+                  alt="Image"
+                  class="img-fluid" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Discover Collection -->
+
+      <!-- CATEGORY MEN -->
+      <section
+        class="new_arrivals_area section-padding-80 clearfix"
+        th:if="${menProducts != null and !menProducts.isEmpty()}">
+        <div class="container">
+          <div class="row">
+            <div class="title-section mb-5">
+              <h2 class="text-uppercase">
+                <span class="d-block">New Arrivals</span> Men
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <div class="popular-products-slides owl-carousel">
+                <!-- Dynamic Products Loop -->
+                <div
+                  th:each="product : ${menProducts}"
+                  class="single-product-wrapper">
+                  <!-- Product Image -->
+                  <div class="product-img">
+                    <img
+                      th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/product-img/product-1.jpg'}"
+                      th:alt="${product.productName}" />
+                    <!-- Discount Badge - chỉ hiện khi discount > 0 -->
+                    <div
+                      class="product-badge offer-badge"
+                      th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                      <span
+                        th:text="'-' + ${#numbers.formatDecimal(product.discount, 0, 'POINT', 0, 'POINT')} + '%'"
+                        >-10%</span
+                      >
+                    </div>
+                    <!-- Favourite -->
+                    <div class="product-favourite">
+                      <a href="#" class="favme fa fa-heart"></a>
+                    </div>
+                  </div>
+                  <!-- Product Description -->
+                  <div class="product-description">
+                    <span
+                      th:text="${product.category?.categoryName ?: 'Fashion'}"
+                      >Brand</span
+                    >
+                    <a th:href="@{/product/{id}(id=${product.id})}">
+                      <h6 th:text="${product.productName}">Product Name</h6>
+                    </a>
+                    <p class="product-price">
+                      <span
+                        th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"
+                        >80.000đ</span
+                      >
+                    </p>
+
+                    <!-- Hover Content -->
+                    <div class="hover-content">
+                      <!-- Add to Cart -->
+                      <div class="add-to-cart-btn">
+                        <a
+                          th:href="@{/cart/add/{id}(id=${product.id})}"
+                          class="btn essence-btn"
+                          >Add to Cart</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- END CATEGORY MEN -->
+
+      <!-- CATEGORY WOMEN -->
+      <section
+        class="new_arrivals_area section-padding-80 clearfix"
+        th:if="${womenProducts != null and !womenProducts.isEmpty()}">
+        <div class="container">
+          <div class="row">
+            <div class="title-section mb-5">
+              <h2 class="text-uppercase">
+                <span class="d-block">New Arrivals</span> Women
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <div class="popular-products-slides owl-carousel">
+                <!-- Dynamic Products Loop -->
+                <div
+                  th:each="product : ${womenProducts}"
+                  class="single-product-wrapper">
+                  <!-- Product Image -->
+                  <div class="product-img">
+                    <img
+                      th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/product-img/product-1.jpg'}"
+                      th:alt="${product.productName}" />
+                    <!-- Discount Badge - chỉ hiện khi discount > 0 -->
+                    <div
+                      class="product-badge offer-badge"
+                      th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                      <span
+                        th:text="'-' + ${#numbers.formatDecimal(product.discount, 0, 'POINT', 0, 'POINT')} + '%'"
+                        >-10%</span
+                      >
+                    </div>
+                    <!-- Favourite -->
+                    <div class="product-favourite">
+                      <a href="#" class="favme fa fa-heart"></a>
+                    </div>
+                  </div>
+                  <!-- Product Description -->
+                  <div class="product-description">
+                    <span
+                      th:text="${product.category?.categoryName ?: 'Fashion'}"
+                      >Brand</span
+                    >
+                    <a th:href="@{/product/{id}(id=${product.id})}">
+                      <h6 th:text="${product.productName}">Product Name</h6>
+                    </a>
+                    <p class="product-price">
+                      <span
+                        th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"
+                        >80.000đ</span
+                      >
+                    </p>
+
+                    <!-- Hover Content -->
+                    <div class="hover-content">
+                      <!-- Add to Cart -->
+                      <div class="add-to-cart-btn">
+                        <a
+                          th:href="@{/cart/add/{id}(id=${product.id})}"
+                          class="btn essence-btn"
+                          >Add to Cart</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- END CATEGORY WOMEN -->
     </main>
   </body>
 </html>

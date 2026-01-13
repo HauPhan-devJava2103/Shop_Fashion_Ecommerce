@@ -34,6 +34,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         @Query("SELECT c.categoryName, COUNT(p) FROM Product p JOIN p.category c GROUP BY c.id, c.categoryName ORDER BY COUNT(p) DESC")
         List<Object[]> getProductCountByCategory();
 
+        // Đếm số sản phẩm theo category ID (bao gồm cả danh mục con)
+        @Query("SELECT COUNT(p) FROM Product p WHERE p.category.id = :categoryId OR p.category.parentCategory.id = :categoryId")
+        Long countByCategoryId(@Param("categoryId") Long categoryId);
+
         // Tìm kiếm product với filter keyword, category, stock, isActive và phân trang
         @Query("SELECT p FROM Product p LEFT JOIN p.category c WHERE " +
                         "(:keyword IS NULL OR :keyword = '' OR " +
@@ -55,5 +59,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         @Param("sku") String sku,
                         @Param("isActive") String isActive,
                         Pageable pageable);
+
+        // Lấy sản phẩm mới nhất theo category slug (cho trang chủ)
+        @Query("SELECT p FROM Product p JOIN p.category c WHERE " +
+                        "(c.slug = :categorySlug OR c.parentCategory.slug = :categorySlug) " +
+                        "AND p.isActive = true " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findNewArrivalsByCategorySlug(@Param("categorySlug") String categorySlug, Pageable pageable);
 
 }

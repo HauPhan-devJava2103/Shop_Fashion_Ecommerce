@@ -4,30 +4,26 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layout/admin}">
   <head>
-    <title>Chi Tiet Danh Muc</title>
+    <title>Chi tiết danh mục</title>
   </head>
   <body>
     <div layout:fragment="content">
-      <!-- Page Header -->
+      <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1 class="h3 fw-bold text-dark mb-1">Chi Tiết Danh Mục</h1>
+          <h1 class="h3 fw-bold text-dark mb-1">Chi tiết danh mục</h1>
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
               <li class="breadcrumb-item">
-                <a th:href="@{/admin}" class="text-decoration-none"
-                  >Dashboard</a
-                >
+                <a th:href="@{/admin}">Dashboard</a>
               </li>
               <li class="breadcrumb-item">
-                <a th:href="@{/admin/categories}" class="text-decoration-none"
-                  >Danh Mục</a
-                >
+                <a th:href="@{/admin/categories}">Danh mục</a>
               </li>
               <li
                 class="breadcrumb-item active"
                 th:text="${category.categoryName}">
-                Chi Tiết
+                Chi tiết
               </li>
             </ol>
           </nav>
@@ -36,95 +32,89 @@
           <a
             th:href="@{/admin/categories/edit/{id}(id=${category.id})}"
             class="btn btn-primary">
-            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
           </a>
           <a
             th:href="@{/admin/categories}"
             class="btn btn-outline-secondary ms-2">
-            <i class="bi bi-arrow-left me-1"></i>Quay lại
+            <i class="bi bi-arrow-left me-1"></i>Quay lại
           </a>
         </div>
       </div>
 
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <div class="card shadow-sm">
-            <div class="card-header bg-white">
-              <h5 class="mb-0">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
                 <i class="bi bi-info-circle text-primary me-2"></i>Thông tin chi
                 tiết
               </h5>
             </div>
             <div class="card-body">
-              <!-- Image Section - Centered -->
+              <!-- Image -->
               <div class="text-center mb-4 pb-4 border-bottom">
                 <div
                   th:if="${category.imageUrl != null and category.imageUrl != ''}">
                   <img
                     th:src="${category.imageUrl}"
-                    class="img-fluid rounded shadow-sm"
-                    style="max-height: 200px; object-fit: cover"
+                    class="rounded shadow-sm"
+                    style="max-height: 180px; object-fit: cover"
                     alt="Category Image" />
-                  <p class="text-muted small mt-2 mb-0">
-                    <code th:text="${category.imageUrl}"></code>
-                  </p>
                 </div>
                 <div
-                  th:if="${category.imageUrl == null or category.imageUrl == ''}">
-                  <div
-                    class="bg-light rounded d-inline-flex align-items-center justify-content-center"
-                    style="width: 150px; height: 150px">
-                    <i
-                      class="bi bi-image text-muted"
-                      style="font-size: 3rem"></i>
-                  </div>
-                  <p class="text-muted small mt-2 mb-0">Chưa có hình ảnh</p>
+                  th:if="${category.imageUrl == null or category.imageUrl == ''}"
+                  class="bg-light rounded d-inline-flex align-items-center justify-content-center"
+                  style="width: 140px; height: 140px">
+                  <i
+                    class="bi bi-image text-muted"
+                    style="font-size: 2.5rem"></i>
                 </div>
               </div>
 
-              <!-- Info Table -->
+              <!-- Info -->
               <table class="table table-borderless mb-0">
                 <tbody>
                   <tr>
-                    <th style="width: 180px" class="text-muted">ID</th>
-                    <td th:text="${category.id}"></td>
+                    <th style="width: 160px" class="text-muted py-2">ID</th>
+                    <td class="py-2" th:text="${category.id}"></td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Tên danh mục</th>
+                    <th class="text-muted py-2">Tên danh mục</th>
                     <td
-                      class="fw-semibold"
+                      class="py-2 fw-semibold"
                       th:text="${category.categoryName}"></td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Slug</th>
-                    <td>
+                    <th class="text-muted py-2">Slug</th>
+                    <td class="py-2">
                       <code
                         class="bg-light px-2 py-1 rounded"
                         th:text="${category.slug}"></code>
                     </td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Danh mục gốc</th>
-                    <td>
+                    <th class="text-muted py-2">Danh mục cha</th>
+                    <td class="py-2">
                       <span th:if="${category.parentCategory != null}">
                         <a
                           th:href="@{/admin/categories/view/{id}(id=${category.parentCategory.id})}"
                           class="text-decoration-none">
-                          <i class="bi bi-folder-fill text-warning me-1"></i>
+                          <i class="bi bi-folder text-warning me-1"></i>
                           <span
                             th:text="${category.parentCategory.categoryName}"></span>
                         </a>
                       </span>
                       <span
                         th:if="${category.parentCategory == null}"
-                        class="badge bg-info">
-                        Root Category
+                        class="text-muted">
+                        — Danh mục gốc
                       </span>
                     </td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Trạng thái</th>
-                    <td>
+                    <th class="text-muted py-2">Trạng thái</th>
+                    <td class="py-2">
                       <span
                         th:if="${category.isActive}"
                         class="badge bg-success">
@@ -133,28 +123,30 @@
                       <span
                         th:unless="${category.isActive}"
                         class="badge bg-secondary">
-                        <i class="bi bi-x-circle me-1"></i>Ẩn
+                        <i class="bi bi-eye-slash me-1"></i>Ẩn
                       </span>
                     </td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Ngày tạo</th>
+                    <th class="text-muted py-2">Ngày tạo</th>
                     <td
+                      class="py-2"
                       th:text="${#temporals.format(category.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
                   </tr>
                   <tr>
-                    <th class="text-muted">Cập nhật</th>
+                    <th class="text-muted py-2">Cập nhật</th>
                     <td
+                      class="py-2"
                       th:text="${#temporals.format(category.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
                   </tr>
                   <tr
                     th:if="${category.children != null and !category.children.isEmpty()}">
-                    <th class="text-muted">Danh mục con</th>
-                    <td>
+                    <th class="text-muted py-2">Danh mục con</th>
+                    <td class="py-2">
                       <span
-                        class="badge bg-primary me-1"
+                        class="badge bg-primary"
                         th:text="${category.children.size()}"></span>
-                      danh mục con
+                      danh mục con
                     </td>
                   </tr>
                 </tbody>
