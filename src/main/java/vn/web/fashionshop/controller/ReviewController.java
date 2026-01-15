@@ -99,6 +99,7 @@ public class ReviewController {
 
     // View review details
     @GetMapping("/view/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String view(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Review review = reviewService.getReviewById(id);
@@ -112,7 +113,7 @@ public class ReviewController {
 
     // Approve a review
     @GetMapping("/approve/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String approve(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.approveReview(id);
@@ -125,7 +126,7 @@ public class ReviewController {
 
     // Reject/Unapprove a review
     @GetMapping("/reject/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String reject(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.rejectReview(id);
@@ -138,7 +139,7 @@ public class ReviewController {
 
     // Delete a review
     @GetMapping("/delete/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             reviewService.deleteReview(id);

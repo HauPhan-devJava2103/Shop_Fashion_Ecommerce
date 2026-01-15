@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Wishlist</title>
+    <style>
+      /* Override price strikethrough */
+      .single-product-wrapper .product-description p.product-price span {
+        text-decoration: none !important;
+        color: #000000 !important;
+      }
+      /* Fix product image height */
+      .single-product-wrapper .product-img {
+        height: 350px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+      }
+      .single-product-wrapper .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      /* Remove button style */
+      .remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background: #ff4444;
+        border: none;
+        border-radius: 50%;
+        color: #fff;
+        cursor: pointer;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .remove-btn:hover {
+        background: #cc0000;
+      }
+    </style>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <!-- Wishlist Section -->
+      <section class="new_arrivals_area section-padding-80 clearfix">
+        <div class="container">
+          <div class="row">
+            <div class="title-section mb-5">
+              <h2 class="text-uppercase">
+                <span class="d-block">My</span> Wishlist
+              </h2>
+              <p th:text="${wishlistCount} + ' sản phẩm yêu thích'">
+                0 sản phẩm yêu thích
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="container" th:if="${wishlistProducts.isEmpty()}">
+          <div class="row">
+            <div class="col-12 text-center py-5">
+              <i class="fa fa-heart-o" style="font-size: 80px; color: #ddd"></i>
+              <h4 class="mt-4">Wishlist của bạn đang trống</h4>
+              <p class="text-muted">
+                Hãy thêm các sản phẩm yêu thích bằng cách nhấn vào biểu tượng
+                trái tim
+              </p>
+              <a th:href="@{/}" class="btn essence-btn mt-3"
+                >Tiếp tục mua sắm</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="container" th:if="${!wishlistProducts.isEmpty()}">
+          <div class="row">
+            <div
+              class="col-12 col-sm-6 col-md-4 col-lg-3"
+              th:each="product : ${wishlistProducts}">
+              <div class="single-product-wrapper" style="margin-bottom: 30px">
+                <!-- Product Image -->
+                <div class="product-img" style="position: relative">
+                  <a th:href="@{/product/{id}(id=${product.id})}">
+                    <img
+                      th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/product-img/product-1.jpg'}"
+                      th:alt="${product.productName}" />
+                  </a>
+                  <!-- Discount Badge -->
+                  <div
+                    class="product-badge offer-badge"
+                    th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                    <span
+                      th:text="'-' + ${#numbers.formatDecimal(product.discount, 0, 'POINT', 0, 'POINT')} + '%'"
+                      >-10%</span
+                    >
+                  </div>
+                  <!-- Remove Button -->
+                  <button
+                    class="remove-btn"
+                    th:data-product-id="${product.id}"
+                    title="Xóa khỏi Wishlist">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </div>
+                <!-- Product Description -->
+                <div class="product-description">
+                  <span th:text="${product.category?.categoryName ?: 'Fashion'}"
+                    >Brand</span
+                  >
+                  <a th:href="@{/product/{id}(id=${product.id})}">
+                    <h6 th:text="${product.productName}">Product Name</h6>
+                  </a>
+                  <p class="product-price">
+                    <span
+                      th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"
+                      >80.000đ</span
+                    >
+                  </p>
+                  <!-- Hover Content -->
+                  <div class="hover-content">
+                    <div class="add-to-cart-btn">
+                      <a
+                        th:href="@{/product/{id}(id=${product.id})}"
+                        class="btn essence-btn"
+                        >Xem chi tiết</a
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clear All Button -->
+          <div class="row mt-4">
+            <div class="col-12 text-center">
+              <button id="clearAllWishlist" class="btn btn-outline-secondary">
+                <i class="fa fa-trash"></i> Xóa tất cả
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Wishlist JavaScript -->
+      <script th:inline="javascript">
+        $(document).ready(function () {
+          // Remove single item
+          $(document).on("click", ".remove-btn", function () {
+            var productId = $(this).data("product-id");
+            var productCard = $(this).closest(".col-12");
+
+            $.ajax({
+              url: "/api/wishlist/toggle/" + productId,
+              method: "POST",
+              success: function (response) {
+                productCard.fadeOut(300, function () {
+                  $(this).remove();
+                  if ($(".single-product-wrapper").length === 0) {
+                    location.reload();
+                  }
+                });
+              },
+            });
+          });
+
+          // Clear all wishlist
+          $("#clearAllWishlist").click(function () {
+            if (confirm("Bạn có chắc muốn xóa tất cả sản phẩm yêu thích?")) {
+              $.ajax({
+                url: "/api/wishlist/clear",
+                method: "POST",
+                success: function () {
+                  location.reload();
+                },
+              });
+            }
+          });
+        });
+      </script>
+    </main>
+  </body>
+</html>

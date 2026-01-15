@@ -62,6 +62,10 @@
                       th:value="${g}"
                       th:text="${g.displayName}"></option>
                   </select>
+                  <div
+                    class="text-danger small"
+                    th:if="${#fields.hasErrors('gender')}"
+                    th:errors="*{gender}"></div>
                 </div>
 
                 <div class="col-12">

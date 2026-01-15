@@ -67,4 +67,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         "ORDER BY p.createdAt DESC")
         List<Product> findNewArrivalsByCategorySlug(@Param("categorySlug") String categorySlug, Pageable pageable);
 
+        // Lấy danh sách sản phẩm theo list IDs (cho Wishlist)
+        List<Product> findByIdIn(List<Long> ids);
+
 }

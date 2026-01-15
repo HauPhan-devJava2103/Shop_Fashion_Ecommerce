@@ -99,7 +99,7 @@ public class CategoryController {
     }
 
     @GetMapping("/create")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String create(Model model) {
         model.addAttribute("category", new CategoryDTO());
         model.addAttribute("categories", categoryService.getAll()); // For parent category selection
@@ -107,7 +107,7 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String create(@Valid @ModelAttribute("category") CategoryDTO categoryDTO,
             BindingResult bindingResult,
             RedirectAttributes redirectAttributes,
@@ -143,7 +143,7 @@ public class CategoryController {
     }
 
     @GetMapping("/edit/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String edit(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Category category = categoryService.findById(id);
@@ -167,7 +167,7 @@ public class CategoryController {
     }
 
     @PostMapping("/update/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String update(@PathVariable Long id,
             @Valid @ModelAttribute("category") CategoryDTO categoryDTO,
             BindingResult bindingResult,

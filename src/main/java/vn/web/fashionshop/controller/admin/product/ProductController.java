@@ -126,7 +126,7 @@ public class ProductController {
     }
 
     @GetMapping("/create")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String createProductForm(Model model) {
         List<Category> categories = categoryService.getAll();
         model.addAttribute("categories", categories);
@@ -135,7 +135,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String createProduct(
             @Valid @ModelAttribute ProductCreateDTO productDTO,
             BindingResult result,
@@ -170,7 +170,7 @@ public class ProductController {
     }
 
     @GetMapping("/edit/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String editProductForm(@PathVariable Long id, Model model) {
         // Get product with all relationships
         Product product = productService.getProductById(id);
@@ -187,7 +187,7 @@ public class ProductController {
 
     // Update Product POST
     @PostMapping("/edit/{id}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String updateProduct(
             @PathVariable Long id,
             @Valid @ModelAttribute ProductUpdateDTO productDTO,
@@ -226,6 +226,7 @@ public class ProductController {
     // ==================== IMAGE MANAGEMENT ====================
 
     @GetMapping("/{id}/images")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String manageImages(@PathVariable Long id, Model model) {
         Product product = productService.getProductById(id);
         List<vn.web.fashionshop.entity.Image> images = productImageService.getProductImages(id);
@@ -237,6 +238,7 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/images/upload")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String uploadImages(
             @PathVariable Long id,
             @RequestParam("files") org.springframework.web.multipart.MultipartFile[] files,
@@ -254,6 +256,7 @@ public class ProductController {
     }
 
     @PostMapping("/{productId}/images/{imageId}/set-main")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String setMainImage(
             @PathVariable Long productId,
             @PathVariable Long imageId,
@@ -271,6 +274,7 @@ public class ProductController {
     }
 
     @PostMapping("/{productId}/images/{imageId}/delete")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STAFF')")
     public String deleteImage(
             @PathVariable Long productId,
             @PathVariable Long imageId,

@@ -58,8 +58,10 @@ public class SecurityConfig {
                                                 // Public pages
                                                 .requestMatchers("/", "/home", "/login", "/register", "/verify-otp",
                                                                 "/resend-otp", "/forgot-password", "/reset-password",
-                                                                "/resend-reset-otp")
+                                                                "/resend-reset-otp", "/wishlist", "/contact")
                                                 .permitAll()
+                                                // Wishlist API - allow guests
+                                                .requestMatchers("/api/wishlist/**").permitAll()
                                                 // API auth endpoints
                                                 .requestMatchers("/api/auth/**").permitAll()
                                                 // Admin area - ADMIN và STAFF đều truy cập được

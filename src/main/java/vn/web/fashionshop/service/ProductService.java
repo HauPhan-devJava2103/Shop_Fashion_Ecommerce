@@ -269,4 +269,14 @@ public class ProductService {
 
     }
 
+    /**
+     * Lấy danh sách sản phẩm theo list IDs (cho Wishlist)
+     */
+    public List<Product> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return productRepository.findByIdIn(ids);
+    }
+
 }

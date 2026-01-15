@@ -53,9 +53,6 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "remember_me_token", length = 255)
-    private String refreshToken;
-
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
 

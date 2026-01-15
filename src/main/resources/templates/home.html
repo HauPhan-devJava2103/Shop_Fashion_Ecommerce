@@ -247,7 +247,10 @@
                     </div>
                     <!-- Favourite -->
                     <div class="product-favourite">
-                      <a href="#" class="favme fa fa-heart"></a>
+                      <a
+                        href="#"
+                        class="favme fa fa-heart"
+                        th:data-product-id="${product.id}"></a>
                     </div>
                   </div>
                   <!-- Product Description -->
@@ -324,7 +327,10 @@
                     </div>
                     <!-- Favourite -->
                     <div class="product-favourite">
-                      <a href="#" class="favme fa fa-heart"></a>
+                      <a
+                        href="#"
+                        class="favme fa fa-heart"
+                        th:data-product-id="${product.id}"></a>
                     </div>
                   </div>
                   <!-- Product Description -->
@@ -362,6 +368,67 @@
         </div>
       </section>
       <!-- END CATEGORY WOMEN -->
+
+      <!-- Wishlist JavaScript -->
+      <script th:inline="javascript">
+        // Use jQuery and wait for everything to load
+        $(document).ready(function () {
+          // Get wishlist from cookie
+          function getWishlist() {
+            var cookie = document.cookie.split("; ").find(function (row) {
+              return row.startsWith("wishlist=");
+            });
+            if (!cookie) return [];
+            var value = cookie.split("=")[1];
+            if (!value) return [];
+            return value
+              .split("-")
+              .filter(function (id) {
+                return id;
+              })
+              .map(function (id) {
+                return parseInt(id);
+              });
+          }
+
+          // Update heart icons
+          function updateHeartIcons() {
+            var wishlist = getWishlist();
+            $(".favme").each(function () {
+              var productId = parseInt($(this).attr("data-product-id"));
+              if (wishlist.indexOf(productId) !== -1) {
+                $(this).addClass("active").css("color", "#ff6b6b");
+              }
+            });
+          }
+
+          // Event delegation - works with dynamically loaded elements
+          $(document).on("click", ".favme", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var productId = $(this).attr("data-product-id");
+            var heartElement = $(this);
+
+            $.ajax({
+              url: "/api/wishlist/toggle/" + productId,
+              method: "POST",
+              success: function (data) {
+                if (data.added) {
+                  heartElement.addClass("active").css("color", "#ff6b6b");
+                } else {
+                  heartElement.removeClass("active").css("color", "");
+                }
+              },
+              error: function (xhr, status, error) {
+                console.log("Wishlist error:", error);
+              },
+            });
+          });
+
+          // Update icons after carousel is initialized (delay for owl-carousel)
+          setTimeout(updateHeartIcons, 500);
+        });
+      </script>
     </main>
   </body>
 </html>
