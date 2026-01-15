@@ -1,6 +1,7 @@
 package vn.web.fashionshop.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,18 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     // Get reviews by product
     Page<Review> findByProductId(Long productId, Pageable pageable);
+
+    @Query("SELECT r FROM Review r " +
+            "JOIN FETCH r.user u " +
+            "WHERE r.product.id = :productId AND r.isApproved = true " +
+            "ORDER BY r.createdAt DESC")
+    List<Review> findApprovedByProductIdWithUser(@Param("productId") Long productId);
+
+    @Query("SELECT r.product.id, COALESCE(AVG(r.rating), 0.0) " +
+            "FROM Review r " +
+            "WHERE r.isApproved = true AND r.product.id IN :productIds " +
+            "GROUP BY r.product.id")
+    List<Object[]> findAverageRatingForProductIds(@Param("productIds") List<Long> productIds);
 
     // Get reviews by user
     Page<Review> findByUserId(Long userId, Pageable pageable);

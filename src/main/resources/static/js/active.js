@@ -114,17 +114,30 @@
         var value_max = jQuery(this).data('value-max');
         var label_result = jQuery(this).data('label-result');
         var t = $(this);
+
+        var updateRange = function (values) {
+            var sliderRange = t.closest('.slider-range');
+            if (sliderRange.length) {
+                sliderRange.find("input[name='minPrice']").val(values[0]);
+                sliderRange.find("input[name='maxPrice']").val(values[1]);
+
+                var result = label_result + " " + values[0] + unit + ' - ' + values[1] + unit;
+                sliderRange.find('.range-price').html(result);
+            }
+        };
+
         $(this).slider({
             range: true,
             min: min,
             max: max,
             values: [value_min, value_max],
             slide: function (event, ui) {
-                var result = label_result + " " + unit + ui.values[0] + ' - ' + unit + ui.values[1];
-                console.log(t);
-                t.closest('.slider-range').find('.range-price').html(result);
+                updateRange(ui.values);
             }
         });
+
+        // Set initial UI + hidden inputs
+        updateRange([value_min, value_max]);
     });
 
     // :: Favorite Button Active Code

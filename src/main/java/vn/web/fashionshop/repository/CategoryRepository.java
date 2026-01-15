@@ -33,6 +33,21 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
         // Tìm tất cả root categories
         List<Category> findByParentCategoryIsNull();
 
+        // Tìm danh mục con theo slug của danh mục cha
+        @Query("SELECT c FROM Category c " +
+                        "JOIN c.parentCategory p " +
+                        "WHERE p.slug = :parentSlug " +
+                        "AND (c.isActive = true OR c.isActive IS NULL) " +
+                        "ORDER BY c.categoryName ASC")
+        List<Category> findByParentCategory_SlugAndIsActiveTrueOrderByCategoryNameAsc(@Param("parentSlug") String parentSlug);
+
+        // Fallback: find sub-categories by slug prefix (e.g. "men-"), useful when parent_id isn't set correctly
+        @Query("SELECT c FROM Category c " +
+                        "WHERE c.slug LIKE CONCAT(:slugPrefix, '%') " +
+                        "AND (c.isActive = true OR c.isActive IS NULL) " +
+                        "ORDER BY c.categoryName ASC")
+        List<Category> findActiveBySlugPrefixOrderByCategoryNameAsc(@Param("slugPrefix") String slugPrefix);
+
         // Tìm kiếm với filter trạng thái, parent category và phân trang
         @Query("SELECT c FROM Category c LEFT JOIN c.parentCategory p WHERE " +
                         "(:keyword IS NULL OR :keyword = '' OR " +

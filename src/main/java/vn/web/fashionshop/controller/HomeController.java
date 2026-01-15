@@ -32,6 +32,7 @@ public class HomeController {
         // Lấy sản phẩm mới nhất theo danh mục Men và Women (giới hạn 8 sản phẩm)
         model.addAttribute("menProducts", productService.getNewArrivalsByCategory("men", 8));
         model.addAttribute("womenProducts", productService.getNewArrivalsByCategory("women", 8));
+        model.addAttribute("accessoriesProducts", productService.getNewArrivalsByCategory("accessories", 8));
 
         return "home";
     }

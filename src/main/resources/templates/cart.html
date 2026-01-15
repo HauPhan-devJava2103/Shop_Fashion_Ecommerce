@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Giỏ hàng</title>
+    <style>
+      .cart-qty {
+        max-width: 150px;
+      }
+      .cart-qty .input-group {
+        flex-wrap: nowrap;
+      }
+      .cart-qty input[type="number"] {
+        text-align: center;
+      }
+      .cart-qty button {
+        min-width: 38px;
+      }
+    </style>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="breadcrumb-area bg-img bg-overlay" th:style="'background-image: url(' + @{/img/bg-img/breadcumb.jpg} + ');'">
+        <div class="container h-100">
+          <div class="row h-100 align-items-center">
+            <div class="col-12">
+              <div class="breadcrumb-content text-center">
+                <h2>Giỏ hàng</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 col-lg-8">
+              <div class="mb-4">
+                <h5 class="mb-1">Sản phẩm trong giỏ</h5>
+                <p id="js-cart-totalqty" class="text-muted mb-0" th:if="${cart != null}" th:text="'Tổng số lượng: ' + ${cart.totalQuantity}">Tổng số lượng: 0</p>
+              </div>
+
+              <div th:if="${cart == null or cart.items == null or cart.items.isEmpty()}" class="p-4 bg-white rounded" style="border: 1px solid #eee;">
+                <h6 class="mb-2">Giỏ hàng của bạn đang trống</h6>
+                <p class="text-muted mb-3">Hãy tiếp tục mua sắm để thêm sản phẩm vào giỏ.</p>
+                <a th:href="@{/shop}" class="btn essence-btn">Tiếp tục mua sắm</a>
+              </div>
+
+              <div th:if="${cart != null and cart.items != null and !cart.items.isEmpty()}">
+                <div class="bg-white rounded" style="border: 1px solid #eee; overflow: hidden;">
+                  <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 90px;">Ảnh</th>
+                          <th>Sản phẩm</th>
+                          <th style="width: 160px;">Số lượng</th>
+                          <th style="width: 140px;">Thành tiền</th>
+                          <th style="width: 80px;"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr th:each="item : ${cart.items}">
+                          <td>
+                            <img th:src="${item.imageUrl}" alt="" style="width: 72px; height: 72px; object-fit: cover; border-radius: 8px;" />
+                          </td>
+                          <td>
+                            <div class="fw-semibold" th:text="${item.productName}">Product</div>
+                            <div class="text-muted" style="font-size: 13px;" th:text="${(item.color != null ? 'Màu: ' + item.color : '') + (item.size != null ? ' | Size: ' + item.size : '')}"></div>
+                            <div class="text-muted" style="font-size: 13px;" th:text="'Đơn giá: ' + ${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">Đơn giá</div>
+                          </td>
+                          <td>
+                            <form th:action="@{/cart/items/{id}/quantity(id=${item.id})}" method="post" class="cart-qty js-qty-form" th:attr="data-cart-item-id=${item.id},data-api-url=@{/api/cart/items/{id}/quantity/state(id=${item.id})}">
+                              <div class="input-group">
+                                <button class="btn btn-outline-dark js-qty-minus" type="button" aria-label="Giảm số lượng">-</button>
+                                <input class="form-control js-qty-input" type="number" name="quantity" min="1" step="1" inputmode="numeric" th:value="${item.quantity}" />
+                                <button class="btn btn-outline-dark js-qty-plus" type="button" aria-label="Tăng số lượng">+</button>
+                              </div>
+                            </form>
+                          </td>
+                          <td>
+                            <div class="fw-semibold js-line-total" th:attr="data-cart-item-id=${item.id}" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</div>
+                          </td>
+                          <td class="text-end">
+                            <form th:action="@{/cart/items/{id}/remove(id=${item.id})}" method="post">
+                              <button class="btn btn-outline-danger btn-sm" type="submit" title="Xóa">
+                                <i class="fa fa-trash"></i>
+                              </button>
+                            </form>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee; position: sticky; top: 110px;">
+                <h5 class="mb-3">Tóm tắt</h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Tạm tính</span>
+                  <span id="js-cart-subtotal" class="fw-semibold" th:text="${cart != null ? (#numbers.formatDecimal(cart.subtotal, 0, 'COMMA', 0, 'POINT') + 'đ') : '0đ'}">0đ</span>
+                </div>
+
+                <!-- Voucher -->
+                <div class="mb-3">
+                  <div class="fw-semibold mb-2">Mã giảm giá</div>
+
+                  <form th:action="@{/cart/voucher/apply}" method="post" class="d-flex gap-2">
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="code"
+                      placeholder="Nhập mã (VD: WELCOME10)"
+                      th:value="${voucherPreview != null ? voucherPreview.voucherCode() : ''}" />
+                    <button class="btn btn-outline-dark" type="submit">Áp dụng</button>
+                  </form>
+
+                  <div class="text-success mt-2" style="font-size: 13px;" th:if="${voucherSuccess != null}" th:text="${voucherSuccess}"></div>
+                  <div class="text-danger mt-2" style="font-size: 13px;" th:if="${voucherError != null}" th:text="${voucherError}"></div>
+
+                  <div id="js-voucher-applied" class="d-flex align-items-center justify-content-between mt-2" th:if="${voucherPreview != null and voucherPreview.voucherCode() != null}">
+                    <span id="js-voucher-label" class="text-muted" style="font-size: 13px;" th:text="'Đang áp dụng: ' + ${voucherPreview.voucherCode()} + ' (-' + ${voucherPreview.voucherDiscountPercent()} + '%)'">Đang áp dụng</span>
+                    <form th:action="@{/cart/voucher/clear}" method="post">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">Gỡ</button>
+                    </form>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                  <span class="text-muted">Phí vận chuyển</span>
+                  <span class="fw-semibold">0đ</span>
+                </div>
+
+                <div id="js-cart-discount-row" class="d-flex justify-content-between mb-2" th:if="${voucherPreview != null and voucherPreview.discountAmount() != null and voucherPreview.discountAmount().compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                  <span class="text-muted">Giảm giá</span>
+                  <span id="js-cart-discount" class="fw-semibold text-danger" th:text="'-' + ${#numbers.formatDecimal(voucherPreview.discountAmount(), 0, 'COMMA', 0, 'POINT')} + 'đ'">-0đ</span>
+                </div>
+
+                <hr />
+                <div class="d-flex justify-content-between mb-4">
+                  <span class="fw-semibold">Tổng</span>
+                  <span id="js-cart-total" class="fw-semibold" th:text="${voucherPreview != null ? (#numbers.formatDecimal(voucherPreview.totalAmount(), 0, 'COMMA', 0, 'POINT') + 'đ') : (cart != null ? (#numbers.formatDecimal(cart.subtotal, 0, 'COMMA', 0, 'POINT') + 'đ') : '0đ')}">0đ</span>
+                </div>
+
+                <a th:href="@{/checkout}" class="btn essence-btn w-100" th:classappend="${cart == null or cart.items == null or cart.items.isEmpty()} ? ' disabled' : ''">Đặt hàng</a>
+                <a th:href="@{/shop}" class="btn btn-outline-dark w-100 mt-2">Tiếp tục mua sắm</a>
+
+                <div class="text-muted mt-3" style="font-size: 12px;">
+                  * Bạn có thể thêm vào giỏ khi chưa đăng nhập. Khi bấm Đặt hàng, hệ thống sẽ yêu cầu đăng nhập.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        (function () {
+          // Quantity +/- buttons
+          const forms = Array.from(document.querySelectorAll(".js-qty-form"));
+          if (!forms.length) return;
+
+          function clampQty(v) {
+            const n = Number(v);
+            if (!Number.isFinite(n) || n < 1) return 1;
+            return Math.floor(n);
+          }
+
+          forms.forEach((form) => {
+            const input = form.querySelector(".js-qty-input");
+            const minus = form.querySelector(".js-qty-minus");
+            const plus = form.querySelector(".js-qty-plus");
+            if (!input || !minus || !plus) return;
+
+            const cartItemId = form.getAttribute("data-cart-item-id");
+            const apiUrl = form.getAttribute("data-api-url") || (cartItemId ? "/api/cart/items/" + cartItemId + "/quantity/state" : null);
+            const lineTotalEl = cartItemId
+              ? document.querySelector('.js-line-total[data-cart-item-id="' + cartItemId + '"]')
+              : null;
+
+            const subtotalEl = document.getElementById("js-cart-subtotal");
+            const totalEl = document.getElementById("js-cart-total");
+            const totalQtyEl = document.getElementById("js-cart-totalqty");
+            const discountRowEl = document.getElementById("js-cart-discount-row");
+            const discountEl = document.getElementById("js-cart-discount");
+            const voucherAppliedEl = document.getElementById("js-voucher-applied");
+            const voucherLabelEl = document.getElementById("js-voucher-label");
+
+            function formatMoney(v) {
+              const n = Number(v);
+              const safe = Number.isFinite(n) ? n : 0;
+              return safe.toLocaleString("en-US", { maximumFractionDigits: 0 }) + "đ";
+            }
+
+            let inFlight = false;
+            let queuedQty = null;
+
+            async function updateQuantityAjax(nextQty) {
+              if (!apiUrl) {
+                form.submit();
+                return;
+              }
+
+              if (inFlight) {
+                queuedQty = nextQty;
+                return;
+              }
+
+              inFlight = true;
+
+              const body = JSON.stringify({ quantity: nextQty });
+
+              try {
+                minus.disabled = true;
+                plus.disabled = true;
+                input.disabled = true;
+
+                const res = await fetch(apiUrl, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                  },
+                  credentials: "same-origin",
+                  body,
+                });
+
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const state = await res.json();
+                const cart = state && state.cart ? state.cart : null;
+                if (!cart) return;
+
+                const updatedItem = Array.isArray(cart.items)
+                  ? cart.items.find((it) => String(it && it.id) === String(cartItemId))
+                  : null;
+
+                if (updatedItem && typeof updatedItem.quantity !== "undefined") {
+                  input.value = String(updatedItem.quantity);
+                }
+                if (updatedItem && lineTotalEl && typeof updatedItem.totalPrice !== "undefined") {
+                  lineTotalEl.textContent = formatMoney(updatedItem.totalPrice);
+                }
+
+                if (subtotalEl && typeof cart.subtotal !== "undefined") {
+                  subtotalEl.textContent = formatMoney(cart.subtotal);
+                }
+                if (totalQtyEl && typeof cart.totalQuantity !== "undefined") {
+                  totalQtyEl.textContent = "Tổng số lượng: " + String(cart.totalQuantity);
+                }
+
+                const vp = state && state.voucherPreview ? state.voucherPreview : null;
+                if (vp && typeof vp.totalAmount !== "undefined") {
+                  if (totalEl) totalEl.textContent = formatMoney(vp.totalAmount);
+                  if (discountRowEl && discountEl && vp.discountAmount && Number(vp.discountAmount) > 0) {
+                    discountRowEl.style.display = "flex";
+                    discountEl.textContent = "-" + formatMoney(vp.discountAmount);
+                  } else if (discountRowEl) {
+                    discountRowEl.style.display = "none";
+                  }
+
+                  if (voucherAppliedEl && voucherLabelEl && vp.voucherCode) {
+                    voucherAppliedEl.style.display = "flex";
+                    voucherLabelEl.textContent = "Đang áp dụng: " + vp.voucherCode + " (-" + vp.voucherDiscountPercent + "%)";
+                  }
+                } else {
+                  if (totalEl && typeof cart.subtotal !== "undefined") {
+                    totalEl.textContent = formatMoney(cart.subtotal);
+                  }
+                  if (discountRowEl) discountRowEl.style.display = "none";
+                  if (voucherAppliedEl) voucherAppliedEl.style.display = "none";
+                }
+              } catch (e) {
+                // Fallback: normal POST + redirect
+                form.submit();
+              } finally {
+                minus.disabled = false;
+                plus.disabled = false;
+                input.disabled = false;
+                inFlight = false;
+
+                if (queuedQty != null && queuedQty !== nextQty) {
+                  const q = queuedQty;
+                  queuedQty = null;
+                  updateQuantityAjax(q);
+                } else {
+                  queuedQty = null;
+                }
+              }
+            }
+
+            minus.addEventListener("click", function () {
+              const current = clampQty(input.value);
+              const next = current - 1 < 1 ? 1 : current - 1;
+              input.value = String(next);
+              updateQuantityAjax(next);
+            });
+            plus.addEventListener("click", function () {
+              const next = clampQty(input.value) + 1;
+              input.value = String(next);
+              updateQuantityAjax(next);
+            });
+
+            input.addEventListener("change", function () {
+              const next = clampQty(input.value);
+              input.value = String(next);
+              updateQuantityAjax(next);
+            });
+          });
+        })();
+      </script>
+    </main>
+  </body>
+</html>

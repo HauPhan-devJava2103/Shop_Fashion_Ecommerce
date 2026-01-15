@@ -323,6 +323,56 @@
 
           <!-- RIGHT COLUMN -->
           <div class="col-lg-4">
+            <!-- Product Image Card -->
+            <div class="card border-0 shadow-sm mb-4">
+              <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold">
+                  <i class="bi bi-image text-primary me-2"></i>Hình ảnh sản phẩm
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="text-center mb-3">
+                  <img
+                    th:src="${product.mainImageUrl}"
+                    th:alt="${product.productName}"
+                    class="img-fluid rounded border"
+                    style="max-height: 180px; object-fit: cover" />
+                </div>
+
+                <form
+                  th:action="@{/admin/products/edit/{id}/upload-main-image(id=${product.id})}"
+                  method="post"
+                  enctype="multipart/form-data">
+                  <div class="mb-2">
+                    <label for="imageFile" class="form-label fw-semibold"
+                      >Upload ảnh mới</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="imageFile"
+                      name="imageFile"
+                      accept="image/*"
+                      required />
+                    <small class="text-muted"
+                      >Ảnh upload sẽ được đặt làm ảnh chính</small
+                    >
+                  </div>
+                  <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-cloud-upload me-2"></i>Tải ảnh lên
+                  </button>
+                </form>
+
+                <div class="d-grid mt-2">
+                  <a
+                    th:href="@{/admin/products/{id}/images(id=${product.id})}"
+                    class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-images me-2"></i>Quản lý hình ảnh
+                  </a>
+                </div>
+              </div>
+            </div>
+
             <!-- Status Card -->
             <div class="card border-0 shadow-sm mb-4">
               <div class="card-header bg-white py-3">

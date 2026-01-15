@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,7 +27,7 @@ public class SecurityConfig {
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
+                return new vn.web.fashionshop.security.BCryptOrPlaintextPasswordEncoder();
         }
 
         @Bean
@@ -58,10 +57,28 @@ public class SecurityConfig {
                                                 // Public pages
                                                 .requestMatchers("/", "/home", "/login", "/register", "/verify-otp",
                                                                 "/resend-otp", "/forgot-password", "/reset-password",
-                                                                "/resend-reset-otp")
+                                                                "/resend-reset-otp",
+                                                                // Public browsing (no login required)
+                                                                                                                                        "/shop", "/shop/**", "/collections/**", "/product/**",
+                                                                                                                                        "/blog", "/single-blog", "/regular-page", "/contact", "/single-product-details",
+                                                                                                                                        "/order-status", "/payment-options", "/shipping-delivery", "/guides", "/privacy-policy", "/terms-of-use",
+                                                                                                                                        "/error")
+                                                .permitAll()
+                                                // Cart (guest can add/view cart)
+                                                .requestMatchers("/cart", "/cart/**", "/api/cart/**")
+                                                .permitAll()
+                                                // Wishlist page: guest gets redirected to login by controller
+                                                .requestMatchers("/wishlist", "/wishlist/**")
+                                                .permitAll()
+                                                // Checkout page: guest gets redirected to login by controller
+                                                .requestMatchers("/checkout", "/checkout/**")
                                                 .permitAll()
                                                 // API auth endpoints
                                                 .requestMatchers("/api/auth/**").permitAll()
+                                                // Public product API
+                                                .requestMatchers("/api/products/**").permitAll()
+                                                // Newsletter subscribe
+                                                .requestMatchers("/newsletter/**").permitAll()
                                                 // Admin area - ADMIN và STAFF đều truy cập được
                                                 .requestMatchers("/admin/**")
                                                 .hasAnyAuthority("ROLE_ADMIN", "ROLE_STAFF")

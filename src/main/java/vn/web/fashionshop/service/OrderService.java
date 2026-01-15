@@ -24,6 +24,7 @@ import vn.web.fashionshop.entity.OrderAddress;
 import vn.web.fashionshop.entity.OrderItem;
 import vn.web.fashionshop.entity.Product;
 import vn.web.fashionshop.entity.Voucher;
+import vn.web.fashionshop.enums.EOrderCancelReason;
 import vn.web.fashionshop.enums.EOrderStatus;
 import vn.web.fashionshop.enums.EPaymentMethod;
 import vn.web.fashionshop.enums.EPaymentStatus;
@@ -56,6 +57,64 @@ public class OrderService {
     public Order getOrderById(Long id) {
         return orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+    }
+
+    @Transactional
+    public void cancelMyOrder(String email, Long orderId, EOrderCancelReason reason, String note) {
+        if (email == null || email.isBlank() || orderId == null) {
+            throw new IllegalArgumentException("INVALID_REQUEST");
+        }
+        if (reason == null) {
+            throw new IllegalArgumentException("MISSING_CANCEL_REASON");
+        }
+
+        String trimmedNote = note != null ? note.trim() : null;
+        if (trimmedNote != null && trimmedNote.isBlank()) {
+            trimmedNote = null;
+        }
+        if (trimmedNote != null && trimmedNote.length() > 500) {
+            trimmedNote = trimmedNote.substring(0, 500);
+        }
+
+        if (reason == EOrderCancelReason.OTHER && (trimmedNote == null || trimmedNote.isBlank())) {
+            throw new IllegalArgumentException("Vui lòng nhập lý do chi tiết khi chọn 'Lý do khác'");
+        }
+
+        Order order = orderRepository.findByIdAndUserEmail(orderId, email)
+                .orElseThrow(() -> new IllegalArgumentException("ORDER_NOT_FOUND"));
+
+        if (order.getOrderStatus() != EOrderStatus.PENDING) {
+            throw new IllegalStateException("ORDER_CANNOT_CANCEL");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        order.setOrderStatus(EOrderStatus.CANCELLED);
+        order.setCancelReason(reason);
+        order.setCancelReasonNote(trimmedNote);
+        order.setCancelledAt(now);
+        order.setUpdatedAt(now);
+
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public Map<EOrderCancelReason, Long> getCancellationReasonStats() {
+        Map<EOrderCancelReason, Long> stats = new java.util.LinkedHashMap<>();
+        for (EOrderCancelReason r : EOrderCancelReason.values()) {
+            stats.put(r, 0L);
+        }
+
+        for (Object[] row : orderRepository.countCancelledByReason()) {
+            if (row == null || row.length < 2) {
+                continue;
+            }
+            EOrderCancelReason reason = (EOrderCancelReason) row[0];
+            Long count = (Long) row[1];
+            if (reason != null) {
+                stats.put(reason, count != null ? count : 0L);
+            }
+        }
+        return stats;
     }
 
     // Update order (status, payment status, address)

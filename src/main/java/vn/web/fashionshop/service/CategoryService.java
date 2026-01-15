@@ -47,6 +47,25 @@ public class CategoryService {
                 .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
     }
 
+    public Category findBySlug(String slug) {
+        return categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new RuntimeException("Category not found with slug: " + slug));
+    }
+
+    public List<Category> getActiveChildrenByParentSlug(String parentSlug) {
+        if (parentSlug == null || parentSlug.isBlank()) {
+            return List.of();
+        }
+        List<Category> byParent = categoryRepository.findByParentCategory_SlugAndIsActiveTrueOrderByCategoryNameAsc(parentSlug);
+        if (byParent != null && !byParent.isEmpty()) {
+            return byParent;
+        }
+
+        // Fallback for data where parent_id isn't set: treat "{rootSlug}-*" as sub-categories
+        String prefix = parentSlug.trim() + "-";
+        return categoryRepository.findActiveBySlugPrefixOrderByCategoryNameAsc(prefix);
+    }
+
     public void delete(Long id) {
         // Kiểm tra category có tồn tại không
         Category category = findById(id);

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title th:text="${pageTitle != null ? pageTitle : 'Shop'}">Shop</title>
+    <style>
+      /* Make root category links easier to read */
+      .shop_sidebar_area .catagories-menu > ul > li > a {
+        color: #000000;
+        font-weight: 600;
+        transition: color 350ms ease;
+      }
+
+      /* Hover dropdown for sub-categories */
+      .shop_sidebar_area .catagories-menu ul .sub-menu {
+        display: block;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform: translateY(-4px);
+        pointer-events: none;
+        transition: max-height 350ms ease, opacity 350ms ease, transform 350ms ease;
+      }
+
+      .shop_sidebar_area .catagories-menu ul li:hover > .sub-menu,
+      .shop_sidebar_area .catagories-menu ul li:focus-within > .sub-menu,
+      .shop_sidebar_area .catagories-menu ul li.active > .sub-menu {
+        max-height: 420px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row">
+            <!-- Sidebar Categories + Filters -->
+            <div class="col-12 col-md-4 col-lg-3">
+              <div class="shop_sidebar_area">
+                <div class="widget catagory mb-50">
+                  <h6 class="widget-title mb-30">Categories</h6>
+
+                  <div class="catagories-menu">
+                    <ul>
+                      <li>
+                        <a th:href="@{/shop}" th:style="${selectedRootSlug == null and selectedCategory == null} ? 'color:#0315ff;' : ''">All</a>
+                      </li>
+                      <li th:each="r : ${rootCategories}" th:classappend="${selectedRootSlug != null and selectedRootSlug == r.slug} ? ' active' : ''">
+                        <a
+                          th:href="@{/shop(root=${r.slug})}"
+                          th:text="${r.categoryName}"
+                          th:style="${selectedRootSlug != null and selectedRootSlug == r.slug} ? 'color:#0315ff;' : ''">Root</a>
+
+                        <th:block th:with="children=${rootChildrenMap[r.slug]}">
+                          <ul class="sub-menu" th:if="${children != null and !#lists.isEmpty(children)}">
+                            <li>
+                              <a
+                                th:href="@{/shop(root=${r.slug})}"
+                                th:style="${selectedCategory == null} ? 'color:#0315ff;' : ''">All</a>
+                            </li>
+                            <li th:each="c : ${children}">
+                              <a
+                                th:href="@{/shop(root=${r.slug}, category=${c.slug})}"
+                                th:style="${selectedCategory != null and selectedCategory.slug == c.slug} ? 'color:#0315ff;' : ''"
+                                th:text="${c.categoryName}">Category</a>
+                            </li>
+                          </ul>
+                        </th:block>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Filters: Color + Price -->
+                <div class="widget color mb-50">
+                  <h6 class="widget-title mb-30">Màu sắc</h6>
+                  <div class="widget-desc">
+                    <ul class="d-flex">
+                      <li>
+                        <a
+                          class="color1"
+                          title="Tất cả"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="(${param.color} == null) ? 'outline:2px solid #0315ff; display:flex; align-items:center; justify-content:center; font-size:10px; color:#000; text-transform:uppercase;' : 'display:flex; align-items:center; justify-content:center; font-size:10px; color:#000; text-transform:uppercase;'"
+                          >All</a>
+                      </li>
+                      <li>
+                        <a
+                          class="color1"
+                          title="Trắng"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Trắng', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Trắng')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                      <li>
+                        <a
+                          class="color3"
+                          title="Đen"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Đen', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Đen')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                      <li>
+                        <a
+                          class="color4"
+                          title="Xanh"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Xanh', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Xanh')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                      <li>
+                        <a
+                          class="color4"
+                          title="Xanh đậm"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Xanh Đậm', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Xanh Đậm')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                      <li>
+                        <a
+                          class="color5"
+                          title="Đỏ"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Đỏ', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Đỏ')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                      <li>
+                        <a
+                          class="color6"
+                          title="Vàng"
+                          th:href="@{/shop(root=${selectedRootSlug}, category=${selectedCategory != null ? selectedCategory.slug : null}, color='Vàng', minPrice=${param.minPrice != null ? param.minPrice[0] : null}, maxPrice=${param.maxPrice != null ? param.maxPrice[0] : null})}"
+                          th:style="${param.color != null and #arrays.contains(param.color, 'Vàng')} ? 'outline:2px solid #0315ff;' : ''"></a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <form th:action="@{/shop}" method="get">
+                  <input type="hidden" name="root" th:if="${selectedRootSlug != null}" th:value="${selectedRootSlug}" />
+                  <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.slug}" />
+                  <input type="hidden" name="color" th:if="${param.color != null}" th:value="${param.color[0]}" />
+
+                  <div class="widget price mb-50">
+                    <h6 class="widget-title mb-30">Giá</h6>
+                    <div class="widget-desc">
+                      <div class="slider-range">
+                        <div
+                          class="slider-range-price"
+                          data-min="0"
+                          data-max="1000000"
+                          data-unit="đ"
+                          data-value-min="0"
+                          data-value-max="1000000"
+                          data-label-result="Giá:"
+                          th:attr="data-min=${priceSliderMin}, data-max=${priceSliderMax}, data-value-min=${priceValueMin}, data-value-max=${priceValueMax}"></div>
+                        <div class="range-price" th:text="|Giá: ${priceValueMin}đ - ${priceValueMax}đ|"></div>
+
+                        <input type="hidden" name="minPrice" th:value="${priceValueMin}" />
+                        <input type="hidden" name="maxPrice" th:value="${priceValueMax}" />
+                      </div>
+
+                      <div class="mt-3">
+                        <button type="submit" class="btn essence-btn w-100">Áp dụng</button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-12 col-md-8 col-lg-9">
+              <div class="shop_grid_product_area">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="product-topbar d-flex align-items-center justify-content-between">
+                      <div class="total-products">
+                        <p><span th:text="${productCount}">0</span> products found</p>
+                      </div>
+                      <div class="product-sorting d-flex align-items-center">
+                        <p>SORT BY:</p>
+                        <form th:action="@{/shop}" method="get">
+                          <input type="hidden" name="root" th:if="${selectedRootSlug != null}" th:value="${selectedRootSlug}" />
+                          <input type="hidden" name="category" th:if="${selectedCategory != null}" th:value="${selectedCategory.slug}" />
+                          <input type="hidden" name="keyword" th:if="${param.keyword != null}" th:value="${param.keyword[0]}" />
+                          <input type="hidden" name="color" th:each="c : ${param.color}" th:value="${c}" />
+                          <input type="hidden" name="minPrice" th:if="${param.minPrice != null}" th:value="${param.minPrice[0]}" />
+                          <input type="hidden" name="maxPrice" th:if="${param.maxPrice != null}" th:value="${param.maxPrice[0]}" />
+                          <select name="sort" id="sortByselect" onchange="this.form.submit()">
+                            <option value="rating_desc" th:selected="${param.sort == null or param.sort[0] == '' or param.sort[0] == 'rating_desc'}">HIGHEST RATED</option>
+                            <option value="newest" th:selected="${param.sort != null and param.sort[0] == 'newest'}">NEWEST</option>
+                            <option value="priceHigh" th:selected="${param.sort != null and param.sort[0] == 'priceHigh'}">PRICE: HIGH TO LOW</option>
+                            <option value="priceLow" th:selected="${param.sort != null and param.sort[0] == 'priceLow'}">PRICE: LOW TO HIGH</option>
+                          </select>
+                        </form>
+                        <script>
+                          document.addEventListener("DOMContentLoaded", function () {
+                            const el = document.getElementById("sortByselect");
+                            if (!el) return;
+                            const submit = function () {
+                              if (el.form) el.form.submit();
+                            };
+
+                            // Native select
+                            el.addEventListener("change", submit);
+                            el.addEventListener("input", submit);
+
+                            // Theme plugin (niceSelect) uses a custom dropdown; clicking options may not trigger native change
+                            const maybeNice = el.nextElementSibling;
+                            const niceEl =
+                              maybeNice && maybeNice.classList && maybeNice.classList.contains("nice-select")
+                                ? maybeNice
+                                : (el.form ? el.form.querySelector(".nice-select") : null);
+
+                            if (niceEl) {
+                              niceEl.addEventListener("click", function (e) {
+                                const opt = e.target && e.target.closest ? e.target.closest(".option") : null;
+                                if (opt) setTimeout(submit, 0);
+                              });
+                            }
+                          });
+                        </script>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" th:if="${products == null || #lists.isEmpty(products)}">
+                  <div class="col-12">
+                    <p>Chưa có sản phẩm.</p>
+                  </div>
+                </div>
+
+                <div class="row" th:if="${products != null and !#lists.isEmpty(products)}">
+                  <div class="col-12 col-sm-6 col-lg-4" th:each="product : ${products}">
+                    <div class="single-product-wrapper">
+                      <div class="product-img">
+                        <div class="w-100 border" style="padding-top: 125%; display: none;"></div>
+
+                        <a th:href="@{/product/{id}(id=${product.id})}">
+                          <img
+                            th:if="${product.mainImageUrl != null and !#strings.isEmpty(product.mainImageUrl) and product.mainImageUrl != '/images/no-image.png'}"
+                            th:src="${product.mainImageUrl}"
+                            th:alt="${product.productName}"
+                            onerror="this.style.display='none'; this.previousElementSibling.style.display='block';" />
+                        </a>
+
+                        <div
+                          th:unless="${product.mainImageUrl != null and !#strings.isEmpty(product.mainImageUrl) and product.mainImageUrl != '/images/no-image.png'}"
+                          class="w-100 border"
+                          style="padding-top: 125%;"></div>
+
+                        <div
+                          class="product-badge offer-badge"
+                          th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                          <span th:text="|-${#numbers.formatDecimal(product.discount, 0, 0)}%|">-10%</span>
+                        </div>
+
+                        <div class="product-favourite">
+                          <a
+                            th:href="@{/wishlist/toggle(productId=${product.id})}"
+                            class="favme fa fa-heart js-wishlist-toggle"
+                            th:attr="data-product-id=${product.id}, data-product-name=${product.productName}"></a>
+                        </div>
+                      </div>
+
+                      <div class="product-description">
+                        <span th:text="${product.category?.categoryName ?: pageTitle}">Category</span>
+                        <a th:href="@{/product/{id}(id=${product.id})}">
+                          <h6 th:text="${product.productName}">Product Name</h6>
+                        </a>
+                        <p class="product-price"
+                           th:with="hasPrice=${product.price != null},
+                            hasDiscount=${hasPrice and product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0},
+                             discountedPrice=${hasPrice ? (hasDiscount ? product.price.subtract(product.price.multiply(product.discount).divide(T(java.math.BigDecimal).valueOf(100L), 2, T(java.math.RoundingMode).HALF_UP)) : product.price) : T(java.math.BigDecimal).ZERO}">
+                          <span th:if="${hasDiscount}"
+                                th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                          <b th:text="${#numbers.formatDecimal(discountedPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</b>
+                        </p>
+
+                        <div class="hover-content">
+                          <div class="add-to-cart-btn">
+                            <button
+                              type="button"
+                              class="btn essence-btn js-quick-add"
+                              th:attr="data-product-id=${product.id},data-product-name=${product.productName}">
+                              Add to Cart
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local runtime artifacts ###
+uploads/**
+!uploads/.gitkeep
+!uploads/images/.gitkeep
+
+boot.out.log
+boot.err.log
+
+bcrypt.jsh
+cp.txt

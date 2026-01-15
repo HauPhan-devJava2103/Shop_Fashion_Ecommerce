@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Chi tiết đơn hàng</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-9">
+              <div class="mb-4">
+                <h4 class="mb-1">Chi tiết đơn hàng</h4>
+                <p class="text-muted mb-0" th:if="${order != null}">
+                  Mã đơn: <span class="fw-semibold" th:text="${order.id}">0</span>
+                </p>
+              </div>
+
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">Thành công</div>
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}">Lỗi</div>
+
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <div class="text-muted" style="font-size: 13px;">Trạng thái hiện tại</div>
+                    <div class="fw-semibold" style="font-size: 18px;" th:text="${order.orderStatus.displayName}">Chờ xác nhận</div>
+                    <div class="text-muted" style="font-size: 13px;" th:text="'Ngày tạo: ' + ${order.createdAt}"></div>
+                  </div>
+                  <div class="text-end">
+                    <div class="text-muted" style="font-size: 13px;">Tổng tiền</div>
+                    <div class="fw-semibold" style="font-size: 18px;" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</div>
+                    <div class="text-muted" style="font-size: 13px;" th:text="${order.paymentMethod.displayName}"></div>
+                  </div>
+                </div>
+
+                <hr />
+
+                <!-- Cancelled info -->
+                <div th:if="${order.orderStatus.name() == 'CANCELLED'}" class="mb-4">
+                  <h6 class="mb-2">Thông tin hủy đơn</h6>
+                  <div class="text-muted" th:if="${order.cancelReason != null}" th:text="'Lý do: ' + ${order.cancelReason.displayName}"></div>
+                  <div class="text-muted" th:if="${order.cancelledAt != null}" th:text="'Thời gian hủy: ' + ${order.cancelledAt}"></div>
+                  <div class="text-muted" th:if="${order.cancelReasonNote != null && !order.cancelReasonNote.isEmpty()}" th:text="'Ghi chú: ' + ${order.cancelReasonNote}"></div>
+                </div>
+
+                <!-- Cancel form (only when pending) -->
+                <div th:if="${order.orderStatus.name() == 'PENDING'}" class="mb-4">
+                  <h6 class="mb-2">Hủy đơn hàng</h6>
+                  <form th:action="@{'/orders/' + ${order.id} + '/cancel'}" method="post" class="row g-2 align-items-end">
+                    <div class="col-12 col-md-5">
+                      <label class="form-label" style="font-size: 13px;">Lý do hủy</label>
+                      <select class="form-select" name="reason" required>
+                        <option value="" selected disabled>-- Chọn lý do --</option>
+                        <option th:each="r : ${cancelReasons}" th:value="${r.name()}" th:text="${r.displayName}"></option>
+                      </select>
+                    </div>
+                    <div class="col-12 col-md-5">
+                      <label class="form-label" style="font-size: 13px;">Ghi chú (tuỳ chọn)</label>
+                      <input class="form-control" type="text" name="note" maxlength="500" placeholder="Nhập thêm chi tiết (nếu cần)" />
+                    </div>
+                    <div class="col-12 col-md-2">
+                      <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">Hủy đơn</button>
+                    </div>
+                  </form>
+                  <div class="text-muted mt-2" style="font-size: 12px;">Chỉ có thể hủy khi đơn đang ở trạng thái chờ xác nhận.</div>
+                </div>
+
+                <div th:if="${order.orderAddress != null}">
+                  <h6 class="mb-2">Thông tin giao hàng</h6>
+                  <div class="text-muted" th:text="${order.orderAddress.recipientName}"></div>
+                  <div class="text-muted" th:text="${order.orderAddress.phone}"></div>
+                  <div class="text-muted" th:text="${order.orderAddress.addressLine}"></div>
+                  <div class="text-muted" th:text="${(order.orderAddress.ward != null ? order.orderAddress.ward + ', ' : '') + (order.orderAddress.district != null ? order.orderAddress.district + ', ' : '') + (order.orderAddress.city != null ? order.orderAddress.city : '')}"></div>
+                </div>
+
+                <div th:if="${order.orderItems != null and !order.orderItems.isEmpty()}" class="mt-4">
+                  <h6 class="mb-2">Sản phẩm</h6>
+                  <div th:each="oi : ${order.orderItems}" class="d-flex justify-content-between py-2" style="border-bottom: 1px dashed #eee;">
+                    <div style="max-width: 75%;">
+                      <div class="fw-semibold" th:text="${oi.variant != null && oi.variant.product != null ? oi.variant.product.productName : ''}">Product</div>
+                      <div class="text-muted" style="font-size: 13px;" th:text="${(oi.variant != null && oi.variant.color != null ? 'Màu: ' + oi.variant.color : '') + (oi.variant != null && oi.variant.size != null ? ' | Size: ' + oi.variant.size : '')}"></div>
+                      <div class="text-muted" style="font-size: 13px;" th:text="'SL: ' + ${oi.quantity} + ' x ' + ${#numbers.formatDecimal(oi.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></div>
+                    </div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(oi.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</div>
+                  </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                  <a th:href="@{/orders}" class="btn btn-outline-dark">Quay lại danh sách</a>
+                  <a th:href="@{/shop}" class="btn essence-btn">Tiếp tục mua sắm</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

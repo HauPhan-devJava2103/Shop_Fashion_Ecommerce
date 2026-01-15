@@ -1,5 +1,6 @@
 package vn.web.fashionshop.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -66,5 +67,99 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                         "AND p.isActive = true " +
                         "ORDER BY p.createdAt DESC")
         List<Product> findNewArrivalsByCategorySlug(@Param("categorySlug") String categorySlug, Pageable pageable);
+
+        // Lấy tất cả sản phẩm active theo root category slug (bao gồm danh mục con)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "WHERE (c.slug = :rootSlug OR pc.slug = :rootSlug) " +
+                        "AND p.isActive = true " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByRootCategorySlug(@Param("rootSlug") String rootSlug);
+
+        // Lọc theo màu (variant.color) và khoảng giá (giá sau giảm nếu có)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "LEFT JOIN p.variants v " +
+                        "WHERE (c.slug = :rootSlug OR pc.slug = :rootSlug) " +
+                        "AND p.isActive = true " +
+                        "AND (:colors IS NULL OR LOWER(v.color) IN :colors) " +
+                        "AND (:minPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) >= :minPrice) " +
+                        "AND (:maxPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) <= :maxPrice) " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByRootCategorySlugFiltered(
+                        @Param("rootSlug") String rootSlug,
+                        @Param("colors") List<String> colors,
+                        @Param("minPrice") BigDecimal minPrice,
+                        @Param("maxPrice") BigDecimal maxPrice);
+
+        // Lọc theo màu + giá cho nhiều root slug (men/women/accessories)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "LEFT JOIN p.variants v " +
+                        "WHERE (c.slug IN :rootSlugs OR pc.slug IN :rootSlugs) " +
+                        "AND p.isActive = true " +
+                        "AND (:colors IS NULL OR LOWER(v.color) IN :colors) " +
+                        "AND (:minPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) >= :minPrice) " +
+                        "AND (:maxPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) <= :maxPrice) " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByRootCategorySlugsFiltered(
+                        @Param("rootSlugs") List<String> rootSlugs,
+                        @Param("colors") List<String> colors,
+                        @Param("minPrice") BigDecimal minPrice,
+                        @Param("maxPrice") BigDecimal maxPrice);
+
+        // Lấy tất cả sản phẩm active theo 1 category slug (bao gồm danh mục con nếu có)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "WHERE (c.slug = :categorySlug OR pc.slug = :categorySlug) " +
+                        "AND p.isActive = true " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByCategorySlug(@Param("categorySlug") String categorySlug);
+
+        // Lấy tất cả sản phẩm active theo nhiều root category slug (bao gồm danh mục con)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "WHERE (c.slug IN :rootSlugs OR pc.slug IN :rootSlugs) " +
+                        "AND p.isActive = true " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByRootCategorySlugs(@Param("rootSlugs") List<String> rootSlugs);
+
+        // Lọc theo màu (variant.color) và khoảng giá (giá sau giảm nếu có)
+        @Query("SELECT DISTINCT p FROM Product p " +
+                        "JOIN FETCH p.category c " +
+                        "LEFT JOIN c.parentCategory pc " +
+                        "LEFT JOIN FETCH p.images imgs " +
+                        "LEFT JOIN p.variants v " +
+                        "WHERE (c.slug = :categorySlug OR pc.slug = :categorySlug) " +
+                        "AND p.isActive = true " +
+                        "AND (:colors IS NULL OR LOWER(v.color) IN :colors) " +
+                        "AND (:minPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) >= :minPrice) " +
+                        "AND (:maxPrice IS NULL OR (p.price - (p.price * COALESCE(p.discount, 0) / 100)) <= :maxPrice) " +
+                        "ORDER BY p.createdAt DESC")
+        List<Product> findActiveByCategorySlugFiltered(
+                        @Param("categorySlug") String categorySlug,
+                        @Param("colors") List<String> colors,
+                        @Param("minPrice") BigDecimal minPrice,
+                        @Param("maxPrice") BigDecimal maxPrice);
+
+        @Query("SELECT p FROM Product p " +
+                        "LEFT JOIN FETCH p.variants v " +
+                        "WHERE p.id = :id")
+        java.util.Optional<Product> findByIdWithVariants(@Param("id") Long id);
+
+        @Query("SELECT p FROM Product p " +
+                        "LEFT JOIN FETCH p.category c " +
+                        "WHERE p.id = :id")
+        java.util.Optional<Product> findByIdForDetail(@Param("id") Long id);
 
 }

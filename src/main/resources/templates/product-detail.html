@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title th:text="${product != null ? product.productName : 'Chi tiết sản phẩm'}">Chi tiết sản phẩm</title>
+    <style>
+      .pd-card { border: 1px solid #eee; background: #fff; border-radius: 10px; }
+      .pd-thumb { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; transition: opacity .18s ease; }
+      .pd-swatch { width: 22px; height: 22px; border-radius: 6px; border: 1px solid #ddd; display: inline-block; }
+      .pd-swatch-wrap { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid #eee; border-radius: 999px; }
+      .pd-size { display: inline-flex; align-items: center; justify-content: center; min-width: 42px; height: 36px; border: 1px solid #eee; border-radius: 10px; padding: 0 10px; font-weight: 600; }
+      .pd-stars i { color: #f1c40f; }
+      .pd-stars .empty { color: #e0e0e0; }
+      .pd-review { border-top: 1px solid #f0f0f0; padding-top: 16px; margin-top: 16px; }
+
+      .pd-option-btn { border-radius: 999px; }
+      .pd-option-btn.is-selected { border-color: #0315ff; }
+      .pd-size-btn.is-selected { border-color: #0315ff; }
+
+      .pd-gallery { position: relative; }
+      .pd-gallery-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 999px;
+        border: 1px solid #eee;
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.9;
+        z-index: 2;
+      }
+      .pd-gallery-btn:hover { opacity: 1; }
+      .pd-gallery-btn.prev { left: 10px; }
+      .pd-gallery-btn.next { right: 10px; }
+      .pd-gallery-btn[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+      .pd-thumbs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 8px 2px 2px;
+        scroll-behavior: smooth;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .pd-thumbs::-webkit-scrollbar { display: none; }
+      .pd-thumb-item {
+        flex: 0 0 auto;
+        width: 84px;
+        height: 84px;
+        border-radius: 10px;
+        border: 1px solid #eee;
+        overflow: hidden;
+        background: #fafafa;
+      }
+      .pd-thumb-btn { width: 100%; height: 100%; padding: 0; border: 0; background: transparent; }
+      .pd-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      .pd-thumb-btn.is-active { outline: 2px solid #0315ff; outline-offset: 2px; border-radius: 10px; }
+    </style>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row g-4">
+            <!-- Gallery -->
+            <div class="col-12 col-lg-6">
+              <div class="pd-card p-3">
+                <div class="pd-gallery">
+                  <button type="button" class="pd-gallery-btn prev" id="pdPrevImg" aria-label="Ảnh trước">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="pd-gallery-btn next" id="pdNextImg" aria-label="Ảnh tiếp theo">
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                  </button>
+
+                  <img
+                    class="pd-thumb"
+                    id="pdMainImg"
+                    th:src="${product != null ? product.mainImageUrl : '/images/no-image.png'}"
+                    th:alt="${product != null ? product.productName : 'Product'}" />
+                </div>
+
+                <div class="pd-thumbs" id="pdThumbs" th:if="${product != null}">
+                  <div class="pd-thumb-item" th:if="${product.mainImageUrl != null and !#strings.isEmpty(product.mainImageUrl)}">
+                    <button
+                      type="button"
+                      class="pd-thumb-btn"
+                      th:attr="data-src=${product.mainImageUrl}, data-alt=${product.productName}">
+                      <img th:src="${product.mainImageUrl}" th:alt="${product.productName}" />
+                    </button>
+                  </div>
+
+                  <div class="pd-thumb-item" th:each="img : ${product.images}" th:if="${product.images != null and !#lists.isEmpty(product.images)}">
+                    <button
+                      type="button"
+                      class="pd-thumb-btn"
+                      th:attr="data-src=${img.urlImage}, data-alt=${img.altText}">
+                      <img th:src="${img.urlImage}" th:alt="${img.altText}" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="col-12 col-lg-6">
+              <div class="pd-card p-4">
+                <div class="text-muted" style="font-size: 13px;" th:text="${product != null && product.category != null ? product.category.categoryName : ''}"></div>
+                <h3 class="mb-2" th:text="${product != null ? product.productName : ''}">Product Name</h3>
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                  <div class="pd-stars">
+                    <th:block th:with="full=${T(java.lang.Math).floor(avgRating)}">
+                      <span th:each="i : ${#numbers.sequence(1,5)}">
+                        <i class="fa fa-star" th:classappend="${i <= full} ? '' : ' empty'"></i>
+                      </span>
+                    </th:block>
+                  </div>
+                  <div class="text-muted" th:text="'(' + ${reviewCount} + ' đánh giá)'">(0 đánh giá)</div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="h4 mb-0" th:if="${product != null}">
+                    <span th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}" class="text-muted" style="text-decoration: line-through; font-size: 16px; margin-right: 8px;"
+                          th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                    <span th:text="${#numbers.formatDecimal(discountedPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                  </div>
+                </div>
+
+                <!-- Variants -->
+                <div class="mb-3">
+                  <div class="fw-semibold mb-2">Màu sắc</div>
+
+                  <!-- JS-enhanced selectable options -->
+                  <div id="pdColors" class="d-flex flex-wrap gap-2" th:attr="data-product-id=${product != null ? product.id : 0}"></div>
+
+                  <!-- Fallback (no JS) -->
+                  <div id="pdColorsFallback" class="d-flex flex-wrap gap-2">
+                    <div th:if="${colors == null or #lists.isEmpty(colors)}" class="text-muted">(Chưa có dữ liệu)</div>
+                    <div th:each="c : ${colors}" class="pd-swatch-wrap">
+                      <span class="pd-swatch" th:style="'background:' + ${c}"></span>
+                      <span th:text="${c}">Color</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <div class="fw-semibold mb-2">Size</div>
+                  <div id="pdSizes" class="d-flex flex-wrap gap-2"></div>
+
+                  <!-- Fallback (no JS) -->
+                  <div id="pdSizesFallback" class="d-flex flex-wrap gap-2">
+                    <div th:if="${sizes == null or #lists.isEmpty(sizes)}" class="text-muted">(Chưa có dữ liệu)</div>
+                    <span th:each="s : ${sizes}" class="pd-size" th:text="${s}">M</span>
+                  </div>
+
+                  <div class="small text-muted mt-2" id="pdStock"></div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-4">
+                  <div class="fw-semibold mb-2">Mô tả</div>
+                  <div class="text-muted" th:if="${product == null or product.description == null or #strings.isEmpty(product.description)}">(Chưa có mô tả)</div>
+                  <div th:if="${product != null and product.description != null and !#strings.isEmpty(product.description)}"
+                       th:text="${product.description}" style="white-space: pre-line;"></div>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap" th:if="${product != null}">
+                  <button type="button" class="btn essence-btn" id="pdAddToCart" th:attr="data-product-id=${product.id}">Add to Cart</button>
+                  <a
+                    th:href="@{/wishlist/toggle(productId=${product.id})}"
+                    class="btn btn-outline-dark js-wishlist-toggle d-flex align-items-center justify-content-center gap-2"
+                    th:attr="data-product-id=${product.id}, data-product-name=${product.productName}">
+                    <i class="fa fa-heart" aria-hidden="true"></i>
+                    <span class="js-wishlist-label">Yêu thích</span>
+                  </a>
+                  <a th:href="@{/shop}" class="btn btn-outline-dark d-flex align-items-center justify-content-center">Quay lại Shop</a>
+                </div>
+
+                <div class="text-muted mt-3" style="font-size: 12px;">
+                  * Nếu sản phẩm chưa có màu/size/mô tả trong database, trang sẽ để trống để bạn bổ sung sau.
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="col-12">
+              <div class="pd-card p-4">
+                <h5 class="mb-2">Đánh giá & Nhận xét</h5>
+                <div class="text-muted mb-3" th:text="${reviewCount} + ' đánh giá đã duyệt'">0 đánh giá</div>
+
+                <div th:if="${reviews == null or #lists.isEmpty(reviews)}" class="text-muted">(Chưa có đánh giá)</div>
+
+                <div th:each="r : ${reviews}" class="pd-review">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="fw-semibold" th:text="${r.userFullName != null ? r.userFullName : 'Khách hàng'}">Khách hàng</div>
+                      <div class="pd-stars" style="font-size: 13px;">
+                        <span th:each="i : ${#numbers.sequence(1,5)}">
+                          <i class="fa fa-star" th:classappend="${r.rating != null and i <= r.rating} ? '' : ' empty'"></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="text-muted" style="font-size: 12px;" th:text="${r.createdAt != null ? #temporals.format(r.createdAt, 'dd/MM/yyyy') : ''}"></div>
+                  </div>
+
+                  <div class="mt-2" th:if="${r.comment != null and !#strings.isEmpty(r.comment)}" th:text="${r.comment}" style="white-space: pre-line;"></div>
+                  <div class="mt-2 text-muted" th:if="${r.comment == null or #strings.isEmpty(r.comment)}">(Không có nội dung)</div>
+
+                  <div class="mt-2" th:if="${r.imageUrl != null and !#strings.isEmpty(r.imageUrl)}">
+                    <img th:src="${r.imageUrl}" alt="" style="width: 96px; height: 96px; object-fit: cover; border-radius: 10px; border: 1px solid #eee;" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <script>
+        (function () {
+          // Product gallery
+          (function initProductGallery() {
+            const mainImg = document.getElementById("pdMainImg");
+            const thumbsWrap = document.getElementById("pdThumbs");
+            const prevBtn = document.getElementById("pdPrevImg");
+            const nextBtn = document.getElementById("pdNextImg");
+            if (!mainImg || !thumbsWrap || !prevBtn || !nextBtn) return;
+
+            const thumbButtons = Array.from(thumbsWrap.querySelectorAll(".pd-thumb-btn"));
+            if (!thumbButtons.length) {
+              prevBtn.style.display = "none";
+              nextBtn.style.display = "none";
+              return;
+            }
+
+            let currentIndex = 0;
+
+            function setActiveThumb(index) {
+              thumbButtons.forEach((b, i) => {
+                if (i === index) b.classList.add("is-active");
+                else b.classList.remove("is-active");
+              });
+            }
+
+            function scrollThumbIntoView(index) {
+              const btn = thumbButtons[index];
+              if (btn && btn.scrollIntoView) {
+                btn.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+              }
+            }
+
+            async function setMainFromIndex(index) {
+              const btn = thumbButtons[index];
+              if (!btn) return;
+              const src = btn.getAttribute("data-src");
+              const alt = btn.getAttribute("data-alt") || "";
+              if (!src || mainImg.getAttribute("src") === src) {
+                currentIndex = index;
+                setActiveThumb(index);
+                scrollThumbIntoView(index);
+                return;
+              }
+
+              // preload then fade
+              mainImg.style.opacity = "0.15";
+              const img = new Image();
+              img.onload = function () {
+                mainImg.setAttribute("src", src);
+                mainImg.setAttribute("alt", alt);
+                requestAnimationFrame(() => {
+                  mainImg.style.opacity = "1";
+                });
+              };
+              img.onerror = function () {
+                mainImg.style.opacity = "1";
+              };
+              img.src = src;
+
+              currentIndex = index;
+              setActiveThumb(index);
+              scrollThumbIntoView(index);
+            }
+
+            function updateNavState() {
+              const many = thumbButtons.length > 1;
+              prevBtn.style.display = many ? "inline-flex" : "none";
+              nextBtn.style.display = many ? "inline-flex" : "none";
+            }
+
+            thumbButtons.forEach((btn, idx) => {
+              btn.addEventListener("click", function () {
+                setMainFromIndex(idx);
+              });
+            });
+
+            prevBtn.addEventListener("click", function () {
+              const nextIndex = (currentIndex - 1 + thumbButtons.length) % thumbButtons.length;
+              setMainFromIndex(nextIndex);
+            });
+
+            nextBtn.addEventListener("click", function () {
+              const nextIndex = (currentIndex + 1) % thumbButtons.length;
+              setMainFromIndex(nextIndex);
+            });
+
+            document.addEventListener("keydown", function (e) {
+              if (e.key === "ArrowLeft") prevBtn.click();
+              if (e.key === "ArrowRight") nextBtn.click();
+            });
+
+            // init
+            updateNavState();
+            setMainFromIndex(0);
+          })();
+
+          const colorsEl = document.getElementById("pdColors");
+          const sizesEl = document.getElementById("pdSizes");
+          const stockEl = document.getElementById("pdStock");
+          const addBtn = document.getElementById("pdAddToCart");
+          if (!colorsEl || !sizesEl || !addBtn) return;
+
+          const productId = Number(colorsEl.getAttribute("data-product-id") || addBtn.getAttribute("data-product-id"));
+          if (!Number.isFinite(productId) || productId <= 0) return;
+
+          const fallbackColors = document.getElementById("pdColorsFallback");
+          const fallbackSizes = document.getElementById("pdSizesFallback");
+
+          let variants = [];
+          let selectedColor = null;
+          let selectedSize = null;
+          let selectedVariantId = null;
+
+          function normalize(v) {
+            return v == null || String(v).trim() === "" ? "DEFAULT" : String(v);
+          }
+
+          function displayLabel(v, kind) {
+            if (v === "DEFAULT") {
+              return kind === "color" ? "Mặc định" : "Free";
+            }
+            return v;
+          }
+
+          function clearNode(node) {
+            while (node.firstChild) node.removeChild(node.firstChild);
+          }
+
+          function renderColors() {
+            clearNode(colorsEl);
+            const colors = Array.from(new Set(variants.map((x) => normalize(x.color))));
+            colors.sort();
+
+            colors.forEach((c) => {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "btn btn-outline-dark btn-sm pd-option-btn";
+              btn.setAttribute("data-color", c);
+              btn.textContent = displayLabel(c, "color");
+              btn.addEventListener("click", function () {
+                selectedColor = c;
+                // reset size when changing color
+                selectedSize = null;
+                selectedVariantId = null;
+                renderColors();
+                renderSizes();
+                updateStock();
+              });
+              if (selectedColor === null) {
+                selectedColor = c;
+              }
+              if (selectedColor === c) {
+                btn.classList.add("is-selected");
+              }
+              colorsEl.appendChild(btn);
+            });
+          }
+
+          function renderSizes() {
+            clearNode(sizesEl);
+
+            const sizes = Array.from(
+              new Set(
+                variants
+                  .filter((v) => normalize(v.color) === normalize(selectedColor))
+                  .map((v) => normalize(v.size))
+              )
+            );
+            sizes.sort();
+
+            sizes.forEach((s) => {
+              const btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "btn btn-outline-dark btn-sm pd-size-btn";
+              btn.setAttribute("data-size", s);
+              btn.textContent = displayLabel(s, "size");
+              btn.addEventListener("click", function () {
+                selectedSize = s;
+                computeSelectedVariant();
+                renderSizes();
+                updateStock();
+              });
+
+              if (selectedSize === null) {
+                selectedSize = s;
+              }
+              if (selectedSize === s) {
+                btn.classList.add("is-selected");
+              }
+              sizesEl.appendChild(btn);
+            });
+
+            computeSelectedVariant();
+          }
+
+          function computeSelectedVariant() {
+            const c = normalize(selectedColor);
+            const s = normalize(selectedSize);
+            const match = variants.find((v) => normalize(v.color) === c && normalize(v.size) === s);
+            selectedVariantId = match ? match.id : null;
+          }
+
+          function updateStock() {
+            if (!stockEl) return;
+            const c = normalize(selectedColor);
+            const s = normalize(selectedSize);
+            const match = variants.find((v) => normalize(v.color) === c && normalize(v.size) === s);
+            if (!match) {
+              stockEl.textContent = "";
+              return;
+            }
+            const st = typeof match.stock === "number" ? match.stock : null;
+            stockEl.textContent = st != null ? "Tồn kho: " + st : "";
+          }
+
+          async function loadVariants() {
+            try {
+              const res = await fetch("/api/products/" + productId + "/variants");
+              if (!res.ok) return [];
+              const data = await res.json();
+              return Array.isArray(data) ? data : [];
+            } catch (e) {
+              return [];
+            }
+          }
+
+          async function addToCart() {
+            addBtn.disabled = true;
+            const prevText = addBtn.textContent;
+            addBtn.textContent = "Đang thêm...";
+            try {
+              let url;
+              let payload;
+              if (selectedVariantId) {
+                url = "/api/cart/add-variant";
+                payload = { variantId: selectedVariantId, quantity: 1 };
+              } else {
+                // fallback for products without variants
+                url = "/api/cart/add";
+                payload = { productId: productId, quantity: 1 };
+              }
+
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              if (!res.ok) {
+                if (typeof window.showAppToast === "function") {
+                  window.showAppToast("Thêm vào giỏ thất bại. Vui lòng thử lại.");
+                }
+                return;
+              }
+
+              if (typeof window.refreshCartCount === "function") {
+                window.refreshCartCount();
+              }
+              if (typeof window.showAppToast === "function") {
+                window.showAppToast("Đã thêm vào giỏ hàng");
+              }
+            } finally {
+              addBtn.disabled = false;
+              addBtn.textContent = prevText;
+            }
+          }
+
+          addBtn.addEventListener("click", addToCart);
+
+          (async function init() {
+            variants = await loadVariants();
+
+            // If variants exist, use JS UI and hide fallback blocks
+            if (variants && variants.length > 0) {
+              if (fallbackColors) fallbackColors.style.setProperty("display", "none", "important");
+              if (fallbackSizes) fallbackSizes.style.setProperty("display", "none", "important");
+              renderColors();
+              renderSizes();
+              updateStock();
+            } else {
+              // keep fallback visible; still allow add via product API
+              colorsEl.style.setProperty("display", "none", "important");
+              sizesEl.style.setProperty("display", "none", "important");
+              if (stockEl) stockEl.textContent = "";
+            }
+          })();
+        })();
+      </script>
+    </main>
+  </body>
+</html>

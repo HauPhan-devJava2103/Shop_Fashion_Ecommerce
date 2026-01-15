@@ -223,6 +223,24 @@ public class ProductController {
         }
     }
 
+    @PostMapping("/edit/{id}/upload-main-image")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public String uploadMainImageFromEdit(
+            @PathVariable Long id,
+            @RequestParam("imageFile") org.springframework.web.multipart.MultipartFile imageFile,
+            RedirectAttributes redirectAttributes) {
+
+        try {
+            productImageService.uploadMainImage(id, imageFile);
+            redirectAttributes.addFlashAttribute("success", "Upload ảnh thành công và đã đặt làm ảnh chính!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+
+        return "redirect:/admin/products/edit/" + id;
+    }
+
     // ==================== IMAGE MANAGEMENT ====================
 
     @GetMapping("/{id}/images")

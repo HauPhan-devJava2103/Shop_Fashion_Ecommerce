@@ -136,6 +136,43 @@ public class ProductService {
         return productRepository.findNewArrivalsByCategorySlug(categorySlug, pageable);
     }
 
+    // Lấy tất cả sản phẩm active theo root category slug (bao gồm danh mục con)
+    public List<Product> getActiveProductsByRootCategorySlug(String rootSlug) {
+        return productRepository.findActiveByRootCategorySlug(rootSlug);
+    }
+
+    public List<Product> getActiveProductsByRootCategorySlugs(List<String> rootSlugs) {
+        return productRepository.findActiveByRootCategorySlugs(rootSlugs);
+    }
+
+    public List<Product> getActiveProductsByRootCategorySlugsFiltered(
+            List<String> rootSlugs,
+            List<String> colors,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+        return productRepository.findActiveByRootCategorySlugsFiltered(rootSlugs, colors, minPrice, maxPrice);
+    }
+
+    public List<Product> getActiveProductsByRootCategorySlugFiltered(
+            String rootSlug,
+            List<String> colors,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+        return productRepository.findActiveByRootCategorySlugFiltered(rootSlug, colors, minPrice, maxPrice);
+    }
+
+    public List<Product> getActiveProductsByCategorySlug(String categorySlug) {
+        return productRepository.findActiveByCategorySlug(categorySlug);
+    }
+
+    public List<Product> getActiveProductsByCategorySlugFiltered(
+            String categorySlug,
+            List<String> colors,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+        return productRepository.findActiveByCategorySlugFiltered(categorySlug, colors, minPrice, maxPrice);
+    }
+
     public Page<Product> searchProductAdvanced(String keyword, Long category, String stock, String sku, String isActive,
             int pageNo) {
         int pageSize = 6;

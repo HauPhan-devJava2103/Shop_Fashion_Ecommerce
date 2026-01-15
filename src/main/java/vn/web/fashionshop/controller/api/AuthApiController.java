@@ -48,14 +48,16 @@ public class AuthApiController {
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtUtil.generateToken(userDetails);
+
+            boolean rememberMe = request.getRememberMe() != null && request.getRememberMe();
+            String token = jwtUtil.generateToken(userDetails, rememberMe);
 
             // Save token to cookie for web browser
             Cookie jwtCookie = new Cookie("jwt_token", token);
             jwtCookie.setHttpOnly(true);
             jwtCookie.setSecure(false); // Set true if using HTTPS
             jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(86400); // 24 hours
+            jwtCookie.setMaxAge(rememberMe ? 2592000 : 86400); // 30 days or 24 hours
             response.addCookie(jwtCookie);
 
             // Get user info

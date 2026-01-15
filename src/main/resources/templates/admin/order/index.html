@@ -133,6 +133,29 @@
             </div>
           </div>
         </div>
+
+        <!-- Cancelled Orders -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <p class="text-muted mb-2 small fw-semibold">ĐƠN BỊ HỦY</p>
+                  <h3 class="mb-0 fw-bold" th:text="${totalCancelled}">0</h3>
+                  <small class="text-danger">
+                    <i class="bi bi-x-circle"></i>
+                    <span>Đã hủy</span>
+                  </small>
+                </div>
+                <div
+                  class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                  style="width: 60px; height: 60px">
+                  <i class="bi bi-x-circle text-danger fs-3"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Combined Charts Card -->
@@ -229,6 +252,37 @@
                       th:data-cancelled="${statusCancelled}"></canvas>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancellation Reasons Stats -->
+      <div class="row g-4 mb-4" th:if="${statusCancelled != null && statusCancelled > 0}">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+              <h5 class="mb-0 fw-semibold">
+                <i class="bi bi-x-circle text-danger me-2"></i>Thống kê lý do hủy đơn
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Lý do</th>
+                      <th class="text-end">Số lượng</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="entry : ${cancelReasonStats.entrySet()}">
+                      <td th:text="${entry.key.displayName}">Lý do</td>
+                      <td class="text-end" th:text="${entry.value}">0</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

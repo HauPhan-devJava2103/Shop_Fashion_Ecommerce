@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title th:text="${pageTitle != null ? pageTitle : 'Wishlist'}">Wishlist</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section
+        class="breadcrumb-area bg-img bg-overlay"
+        th:style="'background-image: url(' + @{/img/bg-img/breadcumb.jpg} + ');'">
+        <div class="container h-100">
+          <div class="row h-100 align-items-center">
+            <div class="col-12">
+              <div class="breadcrumb-content text-center">
+                <h2>Wishlist</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row" th:if="${items == null || #lists.isEmpty(items)}">
+            <div class="col-12">
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
+                <h5 class="mb-2">Wishlist trống</h5>
+                <p class="text-muted mb-3">Bạn chưa thêm sản phẩm nào vào wishlist.</p>
+                <a th:href="@{/shop}" class="btn btn-outline-dark">Tiếp tục mua sắm</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" th:if="${items != null and !#lists.isEmpty(items)}">
+            <div class="col-12 col-sm-6 col-lg-4" th:each="wi : ${items}" data-wishlist-item>
+              <div class="single-product-wrapper">
+                <div class="product-img">
+                  <a th:href="@{/product/{id}(id=${wi.product.id})}">
+                    <img
+                      th:if="${wi.product.mainImageUrl != null and !#strings.isEmpty(wi.product.mainImageUrl)}"
+                      th:src="${wi.product.mainImageUrl}"
+                      th:alt="${wi.product.productName}" />
+                    <img
+                      th:unless="${wi.product.mainImageUrl != null and !#strings.isEmpty(wi.product.mainImageUrl)}"
+                      th:src="@{/img/product-img/product-1.jpg}"
+                      th:alt="${wi.product.productName}" />
+                  </a>
+                </div>
+
+                <div class="product-description">
+                  <a th:href="@{/product/{id}(id=${wi.product.id})}">
+                    <h6 th:text="${wi.product.productName}">Product Name</h6>
+                  </a>
+
+                  <p class="product-price">
+                    <span th:text="${#numbers.formatDecimal(wi.product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</span>
+                  </p>
+
+                  <div class="hover-content">
+                    <div class="add-to-cart-btn" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <a th:href="@{/product/{id}(id=${wi.product.id})}" class="btn essence-btn">Xem chi tiết</a>
+                      <a
+                        th:href="@{/wishlist/toggle(productId=${wi.product.id})}"
+                        class="btn btn-outline-dark js-wishlist-toggle"
+                        th:attr="data-product-id=${wi.product.id}, data-product-name=${wi.product.productName}"
+                        data-remove-on-unlike>
+                        Bỏ thích
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12" id="wishlistEmptyState" style="display:none">
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
+                <h5 class="mb-2">Wishlist trống</h5>
+                <p class="text-muted mb-3">Bạn chưa thêm sản phẩm nào vào wishlist.</p>
+                <a th:href="@{/shop}" class="btn btn-outline-dark">Tiếp tục mua sắm</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

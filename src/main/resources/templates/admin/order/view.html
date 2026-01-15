@@ -222,6 +222,12 @@
             <span class="badge bg-danger fs-6 px-3 py-2">
               <i class="bi bi-x-circle me-2"></i>Đơn hàng đã bị hủy
             </span>
+
+            <div class="mt-3" style="max-width: 700px; margin: 0 auto;">
+              <div class="text-muted" th:if="${order.cancelReason != null}" th:text="'Lý do: ' + ${order.cancelReason.displayName}">Lý do</div>
+              <div class="text-muted" th:if="${order.cancelledAt != null}" th:text="'Thời gian hủy: ' + ${order.cancelledAt}">Thời gian</div>
+              <div class="text-muted" th:if="${order.cancelReasonNote != null && !order.cancelReasonNote.isEmpty()}" th:text="'Ghi chú: ' + ${order.cancelReasonNote}">Ghi chú</div>
+            </div>
           </div>
         </div>
       </div>

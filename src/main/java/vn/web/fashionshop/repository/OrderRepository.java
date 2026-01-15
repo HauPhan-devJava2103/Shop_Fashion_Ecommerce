@@ -13,10 +13,37 @@ import org.springframework.stereotype.Repository;
 
 import vn.web.fashionshop.entity.Order;
 import vn.web.fashionshop.enums.EOrderStatus;
+import vn.web.fashionshop.enums.EOrderCancelReason;
 import vn.web.fashionshop.enums.EPaymentMethod;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
+
+        @Query("SELECT o FROM Order o JOIN o.user u WHERE o.id = :id AND u.email = :email")
+        java.util.Optional<Order> findByIdAndUserEmail(
+                        @Param("id") Long id,
+                        @Param("email") String email);
+
+        @Query("SELECT DISTINCT o FROM Order o " +
+                        "JOIN o.user u " +
+                        "LEFT JOIN FETCH o.orderAddress oa " +
+                        "LEFT JOIN FETCH o.orderItems oi " +
+                        "LEFT JOIN FETCH oi.variant v " +
+                        "LEFT JOIN FETCH v.product p " +
+                        "WHERE o.id = :id AND u.email = :email")
+        java.util.Optional<Order> findByIdAndUserEmailWithDetails(
+                        @Param("id") Long id,
+                        @Param("email") String email);
+
+        @Query("SELECT o FROM Order o " +
+                        "JOIN o.user u " +
+                        "LEFT JOIN FETCH o.orderAddress oa " +
+                        "WHERE u.email = :email " +
+                        "ORDER BY o.createdAt DESC")
+        java.util.List<Order> findMyOrdersWithAddress(@Param("email") String email);
+
+        @Query("SELECT o.cancelReason, COUNT(o) FROM Order o WHERE o.orderStatus = 'CANCELLED' GROUP BY o.cancelReason")
+        java.util.List<Object[]> countCancelledByReason();
 
         // Tổng đơn hàng
         @Query("SELECT COUNT(o) FROM Order o")

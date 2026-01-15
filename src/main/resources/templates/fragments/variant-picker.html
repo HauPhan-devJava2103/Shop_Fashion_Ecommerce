@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div th:fragment="variant-picker">
+      <!-- Variant Picker Modal (frontend only) -->
+      <div
+        class="modal fade"
+        id="variantPickerModal"
+        tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="variantPickerTitle">Chọn biến thể</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div id="variantPickerError" class="alert alert-danger" style="display:none"></div>
+
+              <div class="mb-3">
+                <label class="form-label">Màu</label>
+                <select class="form-select" id="variantColor"></select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Size</label>
+                <select class="form-select" id="variantSize"></select>
+              </div>
+
+              <div class="small text-muted" id="variantStock"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                Hủy
+              </button>
+              <button type="button" class="btn btn-primary" id="confirmAddToCart">
+                Thêm vào giỏ
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          const modalEl = document.getElementById("variantPickerModal");
+          if (!modalEl) return;
+
+          const titleEl = document.getElementById("variantPickerTitle");
+          const errorEl = document.getElementById("variantPickerError");
+          const colorEl = document.getElementById("variantColor");
+          const sizeEl = document.getElementById("variantSize");
+          const stockEl = document.getElementById("variantStock");
+          const confirmBtn = document.getElementById("confirmAddToCart");
+
+          let modal;
+          let currentProductId = null;
+          let currentVariants = [];
+          let selectedVariantId = null;
+
+          function showError(msg) {
+            errorEl.textContent = msg;
+            errorEl.style.display = "block";
+          }
+          function clearError() {
+            errorEl.textContent = "";
+            errorEl.style.display = "none";
+          }
+
+          function normalize(val) {
+            return val == null || String(val).trim() === "" ? "DEFAULT" : String(val);
+          }
+
+          function setSelectOptions(select, options) {
+            select.innerHTML = "";
+            for (const opt of options) {
+              const o = document.createElement("option");
+              o.value = opt.value;
+              o.textContent = opt.label;
+              select.appendChild(o);
+            }
+          }
+
+          function formatLabel(val, kind) {
+            if (val === "DEFAULT") {
+              return kind === "color" ? "Mặc định" : "Free";
+            }
+            return val;
+          }
+
+          function ensureNativeSelect(select) {
+            if (!select) return;
+
+            // Theme script (active.js) enhances all <select> using jQuery niceSelect.
+            // That breaks dynamic option updates inside this Bootstrap modal.
+            try {
+              if (window.jQuery && window.jQuery.fn && typeof window.jQuery(select).niceSelect === "function") {
+                window.jQuery(select).niceSelect("destroy");
+              }
+            } catch (e) {
+              // ignore
+            }
+
+            // Defensive cleanup in case the nice-select DOM is still present
+            const sibling = select.nextElementSibling;
+            if (sibling && sibling.classList && sibling.classList.contains("nice-select")) {
+              sibling.remove();
+            }
+
+            select.style.display = "";
+          }
+
+          function computeSelectedVariant() {
+            const selectedColor = normalize(colorEl.value);
+            const selectedSize = normalize(sizeEl.value);
+
+            const match = currentVariants.find((v) => {
+              return normalize(v.color) === selectedColor && normalize(v.size) === selectedSize;
+            });
+
+            selectedVariantId = match ? match.id : null;
+            if (match) {
+              const st = typeof match.stock === "number" ? match.stock : null;
+              stockEl.textContent = st != null ? "Tồn kho: " + st : "";
+            } else {
+              stockEl.textContent = "";
+            }
+          }
+
+          function refreshSizeOptions() {
+            const selectedColor = normalize(colorEl.value);
+            const sizes = Array.from(
+              new Set(
+                currentVariants
+                  .filter((v) => normalize(v.color) === selectedColor)
+                  .map((v) => normalize(v.size))
+              )
+            );
+
+            sizes.sort();
+            setSelectOptions(
+              sizeEl,
+              sizes.map((s) => ({ value: s, label: formatLabel(s, "size") }))
+            );
+            computeSelectedVariant();
+          }
+
+          async function openVariantPicker(productId, productName) {
+            currentProductId = productId;
+            currentVariants = [];
+            selectedVariantId = null;
+            clearError();
+
+            // Ensure dropdowns are actually clickable (disable theme select plugin)
+            ensureNativeSelect(colorEl);
+            ensureNativeSelect(sizeEl);
+
+            titleEl.textContent = productName ? "Chọn biến thể: " + productName : "Chọn biến thể";
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Đang tải...";
+            stockEl.textContent = "";
+
+            try {
+              const res = await fetch("/api/products/" + productId + "/variants");
+              if (!res.ok) throw new Error("LOAD_VARIANTS_FAILED");
+              const variants = await res.json();
+              currentVariants = Array.isArray(variants) ? variants : [];
+
+              if (currentVariants.length === 0) {
+                // No variants - still allow adding product (backend will pick/create default)
+                setSelectOptions(colorEl, [{ value: "DEFAULT", label: formatLabel("DEFAULT", "color") }]);
+                setSelectOptions(sizeEl, [{ value: "DEFAULT", label: formatLabel("DEFAULT", "size") }]);
+                selectedVariantId = null;
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Thêm vào giỏ";
+              } else {
+                const colors = Array.from(new Set(currentVariants.map((v) => normalize(v.color))));
+                colors.sort();
+                setSelectOptions(
+                  colorEl,
+                  colors.map((c) => ({ value: c, label: formatLabel(c, "color") }))
+                );
+                refreshSizeOptions();
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Thêm vào giỏ";
+              }
+
+              // After dynamic options update, make sure selects stay native.
+              ensureNativeSelect(colorEl);
+              ensureNativeSelect(sizeEl);
+            } catch (e) {
+              showError("Không tải được size/màu. Vui lòng thử lại.");
+              confirmBtn.disabled = false;
+              confirmBtn.textContent = "Thêm vào giỏ";
+            }
+
+            modal = modal || new bootstrap.Modal(modalEl);
+            modal.show();
+          }
+
+          // Defensive: ensure Close/Cancel always works even if Bootstrap data-api is affected
+          modalEl.addEventListener("click", function (e) {
+            const dismiss = e.target && e.target.closest ? e.target.closest('[data-bs-dismiss="modal"]') : null;
+            if (!dismiss) return;
+            try {
+              modal = modal || new bootstrap.Modal(modalEl);
+              modal.hide();
+            } catch (err) {
+              // ignore
+            }
+          });
+
+          colorEl.addEventListener("change", function () {
+            clearError();
+            if (!currentVariants.length) return;
+            refreshSizeOptions();
+          });
+          sizeEl.addEventListener("change", function () {
+            clearError();
+            if (!currentVariants.length) return;
+            computeSelectedVariant();
+          });
+
+          confirmBtn.addEventListener("click", async function () {
+            clearError();
+            if (!currentProductId) return;
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Đang thêm...";
+
+            try {
+              let url;
+              let payload;
+              if (selectedVariantId) {
+                url = "/api/cart/add-variant";
+                payload = { variantId: selectedVariantId, quantity: 1 };
+              } else {
+                url = "/api/cart/add";
+                payload = { productId: currentProductId, quantity: 1 };
+              }
+
+              const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              if (!res.ok) throw new Error("ADD_FAILED");
+
+              if (typeof window.refreshCartCount === "function") {
+                window.refreshCartCount();
+              }
+
+              modal = modal || new bootstrap.Modal(modalEl);
+              modal.hide();
+            } catch (e) {
+              showError("Thêm vào giỏ thất bại. Vui lòng thử lại.");
+            } finally {
+              confirmBtn.disabled = false;
+              confirmBtn.textContent = "Thêm vào giỏ";
+            }
+          });
+
+          document.addEventListener("click", function (e) {
+            const btn = e.target.closest && e.target.closest(".js-quick-add");
+            if (!btn) return;
+            e.preventDefault();
+            const productId = btn.getAttribute("data-product-id");
+            const productName = btn.getAttribute("data-product-name");
+            if (!productId) return;
+            openVariantPicker(productId, productName);
+          });
+        })();
+      </script>
+    </div>
+  </body>
+</html>

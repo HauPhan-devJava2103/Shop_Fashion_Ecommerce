@@ -64,6 +64,17 @@
                 </a>
               </div>
 
+              <div class="form-check mb-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="rememberMe"
+                  name="rememberMe" />
+                <label class="form-check-label" for="rememberMe">
+                  Ghi nhớ đăng nhập
+                </label>
+              </div>
+
               <button
                 type="submit"
                 class="btn btn-primary w-100"
@@ -83,11 +94,6 @@
       </div>
 
       <script>
-        // Tự động xóa token cũ khi vào trang login
-        document.cookie = "jwt_token=; path=/; max-age=0";
-        localStorage.removeItem("jwt_token");
-        localStorage.removeItem("user_role");
-
         document
           .getElementById("loginForm")
           .addEventListener("submit", async function (e) {
@@ -95,6 +101,7 @@
 
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
+            const rememberMe = document.getElementById("rememberMe").checked;
             const submitBtn = document.getElementById("submitBtn");
             const errorMsg = document.getElementById("errorMsg");
             const successMsg = document.getElementById("successMsg");
@@ -111,7 +118,7 @@
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, rememberMe }),
               });
 
               const data = await response.json();
@@ -123,9 +130,7 @@
                 localStorage.setItem("user_email", data.data.email);
                 localStorage.setItem("user_fullName", data.data.fullName);
 
-                // Set cookie for server-side authentication (needed for page navigation)
-                document.cookie =
-                  "jwt_token=" + data.data.token + "; path=/; max-age=86400";
+                // Cookie for server-side authentication is set by the backend (HttpOnly)
 
                 successMsg.textContent =
                   "Đăng nhập thành công! Đang chuyển hướng...";

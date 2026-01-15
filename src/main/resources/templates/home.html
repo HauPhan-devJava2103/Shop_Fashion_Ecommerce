@@ -47,7 +47,7 @@
                       Khám phá những mẫu thiết kế mới nhất cho mùa hè năng động,
                       mang lại cảm giác thoải mái và phong cách.
                     </p>
-                    <a href="shop.html" class="btn essence-btn">Mua ngay</a>
+                    <a th:href="@{/shop}" class="btn essence-btn">Mua ngay</a>
                   </div>
                 </div>
               </div>
@@ -67,7 +67,7 @@
                       Tự tin thể hiện cá tính với những bộ trang phục dạo phố
                       đơn giản nhưng đầy tinh tế.
                     </p>
-                    <a href="shop.html" class="btn essence-btn">Mua ngay</a>
+                    <a th:href="@{/shop}" class="btn essence-btn">Mua ngay</a>
                   </div>
                 </div>
               </div>
@@ -145,12 +145,12 @@
                 </a>
                 <a
                   th:unless="${featuredCategories != null and featuredCategories.size() > 0}"
-                  href="#"
+                  th:href="@{/shop}"
                   class="product-category"
                   >Women <span>25 items</span></a
                 >
                 <img
-                  src="img/bg-img/model_4.png"
+                  src="img/bg-img/model_5.png"
                   alt="Image"
                   class="img-fluid" />
               </div>
@@ -171,12 +171,12 @@
                 </a>
                 <a
                   th:unless="${featuredCategories != null and featuredCategories.size() > 1}"
-                  href="#"
+                  th:href="@{/shop}"
                   class="product-category"
                   >Men <span>25 items</span></a
                 >
                 <img
-                  src="img/bg-img/model_5.png"
+                  src="img/bg-img/model_4.png"
                   alt="Image"
                   class="img-fluid" />
               </div>
@@ -194,7 +194,7 @@
                 </a>
                 <a
                   th:unless="${featuredCategories != null and featuredCategories.size() > 2}"
-                  href="#"
+                  th:href="@{/shop}"
                   class="product-category"
                   >Phụ kiện <span>25 items</span></a
                 >
@@ -247,7 +247,10 @@
                     </div>
                     <!-- Favourite -->
                     <div class="product-favourite">
-                      <a href="#" class="favme fa fa-heart"></a>
+                      <a
+                        th:href="@{/wishlist/toggle(productId=${product.id})}"
+                        class="favme fa fa-heart js-wishlist-toggle"
+                        th:attr="data-product-id=${product.id}, data-product-name=${product.productName}"></a>
                     </div>
                   </div>
                   <!-- Product Description -->
@@ -324,7 +327,10 @@
                     </div>
                     <!-- Favourite -->
                     <div class="product-favourite">
-                      <a href="#" class="favme fa fa-heart"></a>
+                      <a
+                        th:href="@{/wishlist/toggle(productId=${product.id})}"
+                        class="favme fa fa-heart js-wishlist-toggle"
+                        th:attr="data-product-id=${product.id}, data-product-name=${product.productName}"></a>
                     </div>
                   </div>
                   <!-- Product Description -->
@@ -362,6 +368,83 @@
         </div>
       </section>
       <!-- END CATEGORY WOMEN -->
+
+      <!-- CATEGORY ACCESSORIES -->
+      <section
+        class="new_arrivals_area section-padding-80 clearfix"
+        th:if="${accessoriesProducts != null and !accessoriesProducts.isEmpty()}">
+        <div class="container">
+          <div class="row">
+            <div class="title-section mb-5">
+              <h2 class="text-uppercase">
+                <span class="d-block">New Arrivals</span> Accessories
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="row">
+            <div class="col-12">
+              <div class="popular-products-slides owl-carousel">
+                <!-- Dynamic Products Loop -->
+                <div
+                  th:each="product : ${accessoriesProducts}"
+                  class="single-product-wrapper">
+                  <!-- Product Image -->
+                  <div class="product-img">
+                    <img
+                      th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/product-img/product-1.jpg'}"
+                      th:alt="${product.productName}" />
+                    <!-- Discount Badge - chỉ hiện khi discount > 0 -->
+                    <div
+                      class="product-badge offer-badge"
+                      th:if="${product.discount != null and product.discount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                      <span
+                        th:text="'-' + ${#numbers.formatDecimal(product.discount, 0, 'POINT', 0, 'POINT')} + '%'"
+                        >-10%</span
+                      >
+                    </div>
+                    <!-- Favourite -->
+                    <div class="product-favourite">
+                      <a
+                        th:href="@{/wishlist/toggle(productId=${product.id})}"
+                        class="favme fa fa-heart js-wishlist-toggle"
+                        th:attr="data-product-id=${product.id}, data-product-name=${product.productName}"></a>
+                    </div>
+                  </div>
+                  <!-- Product Description -->
+                  <div class="product-description">
+                    <span th:text="${product.category?.categoryName ?: 'Accessories'}">Brand</span>
+                    <a th:href="@{/product/{id}(id=${product.id})}">
+                      <h6 th:text="${product.productName}">Product Name</h6>
+                    </a>
+                    <p class="product-price">
+                      <span
+                        th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + 'đ'"
+                        >80.000đ</span
+                      >
+                    </p>
+
+                    <!-- Hover Content -->
+                    <div class="hover-content">
+                      <!-- Add to Cart -->
+                      <div class="add-to-cart-btn">
+                        <a
+                          th:href="@{/cart/add/{id}(id=${product.id})}"
+                          class="btn essence-btn"
+                          >Add to Cart</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- END CATEGORY ACCESSORIES -->
     </main>
   </body>
 </html>

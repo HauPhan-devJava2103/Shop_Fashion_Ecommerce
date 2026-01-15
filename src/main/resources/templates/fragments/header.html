@@ -3,13 +3,47 @@
   <body>
     <!-- Header Fragment - Thay thế hoàn toàn bằng header mới -->
     <header th:fragment="header" class="header_area">
+      <style>
+        .js-wishlist-toggle {
+          position: relative;
+        }
+
+        .js-wishlist-toggle.is-loading {
+          opacity: 0.65;
+        }
+
+        .js-wishlist-toggle.is-loading::after {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 14px;
+          height: 14px;
+          margin-left: -7px;
+          margin-top: -7px;
+          border: 2px solid rgba(3, 21, 255, 0.35);
+          border-top-color: rgba(3, 21, 255, 1);
+          border-radius: 50%;
+          animation: wlspin 0.7s linear infinite;
+          pointer-events: none;
+        }
+
+        @keyframes wlspin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      </style>
       <div
         class="classy-nav-container breakpoint-off d-flex align-items-center justify-content-between">
         <!-- Classy Menu -->
         <nav class="classy-navbar" id="essenceNav">
           <!-- Logo -->
-          <a class="nav-brand" href="home"
-            ><img src="img/core-img/logo.png" alt=""
+          <a class="nav-brand" th:href="@{/}"
+            ><img th:src="@{/img/core-img/logo.png}" alt=""
           /></a>
           <!-- Navbar Toggler -->
           <div class="classy-navbar-toggler">
@@ -29,39 +63,25 @@
             <div class="classynav">
               <ul>
                 <li>
-                  <a href="#">Shop</a>
+                  <a href="javascript:void(0)">Shop</a>
                   <div class="megamenu">
-                    <ul class="single-mega cn-col-4">
-                      <li class="title">Women's Collection</li>
-                      <li><a th:href="@{/shop}">Dresses</a></li>
-                      <li><a th:href="@{/shop}">Blouses &amp; Shirts</a></li>
-                      <li><a th:href="@{/shop}">T-shirts</a></li>
-                      <li><a th:href="@{/shop}">Rompers</a></li>
-                      <li><a th:href="@{/shop}">Bras &amp; Panties</a></li>
+                    <ul class="single-mega cn-col-4" th:each="r : ${navRootCategories}">
+                      <li class="title">
+                        <a th:href="@{/collections/{rootSlug}(rootSlug=${r.slug})}" th:text="${r.categoryName}">Category</a>
+                      </li>
+
+                      <th:block th:with="children=${navRootChildrenMap[r.slug]}">
+                        <li th:each="c : ${children}">
+                          <a
+                            th:href="@{/collections/{rootSlug}(rootSlug=${r.slug}, category=${c.slug})}"
+                            th:text="${c.categoryName}">Sub</a>
+                        </li>
+                      </th:block>
                     </ul>
-                    <ul class="single-mega cn-col-4">
-                      <li class="title">Men's Collection</li>
-                      <li><a th:href="@{/shop}">T-Shirts</a></li>
-                      <li><a th:href="@{/shop}">Polo</a></li>
-                      <li><a th:href="@{/shop}">Shirts</a></li>
-                      <li><a th:href="@{/shop}">Jackets</a></li>
-                      <li><a th:href="@{/shop}">Trench</a></li>
-                    </ul>
-                    <ul class="single-mega cn-col-4">
-                      <li class="title">Kid's Collection</li>
-                      <li><a th:href="@{/shop}">Dresses</a></li>
-                      <li><a th:href="@{/shop}">Shirts</a></li>
-                      <li><a th:href="@{/shop}">T-shirts</a></li>
-                      <li><a th:href="@{/shop}">Jackets</a></li>
-                      <li><a th:href="@{/shop}">Trench</a></li>
-                    </ul>
-                    <div class="single-mega cn-col-4">
-                      <img th:src="@{/img/bg-img/bg-6.jpg}" alt="" />
-                    </div>
                   </div>
                 </li>
                 <li>
-                  <a href="#">Pages</a>
+                  <a href="javascript:void(0)">Pages</a>
                   <ul class="dropdown">
                     <li><a th:href="@{/}">Home</a></li>
                     <li><a th:href="@{/shop}">Shop</a></li>
@@ -89,12 +109,12 @@
         <div class="header-meta d-flex clearfix justify-content-end">
           <!-- Search Area -->
           <div class="search-area">
-            <form action="#" method="post">
+            <form th:action="@{/shop}" method="get">
               <input
                 type="search"
-                name="search"
+                name="keyword"
                 id="headerSearch"
-                placeholder="Type for search" />
+                placeholder="Tìm sản phẩm..." />
               <button type="submit">
                 <i class="fa fa-search" aria-hidden="true"></i>
               </button>
@@ -102,11 +122,14 @@
           </div>
           <!-- Favourite Area -->
           <div class="favourite-area">
-            <a href="#"><img src="img/core-img/heart.svg" alt="" /></a>
+            <a th:href="@{/wishlist}" id="essenceWishlistBtn">
+              <img th:src="@{/img/core-img/heart.svg}" alt="" />
+              <span id="wishlistCount" style="display:none">0</span>
+            </a>
           </div>
           <!-- User Login Info -->
           <div class="user-login-info">
-            <a href="#"><img src="img/core-img/user.svg" alt="" /></a>
+            <a th:href="@{/profile}"><img th:src="@{/img/core-img/user.svg}" alt="" /></a>
             <ul class="user-dropdown" id="userDropdown">
               <!-- Will be populated by JavaScript -->
             </ul>
@@ -143,6 +166,8 @@
                     '<li><a href="/admin" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-dashboard"></i> Quản trị</a></li>';
                 }
                 html +=
+                  '<li><a href="/orders" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-shopping-bag"></i> Đơn hàng của tôi</a></li>';
+                html +=
                   '<li><a href="/profile" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-user"></i> Hồ sơ</a></li>';
                 html +=
                   '<li style="border-top: 1px solid #eee;"><a href="#" onclick="logoutUser()" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #dc3545; text-decoration: none;"><i class="fa fa-sign-out"></i> Đăng xuất</a></li>';
@@ -175,9 +200,269 @@
           </script>
           <!-- Cart Area -->
           <div class="cart-area">
-            <a href="#" id="essenceCartBtn"
-              ><img src="img/core-img/bag.svg" alt="" /> <span>3</span></a
-            >
+            <a th:href="@{/cart}" id="essenceCartBtn">
+              <img th:src="@{/img/core-img/bag.svg}" alt="" />
+              <span id="cartCount">0</span>
+            </a>
+          </div>
+
+          <script>
+            async function refreshCartCount() {
+              try {
+                const res = await fetch("/api/cart/summary");
+                if (!res.ok) return;
+                const data = await res.json();
+                const count = data && typeof data.totalQuantity === "number" ? data.totalQuantity : 0;
+                const el = document.getElementById("cartCount");
+                if (el) el.textContent = String(count);
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            document.addEventListener("DOMContentLoaded", refreshCartCount);
+          </script>
+
+          <script>
+            function showAppToast(message) {
+              try {
+                const toastEl = document.getElementById("appToast");
+                const bodyEl = document.getElementById("appToastBody");
+                if (!toastEl || !bodyEl) return;
+                bodyEl.textContent = message;
+                const t = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 2200 });
+                t.show();
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            function setWishlistCount(count) {
+              const el = document.getElementById("wishlistCount");
+              if (!el) return;
+              const c = typeof count === "number" && count > 0 ? count : 0;
+              el.textContent = String(c);
+              el.style.display = c > 0 ? "" : "none";
+            }
+
+            function setWishlistActive(productId, liked) {
+              const selector = '.js-wishlist-toggle[data-product-id="' + String(productId) + '"]';
+              const nodes = document.querySelectorAll(selector);
+              nodes.forEach((node) => {
+                if (node.classList.contains("favme")) {
+                  node.classList.toggle("active", !!liked);
+                }
+
+                // Tooltip / accessible label
+                const name = node.getAttribute("data-product-name") || "Sản phẩm";
+                const title = liked ? "Bỏ yêu thích: " + name : "Yêu thích: " + name;
+                node.setAttribute("title", title);
+                node.setAttribute("aria-label", title);
+
+                // Optional label update (product detail button)
+                const label = node.querySelector ? node.querySelector(".js-wishlist-label") : null;
+                if (label) {
+                  label.textContent = liked ? "Đã thích" : "Yêu thích";
+                }
+              });
+            }
+
+            function setWishlistLoading(node, loading) {
+              if (!node) return;
+              node.classList.toggle("is-loading", !!loading);
+              node.setAttribute("aria-busy", loading ? "true" : "false");
+            }
+
+            function getCurrentWishlistCount() {
+              const el = document.getElementById("wishlistCount");
+              if (!el) return 0;
+              const v = Number(el.textContent);
+              return Number.isFinite(v) && v > 0 ? v : 0;
+            }
+
+            async function refreshWishlistCount() {
+              try {
+                const res = await fetch("/api/wishlist/count");
+                if (!res.ok) return;
+                const count = await res.json();
+                setWishlistCount(typeof count === "number" ? count : 0);
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            async function hydrateWishlistButtons() {
+              const btns = Array.from(document.querySelectorAll(".js-wishlist-toggle[data-product-id]"));
+              if (!btns.length) return;
+
+              const ids = Array.from(
+                new Set(
+                  btns
+                    .map((b) => Number(b.getAttribute("data-product-id")))
+                    .filter((n) => Number.isFinite(n) && n > 0)
+                )
+              );
+              if (!ids.length) return;
+
+              try {
+                const res = await fetch("/api/wishlist/status?ids=" + encodeURIComponent(ids.join(",")));
+                if (!res.ok) return;
+                const data = await res.json();
+                const likedIds = data && Array.isArray(data.likedProductIds) ? data.likedProductIds : [];
+                const likedSet = new Set(likedIds.map((x) => Number(x)));
+                ids.forEach((id) => setWishlistActive(id, likedSet.has(id)));
+                if (data && typeof data.count === "number") {
+                  setWishlistCount(data.count);
+                }
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            async function toggleWishlist(productId) {
+              const res = await fetch("/api/wishlist/toggle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId: productId }),
+              });
+
+              if (res.status === 401 || res.status === 403) {
+                window.location.href = "/login";
+                return null;
+              }
+              if (!res.ok) {
+                return null;
+              }
+              return await res.json();
+            }
+
+            function broadcastWishlistChange(payload) {
+              try {
+                localStorage.setItem(
+                  "wishlist_last_change",
+                  JSON.stringify({
+                    productId: payload.productId,
+                    liked: payload.liked,
+                    count: payload.count,
+                    ts: Date.now(),
+                  })
+                );
+              } catch (e) {
+                // ignore
+              }
+            }
+
+            // Capture phase to prevent theme active.js from toggling .favme itself
+            document.addEventListener(
+              "click",
+              async function (e) {
+                const target = e.target && e.target.closest ? e.target.closest(".js-wishlist-toggle") : null;
+                if (!target) return;
+
+                const raw = target.getAttribute("data-product-id");
+                const productId = raw ? Number(raw) : 0;
+                if (!Number.isFinite(productId) || productId <= 0) return;
+
+                if (target.getAttribute("data-wishlist-loading") === "1") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  return;
+                }
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const prevLiked = target.classList ? target.classList.contains("active") : false;
+                const nextLiked = !prevLiked;
+                const prevCount = getCurrentWishlistCount();
+
+                // Optimistic UI: update immediately
+                setWishlistActive(productId, nextLiked);
+                setWishlistCount(Math.max(0, prevCount + (nextLiked ? 1 : -1)));
+
+                target.setAttribute("data-wishlist-loading", "1");
+                const prevPointer = target.style.pointerEvents;
+                target.style.pointerEvents = "none";
+                setWishlistLoading(target, true);
+
+                // small animation hint (same class theme uses)
+                if (target.classList && target.classList.contains("favme")) {
+                  target.classList.add("is_animating");
+                  setTimeout(() => target.classList.remove("is_animating"), 500);
+                }
+
+                try {
+                  const data = await toggleWishlist(productId);
+                  if (!data) {
+                    // rollback
+                    setWishlistActive(productId, prevLiked);
+                    setWishlistCount(prevCount);
+                    showAppToast("Có lỗi khi cập nhật wishlist. Vui lòng thử lại.");
+                    return;
+                  }
+
+                  const productName = target.getAttribute("data-product-name") || "Sản phẩm";
+                  setWishlistActive(productId, !!data.liked);
+                  if (typeof data.count === "number") {
+                    setWishlistCount(data.count);
+                  }
+
+                  if (!!data.liked) {
+                    showAppToast("Đã thêm \"" + productName + "\" vào wishlist");
+                  } else {
+                    showAppToast("Đã bỏ \"" + productName + "\" khỏi wishlist");
+                  }
+
+                  broadcastWishlistChange({ productId: productId, liked: !!data.liked, count: data.count });
+
+                  if (!data.liked && target.hasAttribute("data-remove-on-unlike")) {
+                    const item = target.closest("[data-wishlist-item]");
+                    if (item) item.remove();
+
+                    // If wishlist becomes empty, show empty-state block (client-side)
+                    const remaining = document.querySelectorAll("[data-wishlist-item]").length;
+                    if (remaining === 0) {
+                      const empty = document.getElementById("wishlistEmptyState");
+                      if (empty) empty.style.display = "";
+                    }
+                  }
+                } finally {
+                  target.removeAttribute("data-wishlist-loading");
+                  target.style.pointerEvents = prevPointer || "";
+                  setWishlistLoading(target, false);
+                }
+              },
+              true
+            );
+
+            document.addEventListener("DOMContentLoaded", function () {
+              refreshWishlistCount();
+              hydrateWishlistButtons();
+
+              window.addEventListener("storage", function (ev) {
+                if (ev.key !== "wishlist_last_change" || !ev.newValue) return;
+                try {
+                  const data = JSON.parse(ev.newValue);
+                  if (!data || !data.productId) return;
+                  setWishlistActive(Number(data.productId), !!data.liked);
+                  if (typeof data.count === "number") {
+                    setWishlistCount(data.count);
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              });
+            });
+          </script>
+
+          <!-- Global toast (frontend) -->
+          <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000">
+            <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="polite" aria-atomic="true">
+              <div class="d-flex">
+                <div class="toast-body" id="appToastBody">...</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

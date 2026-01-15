@@ -44,6 +44,7 @@ public class OrderController {
         model.addAttribute("totalOrder", orderService.countAll());
         model.addAttribute("totalPending", orderService.countPending());
         model.addAttribute("totalProcessing", orderService.countProcessing());
+        model.addAttribute("totalCancelled", orderService.countByStatus("CANCELLED"));
         model.addAttribute("totalRevenue", orderService.countRevenue());
 
         // Order Status Distribution for Pie Chart
@@ -54,6 +55,8 @@ public class OrderController {
         model.addAttribute("statusDelivered", orderService.countByStatus("DELIVERED"));
         model.addAttribute("statusCompleted", orderService.countByStatus("COMPLETED"));
         model.addAttribute("statusCancelled", orderService.countByStatus("CANCELLED"));
+
+        model.addAttribute("cancelReasonStats", orderService.getCancellationReasonStats());
 
         // Order List with Pagination
         Page<Order> orderPage = orderService

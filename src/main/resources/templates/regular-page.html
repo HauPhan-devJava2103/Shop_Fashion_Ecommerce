@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title th:text="${pageTitle != null ? pageTitle : 'Regular Page'}">Regular Page</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="breadcrumb-area bg-img bg-overlay" th:style="'background-image: url(' + @{/img/bg-img/breadcumb.jpg} + ');'">
+        <div class="container h-100">
+          <div class="row h-100 align-items-center">
+            <div class="col-12">
+              <div class="breadcrumb-content text-center">
+                <h2 th:text="${pageTitle != null ? pageTitle : 'Regular Page'}">Regular Page</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
+                <h5 class="mb-2">Trang đang được cập nhật</h5>
+                <p class="text-muted mb-3">Nội dung sẽ được bổ sung trong thời gian tới.</p>
+                <a th:href="@{/}" class="btn btn-outline-dark">Về trang chủ</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

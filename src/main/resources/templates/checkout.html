@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Thanh toán</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row">
+            <div class="col-12 col-lg-7">
+              <div class="mb-4">
+                <h4 class="mb-1">Thanh toán</h4>
+                <p class="text-muted mb-0">Nhập thông tin giao hàng và chọn phương thức thanh toán.</p>
+              </div>
+
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
+                <form th:action="@{/checkout}" method="post" th:object="${checkoutForm}">
+                  <div class="row">
+                    <div class="col-12">
+                      <label class="form-label fw-semibold">Họ tên người nhận</label>
+                      <input class="form-control" type="text" th:field="*{recipientName}" placeholder="Nhập họ tên" />
+                      <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('recipientName')}" th:errors="*{recipientName}"></div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                      <label class="form-label fw-semibold">Số điện thoại</label>
+                      <input class="form-control" type="text" th:field="*{phone}" placeholder="Nhập số điện thoại" />
+                      <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                      <label class="form-label fw-semibold">Địa chỉ</label>
+                      <input class="form-control" type="text" th:field="*{addressLine}" placeholder="Số nhà, tên đường..." />
+                      <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('addressLine')}" th:errors="*{addressLine}"></div>
+                    </div>
+
+                    <div class="col-12 col-md-4 mt-3">
+                      <label class="form-label fw-semibold">Phường/Xã (tuỳ chọn)</label>
+                      <input class="form-control" type="text" th:field="*{ward}" />
+                    </div>
+                    <div class="col-12 col-md-4 mt-3">
+                      <label class="form-label fw-semibold">Quận/Huyện (tuỳ chọn)</label>
+                      <input class="form-control" type="text" th:field="*{district}" />
+                    </div>
+                    <div class="col-12 col-md-4 mt-3">
+                      <label class="form-label fw-semibold">Tỉnh/Thành phố (tuỳ chọn)</label>
+                      <input class="form-control" type="text" th:field="*{city}" />
+                    </div>
+
+                    <div class="col-12 mt-3">
+                      <label class="form-label fw-semibold">Ghi chú (tuỳ chọn)</label>
+                      <textarea class="form-control" rows="3" th:field="*{note}" placeholder="Ghi chú cho người giao hàng..."></textarea>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <label class="form-label fw-semibold">Phương thức thanh toán</label>
+                      <select class="form-select" th:field="*{paymentMethod}">
+                        <option value="" disabled selected>-- Chọn phương thức --</option>
+                        <option th:each="m : ${paymentMethods}" th:value="${m}" th:text="${m.displayName}"></option>
+                      </select>
+                      <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"></div>
+                    </div>
+
+                    <div class="col-12 mt-4">
+                      <label class="form-label fw-semibold">Mã giảm giá (tuỳ chọn)</label>
+                      <div class="d-flex gap-2">
+                        <input class="form-control" type="text" th:field="*{voucherCode}" placeholder="Nhập mã voucher" />
+                        <button type="submit" class="btn btn-outline-dark" formaction="/checkout/preview">Áp dụng</button>
+                      </div>
+                      <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('voucherCode')}" th:errors="*{voucherCode}"></div>
+                      <div class="text-danger" style="font-size: 13px;" th:if="${voucherError != null}" th:text="${voucherError}"></div>
+                      <div class="text-muted" style="font-size: 12px;">* Voucher sẽ được áp dụng khi bạn bấm Đặt hàng.</div>
+                    </div>
+
+                    <div class="col-12 mt-4 d-flex gap-2">
+                      <a th:href="@{/cart}" class="btn btn-outline-dark">Quay lại giỏ hàng</a>
+                      <button type="submit" class="btn essence-btn">Đặt hàng</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-5 mt-4 mt-lg-0">
+              <div class="bg-white rounded p-4" style="border: 1px solid #eee; position: sticky; top: 110px;">
+                <h5 class="mb-3">Đơn hàng của bạn</h5>
+
+                <div th:if="${cart != null and cart.items != null}">
+                  <div th:each="item : ${cart.items}" class="d-flex justify-content-between align-items-start py-2" style="border-bottom: 1px dashed #eee;">
+                    <div style="max-width: 75%;">
+                      <div class="fw-semibold" th:text="${item.productName}">Product</div>
+                      <div class="text-muted" style="font-size: 13px;" th:text="${(item.color != null ? 'Màu: ' + item.color : '') + (item.size != null ? ' | Size: ' + item.size : '')}"></div>
+                      <div class="text-muted" style="font-size: 13px;" th:text="'SL: ' + ${item.quantity} + ' x ' + ${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'"></div>
+                    </div>
+                    <div class="fw-semibold" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                  <span class="text-muted">Tạm tính</span>
+                  <span class="fw-semibold" th:text="${cart != null ? (#numbers.formatDecimal(cart.subtotal, 0, 'COMMA', 0, 'POINT') + 'đ') : '0đ'}">0đ</span>
+                </div>
+
+                <div class="d-flex justify-content-between mt-2" th:if="${voucherPreview != null and voucherPreview.discountAmount != null and voucherPreview.discountAmount > 0}">
+                  <span class="text-muted">Giảm giá</span>
+                  <span class="fw-semibold" th:text="'-' + ${#numbers.formatDecimal(voucherPreview.discountAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">-0đ</span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                  <span class="text-muted">Phí vận chuyển</span>
+                  <span class="fw-semibold">0đ</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between">
+                  <span class="fw-semibold">Tổng</span>
+                  <span class="fw-semibold"
+                    th:text="${voucherPreview != null ? (#numbers.formatDecimal(voucherPreview.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ') : (cart != null ? (#numbers.formatDecimal(cart.subtotal, 0, 'COMMA', 0, 'POINT') + 'đ') : '0đ')}">0đ</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

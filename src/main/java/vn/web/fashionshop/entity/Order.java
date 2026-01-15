@@ -24,6 +24,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vn.web.fashionshop.enums.EOrderCancelReason;
 import vn.web.fashionshop.enums.EOrderStatus;
 import vn.web.fashionshop.enums.EPaymentMethod;
 
@@ -32,6 +33,7 @@ import vn.web.fashionshop.enums.EPaymentMethod;
         @Index(name = "idx_order_user", columnList = "user_id"),
         @Index(name = "idx_order_voucher", columnList = "voucher_id"),
         @Index(name = "idx_order_status", columnList = "order_status"),
+    @Index(name = "idx_order_cancel_reason", columnList = "cancel_reason"),
         @Index(name = "idx_order_created", columnList = "created_at")
 })
 @Data
@@ -81,6 +83,16 @@ public class Order {
     @Column(name = "order_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private EOrderStatus orderStatus;
+
+    @Column(name = "cancel_reason")
+    @Enumerated(EnumType.STRING)
+    private EOrderCancelReason cancelReason;
+
+    @Column(name = "cancel_reason_note", length = 500)
+    private String cancelReasonNote;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
