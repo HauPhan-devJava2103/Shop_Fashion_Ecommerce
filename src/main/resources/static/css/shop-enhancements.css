@@ -185,3 +185,100 @@ main a:focus {
 #variantPickerModal .modal-dialog {
   pointer-events: auto !important;
 }
+
+/* Floating buttons: avoid overlap (chat vs. scroll-to-top) */
+#scrollUp {
+  z-index: 1040;
+  right: 110px !important;
+  bottom: 30px !important;
+}
+
+/* Header: user dropdown should work on click (touch devices) */
+.user-login-info.is-open .user-dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Home: New Arrivals sliders - show left/right arrows */
+.new_arrivals_area .popular-products-slides {
+  position: relative;
+}
+
+.new_arrivals_area .popular-products-slides .owl-nav {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev,
+.new_arrivals_area .popular-products-slides .owl-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  padding: 8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: background-color 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  pointer-events: auto;
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev {
+  left: -18px;
+}
+
+.new_arrivals_area .popular-products-slides .owl-next {
+  right: -18px;
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev img,
+.new_arrivals_area .popular-products-slides .owl-next img {
+  display: block;
+  margin: 0 auto;
+  opacity: 0.45;
+  transition: opacity 180ms ease;
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev:hover,
+.new_arrivals_area .popular-products-slides .owl-next:hover {
+  background-color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+  transform: translateY(-50%);
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev:hover img,
+.new_arrivals_area .popular-products-slides .owl-next:hover img {
+  opacity: 1;
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev:focus-visible,
+.new_arrivals_area .popular-products-slides .owl-next:focus-visible {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(3, 21, 255, 0.22);
+  box-shadow: 0 0 0 4px rgba(3, 21, 255, 0.12), 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
+.new_arrivals_area .popular-products-slides .owl-prev:focus-visible img,
+.new_arrivals_area .popular-products-slides .owl-next:focus-visible img {
+  opacity: 1;
+}
+
+@media only screen and (max-width: 767px) {
+  .new_arrivals_area .popular-products-slides .owl-prev {
+    left: -12px;
+  }
+
+  .new_arrivals_area .popular-products-slides .owl-next {
+    right: -12px;
+  }
+}

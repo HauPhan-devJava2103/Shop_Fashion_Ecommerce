@@ -24,10 +24,115 @@
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
-              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
-                <h5 class="mb-2">Trang đang được cập nhật</h5>
-                <p class="text-muted mb-3">Nội dung sẽ được bổ sung trong thời gian tới.</p>
-                <a th:href="@{/}" class="btn btn-outline-dark">Về trang chủ</a>
+              <div class="bg-white rounded p-4 p-md-5" style="border: 1px solid #eee;">
+                <div class="row">
+                  <div class="col-12 col-md-7">
+                    <h4 class="mb-2">Giới thiệu nhanh</h4>
+                    <p class="text-muted" style="line-height: 2;">
+                      Fashion Shop là website thương mại điện tử phục vụ trải nghiệm mua sắm thời trang:
+                      xem sản phẩm, thêm vào giỏ, wishlist và theo dõi đơn hàng.
+                      Trang này là “Regular Page” dùng để hiển thị nội dung tĩnh như giới thiệu, FAQ hoặc chính sách.
+                    </p>
+
+                    <div class="row g-3 mt-2">
+                      <div class="col-12 col-sm-6">
+                        <div class="border rounded p-3 h-100" style="border-color:#eee !important;">
+                          <div class="fw-semibold mb-1">Giao diện nhất quán</div>
+                          <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                            Tối ưu hiển thị desktop và mobile, thao tác rõ ràng.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-6">
+                        <div class="border rounded p-3 h-100" style="border-color:#eee !important;">
+                          <div class="fw-semibold mb-1">Thanh toán & đơn hàng</div>
+                          <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                            Theo dõi trạng thái đơn và xem chi tiết mua hàng.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-6">
+                        <div class="border rounded p-3 h-100" style="border-color:#eee !important;">
+                          <div class="fw-semibold mb-1">Wishlist tiện lợi</div>
+                          <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                            Lưu sản phẩm yêu thích để quay lại nhanh.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-12 col-sm-6">
+                        <div class="border rounded p-3 h-100" style="border-color:#eee !important;">
+                          <div class="fw-semibold mb-1">Hỗ trợ nhanh</div>
+                          <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                            Có nút chat hỗ trợ và nút cuộn lên đầu trang.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-5 mt-4 mt-md-0">
+                    <div class="bg-light rounded p-4 h-100">
+                      <h6 class="mb-3">Liên kết nhanh</h6>
+                      <div class="d-grid gap-2">
+                        <a th:href="@{/shop}" class="btn essence-btn">Đi mua sắm ngay</a>
+                        <a th:href="@{/blog}" class="btn btn-outline-dark">Xem Blog</a>
+                        <a th:href="@{/contact}" class="btn btn-outline-dark">Liên hệ nhóm</a>
+                      </div>
+
+                      <hr class="my-4" />
+
+                      <h6 class="mb-2">Mẹo nhỏ</h6>
+                      <p class="text-muted mb-0" style="font-size: 14px; line-height: 2;">
+                        Khi gặp lỗi hiển thị, hãy thử tải lại trang và chụp màn hình gửi nhóm để xử lý.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="my-5" />
+
+                <h4 class="mb-3">FAQ</h4>
+                <div class="accordion" id="regularFaq">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqOne">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqOneBody" aria-expanded="true" aria-controls="faqOneBody">
+                        Vì sao một số trang là nội dung tĩnh?
+                      </button>
+                    </h2>
+                    <div id="faqOneBody" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#regularFaq">
+                      <div class="accordion-body text-muted" style="line-height: 2;">
+                        Một số trang (như giới thiệu, FAQ, chính sách) phù hợp để hiển thị nội dung tĩnh,
+                        giúp website đầy đủ thông tin và dễ quản trị.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqTwo">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqTwoBody" aria-expanded="false" aria-controls="faqTwoBody">
+                        Làm sao để xem đơn hàng của tôi?
+                      </button>
+                    </h2>
+                    <div id="faqTwoBody" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#regularFaq">
+                      <div class="accordion-body text-muted" style="line-height: 2;">
+                        Sau khi đăng nhập, bạn có thể vào trang đơn hàng để xem danh sách và chi tiết từng đơn.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="faqThree">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqThreeBody" aria-expanded="false" aria-controls="faqThreeBody">
+                        Tôi muốn góp ý giao diện thì liên hệ ở đâu?
+                      </button>
+                    </h2>
+                    <div id="faqThreeBody" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#regularFaq">
+                      <div class="accordion-body text-muted" style="line-height: 2;">
+                        Bạn có thể vào trang Liên hệ để xem thông tin nhóm thực hiện và gửi góp ý.
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

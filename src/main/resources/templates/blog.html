@@ -22,12 +22,109 @@
 
       <section class="shop_grid_area section-padding-80">
         <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-12 col-lg-10">
-              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
-                <h5 class="mb-2">Nội dung đang được cập nhật</h5>
-                <p class="text-muted mb-3">Trang blog sẽ được bổ sung bài viết trong thời gian tới.</p>
-                <a th:href="@{/shop}" class="btn essence-btn">Mua sắm ngay</a>
+          <div class="row">
+            <div class="col-12 col-lg-8">
+              <div class="mb-4">
+                <h4 class="mb-1">Bài viết mới nhất</h4>
+                <p class="text-muted mb-0">Gợi ý phối đồ, xu hướng và mẹo chăm sóc sản phẩm.</p>
+              </div>
+
+              <div class="row">
+                <div class="col-12 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <a th:href="@{/single-blog}">
+                      <img class="card-img-top" th:src="@{/img/bg-img/bg-1.jpg}" alt="Xu hướng tối giản" />
+                    </a>
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge text-bg-light">Trend</span>
+                        <small class="text-muted">15/01/2026</small>
+                      </div>
+                      <h6 class="card-title mb-2">Xu hướng tối giản 2026: mặc đẹp mà vẫn tinh gọn</h6>
+                      <p class="card-text text-muted mb-3">3 quy tắc phối màu, chọn phom và chất liệu giúp outfit luôn sạch – sang – dễ ứng dụng.</p>
+                      <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc tiếp</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <a th:href="@{/single-blog}">
+                      <img class="card-img-top" th:src="@{/img/bg-img/bg-3.jpg}" alt="Phối đồ công sở" />
+                    </a>
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge text-bg-light">Style</span>
+                        <small class="text-muted">14/01/2026</small>
+                      </div>
+                      <h6 class="card-title mb-2">5 công thức phối đồ công sở: gọn gàng, thanh lịch, không nhàm chán</h6>
+                      <p class="card-text text-muted mb-3">Từ sơ mi + quần ống đứng đến blazer layer – mặc đúng dịp, đúng dáng người.</p>
+                      <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc tiếp</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <a th:href="@{/single-blog}">
+                      <img class="card-img-top" th:src="@{/img/product-img/product-big-1.jpg}" alt="Chọn size" />
+                    </a>
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge text-bg-light">Guide</span>
+                        <small class="text-muted">12/01/2026</small>
+                      </div>
+                      <h6 class="card-title mb-2">Chọn size chuẩn khi mua online: đo nhanh, chọn đúng</h6>
+                      <p class="card-text text-muted mb-3">Hướng dẫn đo vai – ngực – eo – mông và cách đọc bảng size để hạn chế đổi trả.</p>
+                      <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc tiếp</a>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6 mb-4">
+                  <div class="card border-0 shadow-sm h-100">
+                    <a th:href="@{/single-blog}">
+                      <img class="card-img-top" th:src="@{/img/product-img/product-big-2.jpg}" alt="Chăm sóc vải" />
+                    </a>
+                    <div class="card-body">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge text-bg-light">Care</span>
+                        <small class="text-muted">10/01/2026</small>
+                      </div>
+                      <h6 class="card-title mb-2">Giữ đồ bền đẹp: mẹo giặt – phơi – ủi theo từng loại vải</h6>
+                      <p class="card-text text-muted mb-3">Cotton, linen, denim… chỉ cần vài thói quen nhỏ để đồ giữ form và màu lâu hơn.</p>
+                      <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc tiếp</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+              <div class="shop_sidebar_area">
+                <div class="widget mb-4">
+                  <h6 class="widget-title mb-3">Chủ đề nổi bật</h6>
+                  <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><a th:href="@{/blog}">Phối đồ theo dịp</a></li>
+                    <li class="mb-2"><a th:href="@{/blog}">Chọn size & chất liệu</a></li>
+                    <li class="mb-2"><a th:href="@{/blog}">Chăm sóc sản phẩm</a></li>
+                    <li><a th:href="@{/blog}">Tin khuyến mãi</a></li>
+                  </ul>
+                </div>
+
+                <div class="widget mb-4">
+                  <h6 class="widget-title mb-3">Mẹo nhanh</h6>
+                  <div class="text-muted" style="font-size: 14px; line-height: 1.9;">
+                    <p class="mb-2">• Ưu tiên 2–3 màu chủ đạo để tổng thể gọn mắt.</p>
+                    <p class="mb-2">• Mix 1 item nổi bật + đồ basic để cân bằng.</p>
+                    <p class="mb-0">• Chọn phom vừa vặn: đẹp nhất khi đúng vai.</p>
+                  </div>
+                </div>
+
+                <div class="widget">
+                  <h6 class="widget-title mb-3">Khám phá sản phẩm</h6>
+                  <a th:href="@{/shop}" class="btn essence-btn w-100">Mua sắm ngay</a>
+                </div>
               </div>
             </div>
           </div>

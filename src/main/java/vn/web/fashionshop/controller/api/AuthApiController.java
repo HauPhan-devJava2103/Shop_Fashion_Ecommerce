@@ -1,6 +1,10 @@
 package vn.web.fashionshop.controller.api;
 
+import java.time.Duration;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,10 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import vn.web.fashionshop.dto.ApiResponse;
+import vn.web.fashionshop.dto.CurrentUserResponse;
 import vn.web.fashionshop.dto.LoginRequest;
 import vn.web.fashionshop.dto.LoginResponse;
 import vn.web.fashionshop.entity.User;
@@ -42,6 +47,7 @@ public class AuthApiController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest,
             HttpServletResponse response) {
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -52,13 +58,16 @@ public class AuthApiController {
             boolean rememberMe = request.getRememberMe() != null && request.getRememberMe();
             String token = jwtUtil.generateToken(userDetails, rememberMe);
 
-            // Save token to cookie for web browser
-            Cookie jwtCookie = new Cookie("jwt_token", token);
-            jwtCookie.setHttpOnly(true);
-            jwtCookie.setSecure(false); // Set true if using HTTPS
-            jwtCookie.setPath("/");
-            jwtCookie.setMaxAge(rememberMe ? 2592000 : 86400); // 30 days or 24 hours
-            response.addCookie(jwtCookie);
+                // Save token to cookie for web browser
+                // NOTE: SameSite=Lax helps mitigate CSRF when using cookie-based auth.
+                ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
+                    .httpOnly(true)
+                    .secure(httpRequest.isSecure())
+                    .sameSite("Lax")
+                    .path("/")
+                    .maxAge(rememberMe ? Duration.ofDays(30) : Duration.ofDays(1))
+                    .build();
+                response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
             // Get user info
             User user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -78,13 +87,16 @@ public class AuthApiController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest httpRequest, HttpServletResponse response) {
         // Clear cookie
-        Cookie jwtCookie = new Cookie("jwt_token", null);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(0);
-        response.addCookie(jwtCookie);
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", "")
+                .httpOnly(true)
+                .secure(httpRequest.isSecure())
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(Duration.ZERO)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
         return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
     }
@@ -104,7 +116,21 @@ public class AuthApiController {
                     .body(ApiResponse.error("Không tìm thấy user"));
         }
 
-        return ResponseEntity.ok(ApiResponse.success("Thành công", user));
+        String roleName = (user.getRole() != null && user.getRole().getRoleName() != null)
+            ? user.getRole().getRoleName().name()
+            : null;
+        CurrentUserResponse dto = new CurrentUserResponse(
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getPhone(),
+            user.getGender(),
+            user.getAddress(),
+            user.getAvatarUrl(),
+            roleName,
+            user.getIsActive());
+
+        return ResponseEntity.ok(ApiResponse.success("Thành công", dto));
     }
 
     @GetMapping("/validate")

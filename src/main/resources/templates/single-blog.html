@@ -24,10 +24,99 @@
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
-              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
-                <h5 class="mb-2">Bài viết đang được cập nhật</h5>
-                <p class="text-muted mb-3">Trang chi tiết bài viết sẽ được bổ sung sau.</p>
-                <a th:href="@{/blog}" class="btn btn-outline-dark">Quay lại Blog</a>
+              <div class="bg-white rounded" style="border: 1px solid #eee; overflow: hidden;">
+                <img th:src="@{/img/bg-img/bg-6.jpg}" alt="Single Blog" style="width: 100%; height: auto;" />
+
+                <div class="p-4 p-md-5">
+                  <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge text-bg-light">Trend</span>
+                      <span class="text-muted" style="font-size: 14px;">15/01/2026</span>
+                    </div>
+                    <a th:href="@{/blog}" class="btn btn-outline-dark btn-sm">Quay lại Blog</a>
+                  </div>
+
+                  <h3 class="mb-3">Xu hướng tối giản 2026: mặc đẹp mà vẫn tinh gọn</h3>
+                  <p class="text-muted" style="font-size: 14px; line-height: 2;">
+                    Tối giản không có nghĩa là đơn điệu. Bí quyết nằm ở chất liệu, phom dáng và cách phối màu.
+                    Dưới đây là một “khung” phối đồ nhanh để bạn ứng dụng mỗi ngày.
+                  </p>
+
+                  <hr class="my-4" />
+
+                  <h5 class="mb-2">1) Chọn bảng màu 2–3 tone</h5>
+                  <p class="text-muted" style="font-size: 14px; line-height: 2;">
+                    Một outfit dễ đẹp nhất khi màu sắc được kiểm soát. Bạn có thể bắt đầu với:
+                    trắng/đen/xám, hoặc thêm 1 màu nhấn như xanh navy, đỏ rượu, be.
+                  </p>
+
+                  <h5 class="mb-2">2) Ưu tiên phom vừa vặn ở vai</h5>
+                  <p class="text-muted" style="font-size: 14px; line-height: 2;">
+                    Vai áo quyết định 70% “thần thái” của trang phục. Nếu vai đúng, các phần còn lại sẽ tự nhiên cân đối hơn.
+                    Với blazer/áo khoác, hãy chọn vai vừa, phần thân có thể hơi rộng để tạo cảm giác hiện đại.
+                  </p>
+
+                  <h5 class="mb-2">3) Một điểm nhấn là đủ</h5>
+                  <p class="text-muted" style="font-size: 14px; line-height: 2;">
+                    Minimal nhưng vẫn nổi bật: hãy chọn một điểm nhấn duy nhất như phụ kiện (túi/đồng hồ),
+                    hoặc một item có texture (len gân, denim thô, linen).
+                  </p>
+
+                  <div class="bg-light rounded p-4 mt-4">
+                    <h6 class="mb-2">Gợi ý phối đồ nhanh</h6>
+                    <p class="mb-0" style="font-size: 14px; line-height: 2;">
+                      Sơ mi trắng + quần ống đứng + giày loafers. Nếu muốn cá tính hơn, thêm blazer navy và túi mini.
+                    </p>
+                  </div>
+
+                  <div class="d-flex flex-wrap align-items-center justify-content-between mt-4">
+                    <a th:href="@{/shop}" class="btn essence-btn">Khám phá sản phẩm</a>
+                    <div class="text-muted" style="font-size: 14px;">
+                      Tags: <span class="badge text-bg-light">Minimal</span>
+                      <span class="badge text-bg-light">Office</span>
+                      <span class="badge text-bg-light">Guide</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-5">
+                <h5 class="mb-3">Bài viết liên quan</h5>
+                <div class="row">
+                  <div class="col-12 col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                      <a th:href="@{/single-blog}">
+                        <img class="card-img-top" th:src="@{/img/product-img/product-4.jpg}" alt="Related post" />
+                      </a>
+                      <div class="card-body">
+                        <h6 class="mb-2">5 công thức phối đồ công sở</h6>
+                        <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                      <a th:href="@{/single-blog}">
+                        <img class="card-img-top" th:src="@{/img/product-img/product-7.jpg}" alt="Related post" />
+                      </a>
+                      <div class="card-body">
+                        <h6 class="mb-2">Chọn size chuẩn khi mua online</h6>
+                        <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm h-100">
+                      <a th:href="@{/single-blog}">
+                        <img class="card-img-top" th:src="@{/img/product-img/product-9.jpg}" alt="Related post" />
+                      </a>
+                      <div class="card-body">
+                        <h6 class="mb-2">Mẹo giặt – phơi – ủi theo loại vải</h6>
+                        <a th:href="@{/single-blog}" class="btn btn-outline-dark btn-sm">Đọc</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

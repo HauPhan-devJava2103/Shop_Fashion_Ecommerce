@@ -10,14 +10,20 @@
 
     // :: Sliders Active Code
     if ($.fn.owlCarousel) {
-        $('.popular-products-slides').owlCarousel({
+        var $popularProductsSlides = $('.popular-products-slides');
+
+        $popularProductsSlides.owlCarousel({
             items: 4,
             margin: 30,
             loop: true,
-            nav: false,
+            nav: true,
+            navText: ["<img src='img/core-img/long-arrow-left.svg' alt=''>", "<img src='img/core-img/long-arrow-right.svg' alt=''>"],
             dots: false,
             autoplay: true,
             autoplayTimeout: 5000,
+            autoplayHoverPause: false,
+            autoplaySpeed: 900,
+            navSpeed: 900,
             smartSpeed: 1000,
             responsive: {
                 0: {
@@ -34,6 +40,13 @@
                 }
             }
         });
+
+        // Ensure autoplay continues after manual navigation
+        $popularProductsSlides.on('click', '.owl-prev, .owl-next', function () {
+            $popularProductsSlides.trigger('stop.owl.autoplay');
+            $popularProductsSlides.trigger('play.owl.autoplay', [5000]);
+        });
+
         $('.product_thumbnail_slides').owlCarousel({
             items: 1,
             margin: 0,
@@ -102,7 +115,7 @@
 
     // :: Nice Select Active Code
     if ($.fn.niceSelect) {
-        $('select').niceSelect();
+        $('select').not('.js-no-nice-select').niceSelect();
     }
 
     // :: Slider Range Price Active Code

@@ -24,10 +24,69 @@
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
-              <div class="bg-white rounded p-4" style="border: 1px solid #eee;">
-                <h5 class="mb-2">Thông tin liên hệ</h5>
-                <p class="text-muted mb-3">Trang liên hệ đang được hoàn thiện.</p>
-                <a th:href="@{/shop}" class="btn essence-btn">Quay lại mua sắm</a>
+              <div class="bg-white rounded p-4 p-md-5" style="border: 1px solid #eee;">
+                <div class="row">
+                  <div class="col-12 col-md-7">
+                    <h4 class="mb-2">Thông tin liên hệ</h4>
+                    <p class="text-muted" style="line-height: 2;">
+                      Đây là trang thông tin liên hệ của dự án Fashion Shop. Nếu bạn có góp ý về giao diện,
+                      chức năng hoặc trải nghiệm mua sắm, vui lòng liên hệ nhóm thực hiện.
+                    </p>
+
+                    <div class="mt-4">
+                      <h6 class="mb-3">Nhóm thực hiện</h6>
+
+                      <div class="border rounded p-3 mb-3" style="border-color:#eee !important;">
+                        <div class="d-flex align-items-start gap-3">
+                          <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <img th:src="@{/img/avatars/giang.svg}" alt="Avatar Hà Trường Giang" style="width: 44px; height: 44px;" />
+                          </div>
+                          <div>
+                            <div class="fw-semibold">Hà Trường Giang</div>
+                            <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                              23110095<br />
+                              Khoa Công Nghệ Thông Tin<br />
+                              Đại học Công Nghệ Kỹ Thuật
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="border rounded p-3" style="border-color:#eee !important;">
+                        <div class="d-flex align-items-start gap-3">
+                          <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                            <img th:src="@{/img/avatars/hau.svg}" alt="Avatar Phan Phúc Hậu" style="width: 44px; height: 44px;" />
+                          </div>
+                          <div>
+                            <div class="fw-semibold">Phan Phúc Hậu</div>
+                            <div class="text-muted" style="font-size: 14px; line-height: 1.8;">
+                              23110097<br />
+                              Khoa Công Nghệ Thông Tin<br />
+                              Đại học Công Nghệ Kĩ Thuật
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-5 mt-4 mt-md-0">
+                    <div class="bg-light rounded p-4 h-100">
+                      <h6 class="mb-3">Liên kết nhanh</h6>
+                      <div class="d-grid gap-2">
+                        <a th:href="@{/shop}" class="btn essence-btn">Quay lại mua sắm</a>
+                        <a th:href="@{/blog}" class="btn btn-outline-dark">Xem Blog</a>
+                      </div>
+
+                      <hr class="my-4" />
+
+                      <h6 class="mb-2">Gợi ý</h6>
+                      <p class="text-muted mb-0" style="font-size: 14px; line-height: 2;">
+                        Nếu bạn thấy lỗi hiển thị, vui lòng chụp màn hình và gửi lại để nhóm xử lý nhanh.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

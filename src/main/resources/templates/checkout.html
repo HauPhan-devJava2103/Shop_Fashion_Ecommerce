@@ -58,7 +58,7 @@
 
                     <div class="col-12 mt-4">
                       <label class="form-label fw-semibold">Phương thức thanh toán</label>
-                      <select class="form-select" th:field="*{paymentMethod}">
+                      <select class="form-select js-no-nice-select" th:field="*{paymentMethod}">
                         <option value="" disabled selected>-- Chọn phương thức --</option>
                         <option th:each="m : ${paymentMethods}" th:value="${m}" th:text="${m.displayName}"></option>
                       </select>

@@ -129,7 +129,9 @@
           </div>
           <!-- User Login Info -->
           <div class="user-login-info">
-            <a th:href="@{/profile}"><img th:src="@{/img/core-img/user.svg}" alt="" /></a>
+            <a href="#" id="userMenuToggle" aria-haspopup="menu" aria-expanded="false">
+              <img th:src="@{/img/core-img/user.svg}" alt="" />
+            </a>
             <ul class="user-dropdown" id="userDropdown">
               <!-- Will be populated by JavaScript -->
             </ul>
@@ -138,6 +140,7 @@
             // Check auth status and update dropdown
             function updateUserDropdown() {
               const dropdown = document.getElementById("userDropdown");
+              const toggle = document.getElementById("userMenuToggle");
               const token = localStorage.getItem("jwt_token");
               const userName = localStorage.getItem("user_fullName");
               const userRole = localStorage.getItem("user_role");
@@ -172,12 +175,57 @@
                 html +=
                   '<li style="border-top: 1px solid #eee;"><a href="#" onclick="logoutUser()" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #dc3545; text-decoration: none;"><i class="fa fa-sign-out"></i> Đăng xuất</a></li>';
                 dropdown.innerHTML = html;
+                if (toggle) {
+                  toggle.setAttribute("href", "/profile");
+                  toggle.setAttribute("aria-label", "Mở menu tài khoản");
+                }
               } else {
                 dropdown.innerHTML =
                   '<li><a href="/login" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-sign-in"></i> Đăng nhập</a></li>' +
                   '<li><a href="/register" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; color: #333; text-decoration: none;"><i class="fa fa-user-plus"></i> Đăng ký</a></li>';
+
+                // For guest users: keep toggle from navigating away
+                if (toggle) {
+                  toggle.setAttribute("href", "#");
+                  toggle.setAttribute("aria-label", "Mở menu đăng nhập/đăng ký");
+                }
               }
             }
+
+            // Toggle dropdown on click (works for touch/mobile)
+            (function () {
+              const wrap = document.querySelector(".user-login-info");
+              const toggle = document.getElementById("userMenuToggle");
+              const dropdown = document.getElementById("userDropdown");
+              if (!wrap || !toggle || !dropdown) return;
+
+              function setOpen(open) {
+                wrap.classList.toggle("is-open", !!open);
+                toggle.setAttribute("aria-expanded", open ? "true" : "false");
+              }
+
+              toggle.addEventListener("click", function (e) {
+                const href = toggle.getAttribute("href") || "";
+                // If href is # (guest), prevent navigation and just toggle.
+                // If href is /profile (logged-in), still allow toggling on click.
+                if (href === "#") {
+                  e.preventDefault();
+                }
+                setOpen(!wrap.classList.contains("is-open"));
+              });
+
+              document.addEventListener("click", function (e) {
+                if (!wrap.classList.contains("is-open")) return;
+                if (wrap.contains(e.target)) return;
+                setOpen(false);
+              });
+
+              document.addEventListener("keydown", function (e) {
+                if (e.key !== "Escape") return;
+                if (!wrap.classList.contains("is-open")) return;
+                setOpen(false);
+              });
+            })();
 
             // Logout function
             async function logoutUser() {
