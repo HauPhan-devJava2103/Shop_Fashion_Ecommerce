@@ -21,6 +21,8 @@ import vn.web.fashionshop.dto.ChartResponse;
 import vn.web.fashionshop.dto.UserDTO;
 import vn.web.fashionshop.entity.Role;
 import vn.web.fashionshop.entity.User;
+import vn.web.fashionshop.enums.ERoleName;
+import vn.web.fashionshop.service.OrderService;
 import vn.web.fashionshop.service.RoleService;
 import vn.web.fashionshop.service.UserService;
 
@@ -30,10 +32,12 @@ public class UserController {
 
     private final UserService userService;
     private final RoleService roleService;
+    private final OrderService orderService;
 
-    public UserController(UserService userService, RoleService roleService) {
+    public UserController(UserService userService, RoleService roleService, OrderService orderService) {
         this.userService = userService;
         this.roleService = roleService;
+        this.orderService = orderService;
     }
 
     @GetMapping({ "", "/", "/index" })
@@ -68,7 +72,7 @@ public class UserController {
         return "admin/user/index";
     }
 
-    // API Endpoint lấy dữ liệu
+    // API Endpoint lấy dữ liệu
     @GetMapping("/api/user/growth")
     @ResponseBody
     public ChartResponse getUserGrowth(@RequestParam(defaultValue = "7") int days) {
@@ -188,6 +192,20 @@ public class UserController {
             return "redirect:/admin/users";
         }
         model.addAttribute("user", user);
+
+        // Check if user is a customer (ROLE_CUSTOMER)
+        boolean isCustomer = user.getRole() != null &&
+                user.getRole().getRoleName() == ERoleName.CUSTOMER;
+        model.addAttribute("isCustomer", isCustomer);
+
+        if (isCustomer) {
+            // Load customer order statistics via service
+            model.addAttribute("totalOrders", orderService.countOrdersByUserId(id));
+            model.addAttribute("completedOrders", orderService.countCompletedOrdersByUserId(id));
+            model.addAttribute("totalSpending", orderService.getTotalSpendingByUserId(id));
+            model.addAttribute("orders", orderService.getOrdersByUserId(id));
+        }
+
         return "admin/user/view";
     }
 }

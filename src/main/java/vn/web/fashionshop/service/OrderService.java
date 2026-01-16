@@ -389,4 +389,29 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    // CUSTOMER ORDER STATISTICS
+
+    // Get orders by userId
+    public List<Order> getOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
+    // Count total orders by userId
+    public Long countOrdersByUserId(Long userId) {
+        Long count = orderRepository.countByUserId(userId);
+        return count != null ? count : 0L;
+    }
+
+    // Count completed orders by userId
+    public Long countCompletedOrdersByUserId(Long userId) {
+        Long count = orderRepository.countCompletedByUserId(userId);
+        return count != null ? count : 0L;
+    }
+
+    // Get total spending by userId (completed orders only)
+    public BigDecimal getTotalSpendingByUserId(Long userId) {
+        BigDecimal spending = orderRepository.getTotalSpendingByUserId(userId);
+        return spending != null ? spending : BigDecimal.ZERO;
+    }
+
 }
