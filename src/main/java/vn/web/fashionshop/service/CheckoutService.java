@@ -80,9 +80,7 @@ public class CheckoutService {
         User user = userOpt.get();
         form.setRecipientName(user.getFullName());
         form.setPhone(user.getPhone());
-        if (user.getAddress() != null && !user.getAddress().isBlank()) {
-            form.setAddressLine(user.getAddress());
-        }
+        form.setAddressLine(extractStreetAddressLine(user.getAddress()));
         return form;
     }
 
@@ -201,10 +199,8 @@ public class CheckoutService {
         address.setOrder(order);
         address.setRecipientName(trimToNull(form.getRecipientName()));
         address.setPhone(trimToNull(form.getPhone()));
-        address.setAddressLine(trimToNull(form.getAddressLine()));
-        address.setWard(trimToNull(form.getWard()));
-        address.setDistrict(trimToNull(form.getDistrict()));
-        address.setCity(trimToNull(form.getCity()));
+        // Checkout address is sourced from the user's profile (DB) and only stores "street" part.
+        address.setAddressLine(extractStreetAddressLine(user.getAddress()));
         address.setNote(trimToNull(form.getNote()));
         address.setCreatedAt(now);
         address.setUpdatedAt(now);
@@ -321,6 +317,22 @@ public class CheckoutService {
 
         cart.setUpdatedAt(now);
         cartRepository.save(cart);
+    }
+
+    /**
+     * Extract only "house number + street name" from a saved address.
+     * Example: "123 Nguyễn Huệ, Q1, TP.HCM" -> "123 Nguyễn Huệ".
+     */
+    private static String extractStreetAddressLine(String rawAddress) {
+        String a = trimToNull(rawAddress);
+        if (a == null) {
+            return null;
+        }
+        int comma = a.indexOf(',');
+        if (comma >= 0) {
+            a = a.substring(0, comma);
+        }
+        return trimToNull(a);
     }
 
     private static String trimToNull(String s) {

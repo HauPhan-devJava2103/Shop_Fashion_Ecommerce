@@ -21,15 +21,6 @@ public class CheckoutForm {
     @Size(max = 255, message = "Địa chỉ tối đa 255 ký tự")
     private String addressLine;
 
-    @Size(max = 100, message = "Phường/Xã tối đa 100 ký tự")
-    private String ward;
-
-    @Size(max = 100, message = "Quận/Huyện tối đa 100 ký tự")
-    private String district;
-
-    @Size(max = 100, message = "Tỉnh/Thành phố tối đa 100 ký tự")
-    private String city;
-
     private String note;
 
     @Size(max = 50, message = "Mã voucher tối đa 50 ký tự")

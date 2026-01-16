@@ -34,21 +34,8 @@
 
                     <div class="col-12 mt-3">
                       <label class="form-label fw-semibold">Địa chỉ</label>
-                      <input class="form-control" type="text" th:field="*{addressLine}" placeholder="Số nhà, tên đường..." />
+                      <input class="form-control" type="text" th:field="*{addressLine}" placeholder="Số nhà, tên đường..." readonly />
                       <div class="text-danger" style="font-size: 13px;" th:if="${#fields.hasErrors('addressLine')}" th:errors="*{addressLine}"></div>
-                    </div>
-
-                    <div class="col-12 col-md-4 mt-3">
-                      <label class="form-label fw-semibold">Phường/Xã (tuỳ chọn)</label>
-                      <input class="form-control" type="text" th:field="*{ward}" />
-                    </div>
-                    <div class="col-12 col-md-4 mt-3">
-                      <label class="form-label fw-semibold">Quận/Huyện (tuỳ chọn)</label>
-                      <input class="form-control" type="text" th:field="*{district}" />
-                    </div>
-                    <div class="col-12 col-md-4 mt-3">
-                      <label class="form-label fw-semibold">Tỉnh/Thành phố (tuỳ chọn)</label>
-                      <input class="form-control" type="text" th:field="*{city}" />
                     </div>
 
                     <div class="col-12 mt-3">
@@ -77,8 +64,8 @@
                     </div>
 
                     <div class="col-12 mt-4 d-flex gap-2">
-                      <a th:href="@{/cart}" class="btn btn-outline-dark">Quay lại giỏ hàng</a>
-                      <button type="submit" class="btn essence-btn">Đặt hàng</button>
+                      <a th:href="@{/cart}" class="btn btn-outline-dark d-flex align-items-center justify-content-center">Quay lại giỏ hàng</a>
+                      <button type="submit" class="btn essence-btn d-flex align-items-center justify-content-center">Đặt hàng</button>
                     </div>
                   </div>
                 </form>
