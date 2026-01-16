@@ -1,6 +1,7 @@
 package vn.web.fashionshop.controller.api;
 
 import java.time.Duration;
+import java.util.Set;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +30,8 @@ import vn.web.fashionshop.dto.LoginResponse;
 import vn.web.fashionshop.entity.User;
 import vn.web.fashionshop.repository.UserRepository;
 import vn.web.fashionshop.security.JwtUtil;
+import vn.web.fashionshop.service.WishlistService;
+import vn.web.fashionshop.util.GuestWishlistCookieUtil;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,13 +40,16 @@ public class AuthApiController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final WishlistService wishlistService;
 
     public AuthApiController(AuthenticationManager authenticationManager,
             JwtUtil jwtUtil,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            WishlistService wishlistService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.wishlistService = wishlistService;
     }
 
     @PostMapping("/login")
@@ -55,19 +62,32 @@ public class AuthApiController {
 
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+            // Set SecurityContext for current request so merge can work
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             boolean rememberMe = request.getRememberMe() != null && request.getRememberMe();
             String token = jwtUtil.generateToken(userDetails, rememberMe);
 
-                // Save token to cookie for web browser
-                // NOTE: SameSite=Lax helps mitigate CSRF when using cookie-based auth.
-                ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
+            // Save token to cookie for web browser
+            // NOTE: SameSite=Lax helps mitigate CSRF when using cookie-based auth.
+            ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
                     .httpOnly(true)
                     .secure(httpRequest.isSecure())
                     .sameSite("Lax")
                     .path("/")
                     .maxAge(rememberMe ? Duration.ofDays(30) : Duration.ofDays(1))
                     .build();
-                response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+            response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+
+            // Merge guest wishlist to user's DB wishlist
+            try {
+                Set<Long> guestWishlist = GuestWishlistCookieUtil.readGuestWishlist(httpRequest.getCookies());
+                if (!guestWishlist.isEmpty()) {
+                    wishlistService.mergeGuestWishlist(httpRequest, response);
+                }
+            } catch (Exception ex) {
+                // Ignore merge errors - don't break login
+            }
 
             // Get user info
             User user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -117,18 +137,18 @@ public class AuthApiController {
         }
 
         String roleName = (user.getRole() != null && user.getRole().getRoleName() != null)
-            ? user.getRole().getRoleName().name()
-            : null;
+                ? user.getRole().getRoleName().name()
+                : null;
         CurrentUserResponse dto = new CurrentUserResponse(
-            user.getId(),
-            user.getFullName(),
-            user.getEmail(),
-            user.getPhone(),
-            user.getGender(),
-            user.getAddress(),
-            user.getAvatarUrl(),
-            roleName,
-            user.getIsActive());
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getGender(),
+                user.getAddress(),
+                user.getAvatarUrl(),
+                roleName,
+                user.getIsActive());
 
         return ResponseEntity.ok(ApiResponse.success("Thành công", dto));
     }

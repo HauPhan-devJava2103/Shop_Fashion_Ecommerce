@@ -30,6 +30,7 @@ import vn.web.fashionshop.enums.EPaymentStatus;
 import vn.web.fashionshop.repository.CartItemRepository;
 import vn.web.fashionshop.repository.CartRepository;
 import vn.web.fashionshop.repository.OrderRepository;
+import vn.web.fashionshop.repository.ProductRepository;
 import vn.web.fashionshop.repository.ProductVariantRepository;
 import vn.web.fashionshop.repository.UserRepository;
 import vn.web.fashionshop.repository.VoucherRepository;
@@ -49,6 +50,7 @@ public class CheckoutService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
     private final VoucherRepository voucherRepository;
 
@@ -57,12 +59,14 @@ public class CheckoutService {
             CartRepository cartRepository,
             CartItemRepository cartItemRepository,
             ProductVariantRepository productVariantRepository,
+            ProductRepository productRepository,
             OrderRepository orderRepository,
             VoucherRepository voucherRepository) {
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.productVariantRepository = productVariantRepository;
+        this.productRepository = productRepository;
         this.orderRepository = orderRepository;
         this.voucherRepository = voucherRepository;
     }
@@ -119,7 +123,8 @@ public class CheckoutService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("USER_NOT_FOUND"));
 
-        // If guest cart exists, merge into DB cart first so checkout uses a single source.
+        // If guest cart exists, merge into DB cart first so checkout uses a single
+        // source.
         Map<Long, Integer> guest = GuestCartCookieUtil.readGuestCart(request != null ? request.getCookies() : null);
         if (!guest.isEmpty()) {
             mergeGuestCartIntoUserCart(user, guest);
@@ -149,17 +154,40 @@ public class CheckoutService {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
 
+        // Collect variants and products that need stock update
+        List<ProductVariant> variantsToUpdate = new ArrayList<>();
+        List<Product> productsToUpdate = new ArrayList<>();
+
         for (CartItem ci : cart.getItems()) {
             if (ci == null || ci.getVariant() == null || ci.getVariant().getId() == null) {
                 continue;
             }
+
+            ProductVariant variant = ci.getVariant();
+            Product product = variant.getProduct();
             int qty = ci.getQuantity() != null && ci.getQuantity() > 0 ? ci.getQuantity() : 1;
+
+            // Kiểm tra tồn kho variant
+            int variantStock = variant.getStock() != null ? variant.getStock() : 0;
+            if (variantStock < qty) {
+                throw new IllegalArgumentException("Sản phẩm '" + product.getProductName()
+                        + "' (Size: " + variant.getSize() + ", Màu: " + variant.getColor()
+                        + ") không đủ số lượng. Còn lại: " + variantStock);
+            }
+
+            // Kiểm tra tồn kho product
+            int productStock = product.getStock() != null ? product.getStock() : 0;
+            if (productStock < qty) {
+                throw new IllegalArgumentException("Sản phẩm '" + product.getProductName()
+                        + "' không đủ số lượng trong kho. Còn lại: " + productStock);
+            }
+
             BigDecimal unit = ci.getUnitPrice() != null ? ci.getUnitPrice() : BigDecimal.ZERO;
             BigDecimal lineTotal = unit.multiply(BigDecimal.valueOf(qty)).setScale(2, RoundingMode.HALF_UP);
 
             OrderItem oi = new OrderItem();
             oi.setOrder(order);
-            oi.setVariant(ci.getVariant());
+            oi.setVariant(variant);
             oi.setQuantity(qty);
             oi.setUnitPrice(unit.setScale(2, RoundingMode.HALF_UP));
             oi.setTotalPrice(lineTotal);
@@ -167,11 +195,25 @@ public class CheckoutService {
             oi.setUpdatedAt(now);
             orderItems.add(oi);
             subtotal = subtotal.add(lineTotal);
+
+            // Trừ stock variant
+            variant.setStock(variantStock - qty);
+            variant.setUpdatedAt(now);
+            variantsToUpdate.add(variant);
+
+            // Trừ stock product
+            product.setStock(productStock - qty);
+            product.setUpdatedAt(now);
+            productsToUpdate.add(product);
         }
 
         if (orderItems.isEmpty()) {
             throw new IllegalStateException("CART_EMPTY");
         }
+
+        // Lưu các variant và product đã trừ stock
+        productVariantRepository.saveAll(variantsToUpdate);
+        productRepository.saveAll(productsToUpdate);
 
         order.setOrderItems(orderItems);
         order.setSubTotal(subtotal.setScale(2, RoundingMode.HALF_UP));
@@ -241,7 +283,8 @@ public class CheckoutService {
         if (email == null || email.isBlank() || orderId == null) {
             return null;
         }
-        // Minimal fetch: order + address + items + variant + product (no product.images)
+        // Minimal fetch: order + address + items + variant + product (no
+        // product.images)
         return orderRepository.findByIdAndUserEmailWithDetails(orderId, email).orElse(null);
     }
 

@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +23,7 @@ import vn.web.fashionshop.entity.ProductVariant;
 import vn.web.fashionshop.entity.User;
 import vn.web.fashionshop.repository.CartItemRepository;
 import vn.web.fashionshop.repository.CartRepository;
+import vn.web.fashionshop.repository.OrderRepository;
 import vn.web.fashionshop.repository.ProductRepository;
 import vn.web.fashionshop.repository.ProductVariantRepository;
 import vn.web.fashionshop.repository.UserRepository;
@@ -35,18 +36,21 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final ProductVariantRepository productVariantRepository;
+    private final OrderRepository orderRepository;
 
     public CartService(
             CartRepository cartRepository,
             CartItemRepository cartItemRepository,
             UserRepository userRepository,
             ProductRepository productRepository,
-            ProductVariantRepository productVariantRepository) {
+            ProductVariantRepository productVariantRepository,
+            OrderRepository orderRepository) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.productVariantRepository = productVariantRepository;
+        this.orderRepository = orderRepository;
     }
 
     public static String currentUserEmailOrNull() {
@@ -244,6 +248,109 @@ public class CartService {
         cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
         return toDto(cart);
+    }
+
+    /**
+     * Mua lại đơn hàng - Thêm các sản phẩm từ đơn hàng cũ vào giỏ hàng
+     */
+    public record ReorderResult(
+            boolean success,
+            int addedCount,
+            int skippedCount,
+            String message) {
+    }
+
+    @Transactional
+    public ReorderResult reorderFromOrder(Long orderId) {
+        String email = currentUserEmailOrNull();
+        if (email == null) {
+            throw new IllegalStateException("NOT_AUTHENTICATED");
+        }
+
+        // Tìm order của user hiện tại
+        var order = orderRepository.findByIdAndUserEmailWithDetails(orderId, email)
+                .orElseThrow(() -> new IllegalArgumentException("ORDER_NOT_FOUND"));
+
+        if (order.getOrderItems() == null || order.getOrderItems().isEmpty()) {
+            return new ReorderResult(false, 0, 0, "Đơn hàng không có sản phẩm");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("USER_NOT_FOUND"));
+
+        // Get or create cart
+        Cart cart = cartRepository.findByUser_Email(email).orElseGet(() -> {
+            Cart c = new Cart();
+            c.setUser(user);
+            c.setItems(new ArrayList<>());
+            c.setCreatedAt(LocalDateTime.now());
+            c.setUpdatedAt(LocalDateTime.now());
+            return cartRepository.save(c);
+        });
+
+        int addedCount = 0;
+        int skippedCount = 0;
+        List<String> skippedItems = new ArrayList<>();
+
+        for (var orderItem : order.getOrderItems()) {
+            ProductVariant variant = orderItem.getVariant();
+            if (variant == null || variant.getId() == null) {
+                skippedCount++;
+                continue;
+            }
+
+            Product product = variant.getProduct();
+            if (product == null || !Boolean.TRUE.equals(product.getIsActive())) {
+                skippedItems.add(product != null ? product.getProductName() : "Unknown");
+                skippedCount++;
+                continue;
+            }
+
+            // Kiểm tra còn hàng không
+            int stock = variant.getStock() != null ? variant.getStock() : 0;
+            if (stock <= 0) {
+                skippedItems.add(product.getProductName() + " (" + variant.getSize() + "/" + variant.getColor() + ")");
+                skippedCount++;
+                continue;
+            }
+
+            int quantityToAdd = Math.min(orderItem.getQuantity(), stock);
+
+            // Tìm item trong cart hoặc tạo mới
+            CartItem cartItem = cartItemRepository.findByCart_IdAndVariant_Id(cart.getId(), variant.getId())
+                    .orElse(null);
+            if (cartItem == null) {
+                cartItem = new CartItem();
+                cartItem.setCart(cart);
+                cartItem.setVariant(variant);
+                cartItem.setQuantity(quantityToAdd);
+                cartItem.setUnitPrice(computeDiscountedPrice(product));
+                cartItem.setTotalPrice(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(quantityToAdd)));
+                cartItem.setCreatedAt(LocalDateTime.now());
+                cartItem.setUpdatedAt(LocalDateTime.now());
+                cart.getItems().add(cartItem);
+            } else {
+                cartItem.setQuantity(cartItem.getQuantity() + quantityToAdd);
+                cartItem.setTotalPrice(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+                cartItem.setUpdatedAt(LocalDateTime.now());
+            }
+            addedCount++;
+        }
+
+        cart.setUpdatedAt(LocalDateTime.now());
+        cartRepository.save(cart);
+
+        String message;
+        if (addedCount == 0) {
+            message = "Không có sản phẩm nào còn hàng để thêm vào giỏ";
+        } else if (skippedCount > 0) {
+            message = "Đã thêm " + addedCount + " sản phẩm vào giỏ hàng. "
+                    + skippedCount + " sản phẩm đã hết hàng hoặc không còn kinh doanh.";
+        } else {
+            message = "Đã thêm " + addedCount + " sản phẩm vào giỏ hàng!";
+        }
+
+        return new ReorderResult(addedCount > 0, addedCount, skippedCount, message);
     }
 
     private static ProductVariant pickDefaultVariant(Product product) {

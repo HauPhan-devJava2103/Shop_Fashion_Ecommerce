@@ -59,16 +59,19 @@ public class SecurityConfig {
                                                                 "/resend-otp", "/forgot-password", "/reset-password",
                                                                 "/resend-reset-otp",
                                                                 // Public browsing (no login required)
-                                                                                                                                        "/shop", "/shop/**", "/collections/**", "/product/**",
-                                                                                                                                        "/blog", "/single-blog", "/regular-page", "/contact", "/single-product-details",
-                                                                                                                                        "/order-status", "/payment-options", "/shipping-delivery", "/guides", "/privacy-policy", "/terms-of-use",
-                                                                                                                                        "/error")
+                                                                "/shop", "/shop/**", "/collections/**", "/product/**",
+                                                                "/blog", "/single-blog", "/regular-page", "/contact",
+                                                                "/single-product-details",
+                                                                "/order-status", "/payment-options",
+                                                                "/shipping-delivery", "/guides", "/privacy-policy",
+                                                                "/terms-of-use",
+                                                                "/error")
                                                 .permitAll()
                                                 // Cart (guest can add/view cart)
                                                 .requestMatchers("/cart", "/cart/**", "/api/cart/**")
                                                 .permitAll()
-                                                // Wishlist page: guest gets redirected to login by controller
-                                                .requestMatchers("/wishlist", "/wishlist/**")
+                                                // Wishlist page and API: guest can use (stored in cookie)
+                                                .requestMatchers("/wishlist", "/wishlist/**", "/api/wishlist/**")
                                                 .permitAll()
                                                 // Checkout page: guest gets redirected to login by controller
                                                 .requestMatchers("/checkout", "/checkout/**")

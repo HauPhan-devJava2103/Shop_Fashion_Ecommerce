@@ -22,4 +22,7 @@ public interface WishlistItemRepository extends JpaRepository<WishlistItem, Long
 
     @Query("SELECT wi.product.id FROM WishlistItem wi WHERE wi.user.email = :email AND wi.product.id IN :productIds")
     List<Long> findLikedProductIds(@Param("email") String email, @Param("productIds") List<Long> productIds);
+
+    @Query("SELECT wi.product.id FROM WishlistItem wi WHERE wi.user.email = :email")
+    List<Long> findProductIdsByUserEmail(@Param("email") String email);
 }
