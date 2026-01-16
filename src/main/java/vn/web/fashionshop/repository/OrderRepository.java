@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import vn.web.fashionshop.entity.Order;
 import vn.web.fashionshop.enums.EOrderStatus;
-import vn.web.fashionshop.enums.EOrderCancelReason;
 import vn.web.fashionshop.enums.EPaymentMethod;
 
 @Repository
@@ -94,4 +93,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
         // Lấy tất cả đơn hàng với phân trang
         Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
+
+        // Lấy đơn hàng theo userId
+        @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createdAt DESC")
+        java.util.List<Order> findByUserId(@Param("userId") Long userId);
+
+        // Đếm số đơn hàng theo userId
+        @Query("SELECT COUNT(o) FROM Order o WHERE o.user.id = :userId")
+        Long countByUserId(@Param("userId") Long userId);
+
+        // Tổng chi tiêu (completed orders) theo userId
+        @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.user.id = :userId AND o.orderStatus = 'COMPLETED'")
+        BigDecimal getTotalSpendingByUserId(@Param("userId") Long userId);
+
+        // Đếm đơn completed theo userId
+        @Query("SELECT COUNT(o) FROM Order o WHERE o.user.id = :userId AND o.orderStatus = 'COMPLETED'")
+        Long countCompletedByUserId(@Param("userId") Long userId);
 }

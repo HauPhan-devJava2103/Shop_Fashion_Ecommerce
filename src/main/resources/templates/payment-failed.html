@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Thanh toán thất bại</title>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-6">
+              <div
+                class="bg-white rounded p-4 text-center"
+                style="border: 1px solid #eee">
+                <!-- Icon Error -->
+                <div class="mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    fill="#dc3545"
+                    viewBox="0 0 16 16">
+                    <path
+                      d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                    <path
+                      d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                  </svg>
+                </div>
+
+                <h4 class="mb-2">Thanh toán không thành công</h4>
+                <p
+                  class="text-muted mb-4"
+                  th:text="${errorMessage != null ? errorMessage : 'Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.'}">
+                  Đã có lỗi xảy ra trong quá trình thanh toán.
+                </p>
+
+                <div
+                  th:if="${orderId != null}"
+                  class="p-3 rounded mb-4"
+                  style="background: #fff3cd; border: 1px dashed #ffc107">
+                  <div class="d-flex justify-content-between">
+                    <span class="text-muted">Mã đơn hàng</span>
+                    <span class="fw-semibold" th:text="${'#' + orderId}"
+                      >#0</span
+                    >
+                  </div>
+                  <div
+                    th:if="${errorCode != null}"
+                    class="d-flex justify-content-between mt-2">
+                    <span class="text-muted">Mã lỗi</span>
+                    <span class="fw-semibold text-danger" th:text="${errorCode}"
+                      >00</span
+                    >
+                  </div>
+                </div>
+
+                <div class="alert alert-info text-start" role="alert">
+                  <strong>Lưu ý:</strong> Đơn hàng của bạn đã được tạo nhưng
+                  chưa thanh toán. Bạn có thể thanh toán lại hoặc chọn phương
+                  thức thanh toán khác tại trang đơn hàng.
+                </div>
+
+                <div class="mt-4 d-flex justify-content-center gap-2">
+                  <a
+                    th:if="${orderId != null}"
+                    th:href="@{/orders/{id}(id=${orderId})}"
+                    class="btn essence-btn"
+                    >Xem đơn hàng</a
+                  >
+                  <a th:href="@{/orders}" class="btn btn-outline-dark"
+                    >Đơn hàng của tôi</a
+                  >
+                  <a th:href="@{/}" class="btn btn-outline-secondary"
+                    >Về trang chủ</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -8,7 +8,9 @@
   </head>
   <body>
     <main layout:fragment="content">
-      <section class="breadcrumb-area bg-img bg-overlay" th:style="'background-image: url(' + @{/img/bg-img/breadcumb.jpg} + ');'">
+      <section
+        class="breadcrumb-area bg-img bg-overlay"
+        th:style="'background-image: url(' + @{/img/bg-img/breadcumb.jpg} + ');'">
         <div class="container h-100">
           <div class="row h-100 align-items-center">
             <div class="col-12">
@@ -24,8 +26,10 @@
         <div class="container">
           <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
-              <div class="bg-white rounded" style="border: 1px solid #eee; overflow: hidden;">
-                <div class="p-4" style="border-bottom: 1px solid #eee;">
+              <div
+                class="bg-white rounded"
+                style="border: 1px solid #eee; overflow: hidden">
+                <div class="p-4" style="border-bottom: 1px solid #eee">
                   <h5 class="mb-0">Danh sách đơn hàng</h5>
                 </div>
 
@@ -34,16 +38,18 @@
                   <a th:href="@{/shop}" class="btn essence-btn">Mua sắm ngay</a>
                 </div>
 
-                <div th:if="${orders != null and !orders.isEmpty()}" class="table-responsive">
+                <div
+                  th:if="${orders != null and !orders.isEmpty()}"
+                  class="table-responsive">
                   <table class="table mb-0 align-middle">
                     <thead class="table-light">
                       <tr>
-                        <th style="width: 120px;">Mã đơn</th>
-                        <th style="width: 220px;">Ngày tạo</th>
+                        <th style="width: 120px">Mã đơn</th>
+                        <th style="width: 220px">Ngày tạo</th>
                         <th>Trạng thái</th>
                         <th>Thanh toán</th>
                         <th class="text-end">Tổng tiền</th>
-                        <th style="width: 120px;"></th>
+                        <th style="width: 120px"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -51,12 +57,41 @@
                         <td class="fw-semibold" th:text="${o.id}">0</td>
                         <td class="text-muted" th:text="${o.createdAt}">-</td>
                         <td>
-                          <span class="badge bg-secondary" th:text="${o.orderStatus.displayName}">Chờ xác nhận</span>
+                          <span
+                            class="badge bg-secondary"
+                            th:text="${o.orderStatus.displayName}"
+                            >Chờ xác nhận</span
+                          >
                         </td>
-                        <td class="text-muted" th:text="${o.paymentMethod.displayName}">COD</td>
-                        <td class="text-end fw-semibold" th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">0đ</td>
+                        <td
+                          class="text-muted"
+                          th:text="${o.paymentMethod.displayName}">
+                          COD
+                        </td>
+                        <td
+                          class="text-end fw-semibold"
+                          th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                          0đ
+                        </td>
                         <td class="text-end">
-                          <a class="btn btn-outline-dark btn-sm" th:href="@{/orders/{id}(id=${o.id})}">Chi tiết</a>
+                          <div class="d-flex gap-1 justify-content-end">
+                            <a
+                              class="btn btn-outline-dark btn-sm"
+                              th:href="@{/orders/{id}(id=${o.id})}"
+                              >Chi tiết</a
+                            >
+                            <form
+                              th:action="@{/orders/{id}/reorder(id=${o.id})}"
+                              method="post"
+                              class="d-inline">
+                              <button
+                                type="submit"
+                                class="btn btn-outline-primary btn-sm"
+                                title="Thêm sản phẩm từ đơn này vào giỏ hàng">
+                                <i class="fa fa-refresh"></i> Mua lại
+                              </button>
+                            </form>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
@@ -65,7 +100,9 @@
               </div>
 
               <div class="mt-3">
-                <a th:href="@{/shop}" class="btn btn-outline-dark">Tiếp tục mua sắm</a>
+                <a th:href="@{/shop}" class="btn btn-outline-dark"
+                  >Tiếp tục mua sắm</a
+                >
               </div>
             </div>
           </div>

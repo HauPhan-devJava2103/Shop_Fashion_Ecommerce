@@ -371,6 +371,101 @@
           </div>
         </div>
       </div>
+
+      <!-- Customer Order History (only for customers) -->
+      <div th:if="${isCustomer}" class="card info-card mt-4">
+        <div class="card-header bg-transparent border-0 py-3">
+          <h5 class="mb-0">
+            <i class="bi bi-cart-check text-success me-2"></i>Lịch sử đơn hàng &
+            Chi tiêu
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Order Statistics -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted" style="font-size: 13px">
+                  Tổng đơn hàng
+                </div>
+                <div class="h4 mb-0 text-primary" th:text="${totalOrders}">
+                  0
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted" style="font-size: 13px">
+                  Đơn hoàn thành
+                </div>
+                <div class="h4 mb-0 text-success" th:text="${completedOrders}">
+                  0
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 text-center">
+                <div class="text-muted" style="font-size: 13px">
+                  Tổng chi tiêu
+                </div>
+                <div
+                  class="h4 mb-0 text-warning"
+                  th:text="${#numbers.formatDecimal(totalSpending, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                  0đ
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Table -->
+          <div th:if="${orders != null and !orders.isEmpty()}">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="order : ${orders}">
+                    <td th:text="'#' + ${order.id}">#1</td>
+                    <td
+                      th:text="${order.createdAt != null ? #temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm') : ''}"></td>
+                    <td
+                      th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">
+                      0đ
+                    </td>
+                    <td>
+                      <span
+                        th:text="${order.paymentMethod != null ? order.paymentMethod.displayName : ''}"></span>
+                    </td>
+                    <td>
+                      <span
+                        class="badge"
+                        th:classappend="${order.orderStatus.name() == 'COMPLETED' ? 'bg-success' : 
+                                             order.orderStatus.name() == 'CANCELLED' ? 'bg-danger' : 
+                                             order.orderStatus.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-info'}"
+                        th:text="${order.orderStatus.displayName}"
+                        >Status</span
+                      >
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div
+            th:if="${orders == null or orders.isEmpty()}"
+            class="text-center text-muted py-3">
+            <i class="bi bi-inbox" style="font-size: 32px"></i>
+            <p class="mb-0 mt-2">Khách hàng chưa có đơn hàng nào</p>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

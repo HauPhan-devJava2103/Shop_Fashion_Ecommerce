@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}">
+  <head>
+    <title>Đánh giá của tôi</title>
+    <style>
+      .review-card {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .review-product-info {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .review-product-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #eee;
+      }
+      .review-stars i {
+        color: #f1c40f;
+      }
+      .review-stars .empty {
+        color: #e0e0e0;
+      }
+      .status-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <main layout:fragment="content">
+      <section class="shop_grid_area section-padding-80">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+              <div class="mb-4">
+                <h4 class="mb-1">Đánh giá của tôi</h4>
+                <p
+                  class="text-muted mb-0"
+                  th:text="'Bạn có ' + ${#lists.size(reviews)} + ' đánh giá'"></p>
+              </div>
+
+              <!-- Alert messages -->
+              <div
+                th:if="${successMessage}"
+                class="alert alert-success"
+                th:text="${successMessage}"></div>
+              <div
+                th:if="${errorMessage}"
+                class="alert alert-danger"
+                th:text="${errorMessage}"></div>
+
+              <!-- Empty state -->
+              <div
+                th:if="${reviews == null or #lists.isEmpty(reviews)}"
+                class="text-center py-5">
+                <div class="text-muted mb-3">
+                  <i class="fa fa-star-o" style="font-size: 48px"></i>
+                </div>
+                <p class="text-muted">Bạn chưa có đánh giá nào.</p>
+                <a th:href="@{/orders}" class="btn btn-outline-dark"
+                  >Xem đơn hàng</a
+                >
+              </div>
+
+              <!-- Reviews list -->
+              <div th:if="${reviews != null and !#lists.isEmpty(reviews)}">
+                <div th:each="review : ${reviews}" class="review-card">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="review-product-info">
+                      <img
+                        th:if="${review.product != null and review.product.mainImageUrl != null}"
+                        th:src="${review.product.mainImageUrl}"
+                        class="review-product-img"
+                        alt="" />
+                      <div>
+                        <div
+                          class="fw-semibold"
+                          th:text="${review.product != null ? review.product.productName : 'Sản phẩm'}"></div>
+                        <div class="review-stars" style="font-size: 14px">
+                          <span th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i
+                              class="fa fa-star"
+                              th:classappend="${i <= review.rating ? '' : ' empty'}"></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span
+                        th:if="${review.isApproved}"
+                        class="badge bg-success status-badge"
+                        >Đã duyệt</span
+                      >
+                      <span
+                        th:unless="${review.isApproved}"
+                        class="badge bg-warning text-dark status-badge"
+                        >Chờ duyệt</span
+                      >
+                    </div>
+                  </div>
+
+                  <div
+                    th:if="${review.comment != null and !#strings.isEmpty(review.comment)}"
+                    class="mb-2"
+                    style="white-space: pre-line"
+                    th:text="${review.comment}"></div>
+
+                  <div th:if="${review.imageUrl != null}" class="mb-2">
+                    <img
+                      th:src="${review.imageUrl}"
+                      alt="Review image"
+                      style="
+                        max-width: 150px;
+                        max-height: 150px;
+                        object-fit: cover;
+                        border-radius: 8px;
+                      " />
+                  </div>
+
+                  <div class="text-muted" style="font-size: 12px">
+                    <span
+                      th:text="${review.createdAt != null ? #temporals.format(review.createdAt, 'dd/MM/yyyy HH:mm') : ''}"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <a th:href="@{/orders}" class="btn btn-outline-dark"
+                  >Quay lại đơn hàng</a
+                >
+                <a th:href="@{/shop}" class="btn essence-btn"
+                  >Tiếp tục mua sắm</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -23,11 +23,14 @@ public class OrderHistoryController {
     private final OrderRepository orderRepository;
     private final CheckoutService checkoutService;
     private final OrderService orderService;
+    private final CartService cartService;
 
-    public OrderHistoryController(OrderRepository orderRepository, CheckoutService checkoutService, OrderService orderService) {
+    public OrderHistoryController(OrderRepository orderRepository, CheckoutService checkoutService,
+            OrderService orderService, CartService cartService) {
         this.orderRepository = orderRepository;
         this.checkoutService = checkoutService;
         this.orderService = orderService;
+        this.cartService = cartService;
     }
 
     @GetMapping("/orders")
@@ -85,5 +88,36 @@ public class OrderHistoryController {
         }
 
         return "redirect:/orders/" + id;
+    }
+
+    /**
+     * Mua lại đơn hàng - thêm các sản phẩm từ đơn cũ vào giỏ hàng
+     */
+    @PostMapping("/orders/{id}/reorder")
+    public String reorder(
+            @PathVariable("id") Long id,
+            RedirectAttributes redirectAttributes) {
+
+        String email = CartService.currentUserEmailOrNull();
+        if (email == null || email.isBlank()) {
+            return "redirect:/login";
+        }
+
+        try {
+            var result = cartService.reorderFromOrder(id);
+            if (result.success()) {
+                redirectAttributes.addFlashAttribute("successMessage", result.message());
+                return "redirect:/cart";
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", result.message());
+                return "redirect:/orders/" + id;
+            }
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng.");
+            return "redirect:/orders";
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
+            return "redirect:/orders/" + id;
+        }
     }
 }
