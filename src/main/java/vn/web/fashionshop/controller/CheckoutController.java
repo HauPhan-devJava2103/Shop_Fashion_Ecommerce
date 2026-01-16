@@ -16,10 +16,10 @@ import vn.web.fashionshop.dto.cart.CartDto;
 import vn.web.fashionshop.dto.checkout.CheckoutForm;
 import vn.web.fashionshop.entity.Order;
 import vn.web.fashionshop.enums.EPaymentMethod;
-import vn.web.fashionshop.repository.OrderRepository;
 import vn.web.fashionshop.service.CartService;
 import vn.web.fashionshop.service.CheckoutService;
 import vn.web.fashionshop.service.GuestCartService;
+import vn.web.fashionshop.service.OrderService;
 import vn.web.fashionshop.service.VNPayService;
 import vn.web.fashionshop.util.GuestCartCookieUtil;
 
@@ -30,15 +30,16 @@ public class CheckoutController {
     private final GuestCartService guestCartService;
     private final CheckoutService checkoutService;
     private final VNPayService vnPayService;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     public CheckoutController(CartService cartService, GuestCartService guestCartService,
-            CheckoutService checkoutService, VNPayService vnPayService, OrderRepository orderRepository) {
+            CheckoutService checkoutService, VNPayService vnPayService,
+            OrderService orderService) {
         this.cartService = cartService;
         this.guestCartService = guestCartService;
         this.checkoutService = checkoutService;
         this.vnPayService = vnPayService;
-        this.orderRepository = orderRepository;
+        this.orderService = orderService;
     }
 
     @GetMapping("/checkout")
@@ -94,7 +95,7 @@ public class CheckoutController {
 
             // Nếu chọn BANK_TRANSFER -> Redirect sang VNPay
             if (form.getPaymentMethod() == EPaymentMethod.BANK_TRANSFER) {
-                Order order = orderRepository.findById(orderId).orElse(null);
+                Order order = orderService.getOrderById(orderId);
                 if (order != null) {
                     String vnpayUrl = vnPayService.createPaymentUrl(order, request);
                     return "redirect:" + vnpayUrl;
