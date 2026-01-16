@@ -65,37 +65,29 @@
                 <li>
                   <a href="javascript:void(0)">Shop</a>
                   <div class="megamenu">
-                    <ul class="single-mega cn-col-4" th:each="r : ${navRootCategories}">
+                    <ul
+                      class="single-mega cn-col-4"
+                      th:each="r : ${navRootCategories}">
                       <li class="title">
-                        <a th:href="@{/collections/{rootSlug}(rootSlug=${r.slug})}" th:text="${r.categoryName}">Category</a>
+                        <a
+                          th:href="@{/collections/{rootSlug}(rootSlug=${r.slug})}"
+                          th:text="${r.categoryName}"
+                          >Category</a
+                        >
                       </li>
 
-                      <th:block th:with="children=${navRootChildrenMap[r.slug]}">
+                      <th:block
+                        th:with="children=${navRootChildrenMap[r.slug]}">
                         <li th:each="c : ${children}">
                           <a
                             th:href="@{/collections/{rootSlug}(rootSlug=${r.slug}, category=${c.slug})}"
-                            th:text="${c.categoryName}">Sub</a>
+                            th:text="${c.categoryName}"
+                            >Sub</a
+                          >
                         </li>
                       </th:block>
                     </ul>
                   </div>
-                </li>
-                <li>
-                  <a href="javascript:void(0)">Pages</a>
-                  <ul class="dropdown">
-                    <li><a th:href="@{/}">Home</a></li>
-                    <li><a th:href="@{/shop}">Shop</a></li>
-                    <li>
-                      <a th:href="@{/single-product-details}"
-                        >Product Details</a
-                      >
-                    </li>
-                    <li><a th:href="@{/checkout}">Checkout</a></li>
-                    <li><a th:href="@{/blog}">Blog</a></li>
-                    <li><a th:href="@{/single-blog}">Single Blog</a></li>
-                    <li><a th:href="@{/regular-page}">Regular Page</a></li>
-                    <li><a th:href="@{/contact}">Contact</a></li>
-                  </ul>
                 </li>
                 <li><a th:href="@{/blog}">Blog</a></li>
                 <li><a th:href="@{/contact}">Contact</a></li>
@@ -124,12 +116,16 @@
           <div class="favourite-area">
             <a th:href="@{/wishlist}" id="essenceWishlistBtn">
               <img th:src="@{/img/core-img/heart.svg}" alt="" />
-              <span id="wishlistCount" style="display:none">0</span>
+              <span id="wishlistCount" style="display: none">0</span>
             </a>
           </div>
           <!-- User Login Info -->
           <div class="user-login-info">
-            <a href="#" id="userMenuToggle" aria-haspopup="menu" aria-expanded="false">
+            <a
+              href="#"
+              id="userMenuToggle"
+              aria-haspopup="menu"
+              aria-expanded="false">
               <img th:src="@{/img/core-img/user.svg}" alt="" />
             </a>
             <ul class="user-dropdown" id="userDropdown">
@@ -187,7 +183,10 @@
                 // For guest users: keep toggle from navigating away
                 if (toggle) {
                   toggle.setAttribute("href", "#");
-                  toggle.setAttribute("aria-label", "Mở menu đăng nhập/đăng ký");
+                  toggle.setAttribute(
+                    "aria-label",
+                    "Mở menu đăng nhập/đăng ký"
+                  );
                 }
               }
             }
@@ -260,7 +259,10 @@
                 const res = await fetch("/api/cart/summary");
                 if (!res.ok) return;
                 const data = await res.json();
-                const count = data && typeof data.totalQuantity === "number" ? data.totalQuantity : 0;
+                const count =
+                  data && typeof data.totalQuantity === "number"
+                    ? data.totalQuantity
+                    : 0;
                 const el = document.getElementById("cartCount");
                 if (el) el.textContent = String(count);
               } catch (e) {
@@ -278,7 +280,9 @@
                 const bodyEl = document.getElementById("appToastBody");
                 if (!toastEl || !bodyEl) return;
                 bodyEl.textContent = message;
-                const t = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 2200 });
+                const t = bootstrap.Toast.getOrCreateInstance(toastEl, {
+                  delay: 2200,
+                });
                 t.show();
               } catch (e) {
                 // ignore
@@ -294,7 +298,10 @@
             }
 
             function setWishlistActive(productId, liked) {
-              const selector = '.js-wishlist-toggle[data-product-id="' + String(productId) + '"]';
+              const selector =
+                '.js-wishlist-toggle[data-product-id="' +
+                String(productId) +
+                '"]';
               const nodes = document.querySelectorAll(selector);
               nodes.forEach((node) => {
                 if (node.classList.contains("favme")) {
@@ -302,13 +309,18 @@
                 }
 
                 // Tooltip / accessible label
-                const name = node.getAttribute("data-product-name") || "Sản phẩm";
-                const title = liked ? "Bỏ yêu thích: " + name : "Yêu thích: " + name;
+                const name =
+                  node.getAttribute("data-product-name") || "Sản phẩm";
+                const title = liked
+                  ? "Bỏ yêu thích: " + name
+                  : "Yêu thích: " + name;
                 node.setAttribute("title", title);
                 node.setAttribute("aria-label", title);
 
                 // Optional label update (product detail button)
-                const label = node.querySelector ? node.querySelector(".js-wishlist-label") : null;
+                const label = node.querySelector
+                  ? node.querySelector(".js-wishlist-label")
+                  : null;
                 if (label) {
                   label.textContent = liked ? "Đã thích" : "Yêu thích";
                 }
@@ -340,7 +352,11 @@
             }
 
             async function hydrateWishlistButtons() {
-              const btns = Array.from(document.querySelectorAll(".js-wishlist-toggle[data-product-id]"));
+              const btns = Array.from(
+                document.querySelectorAll(
+                  ".js-wishlist-toggle[data-product-id]"
+                )
+              );
               if (!btns.length) return;
 
               const ids = Array.from(
@@ -353,10 +369,16 @@
               if (!ids.length) return;
 
               try {
-                const res = await fetch("/api/wishlist/status?ids=" + encodeURIComponent(ids.join(",")));
+                const res = await fetch(
+                  "/api/wishlist/status?ids=" +
+                    encodeURIComponent(ids.join(","))
+                );
                 if (!res.ok) return;
                 const data = await res.json();
-                const likedIds = data && Array.isArray(data.likedProductIds) ? data.likedProductIds : [];
+                const likedIds =
+                  data && Array.isArray(data.likedProductIds)
+                    ? data.likedProductIds
+                    : [];
                 const likedSet = new Set(likedIds.map((x) => Number(x)));
                 ids.forEach((id) => setWishlistActive(id, likedSet.has(id)));
                 if (data && typeof data.count === "number") {
@@ -404,7 +426,10 @@
             document.addEventListener(
               "click",
               async function (e) {
-                const target = e.target && e.target.closest ? e.target.closest(".js-wishlist-toggle") : null;
+                const target =
+                  e.target && e.target.closest
+                    ? e.target.closest(".js-wishlist-toggle")
+                    : null;
                 if (!target) return;
 
                 const raw = target.getAttribute("data-product-id");
@@ -420,7 +445,9 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                const prevLiked = target.classList ? target.classList.contains("active") : false;
+                const prevLiked = target.classList
+                  ? target.classList.contains("active")
+                  : false;
                 const nextLiked = !prevLiked;
                 const prevCount = getCurrentWishlistCount();
 
@@ -436,7 +463,10 @@
                 // small animation hint (same class theme uses)
                 if (target.classList && target.classList.contains("favme")) {
                   target.classList.add("is_animating");
-                  setTimeout(() => target.classList.remove("is_animating"), 500);
+                  setTimeout(
+                    () => target.classList.remove("is_animating"),
+                    500
+                  );
                 }
 
                 try {
@@ -445,32 +475,45 @@
                     // rollback
                     setWishlistActive(productId, prevLiked);
                     setWishlistCount(prevCount);
-                    showAppToast("Có lỗi khi cập nhật wishlist. Vui lòng thử lại.");
+                    showAppToast(
+                      "Có lỗi khi cập nhật wishlist. Vui lòng thử lại."
+                    );
                     return;
                   }
 
-                  const productName = target.getAttribute("data-product-name") || "Sản phẩm";
+                  const productName =
+                    target.getAttribute("data-product-name") || "Sản phẩm";
                   setWishlistActive(productId, !!data.liked);
                   if (typeof data.count === "number") {
                     setWishlistCount(data.count);
                   }
 
                   if (!!data.liked) {
-                    showAppToast("Đã thêm \"" + productName + "\" vào wishlist");
+                    showAppToast('Đã thêm "' + productName + '" vào wishlist');
                   } else {
-                    showAppToast("Đã bỏ \"" + productName + "\" khỏi wishlist");
+                    showAppToast('Đã bỏ "' + productName + '" khỏi wishlist');
                   }
 
-                  broadcastWishlistChange({ productId: productId, liked: !!data.liked, count: data.count });
+                  broadcastWishlistChange({
+                    productId: productId,
+                    liked: !!data.liked,
+                    count: data.count,
+                  });
 
-                  if (!data.liked && target.hasAttribute("data-remove-on-unlike")) {
+                  if (
+                    !data.liked &&
+                    target.hasAttribute("data-remove-on-unlike")
+                  ) {
                     const item = target.closest("[data-wishlist-item]");
                     if (item) item.remove();
 
                     // If wishlist becomes empty, show empty-state block (client-side)
-                    const remaining = document.querySelectorAll("[data-wishlist-item]").length;
+                    const remaining = document.querySelectorAll(
+                      "[data-wishlist-item]"
+                    ).length;
                     if (remaining === 0) {
-                      const empty = document.getElementById("wishlistEmptyState");
+                      const empty =
+                        document.getElementById("wishlistEmptyState");
                       if (empty) empty.style.display = "";
                     }
                   }
@@ -505,10 +548,19 @@
 
           <!-- Global toast (frontend) -->
           <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000">
-            <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="polite" aria-atomic="true">
+            <div
+              id="appToast"
+              class="toast align-items-center text-bg-dark border-0"
+              role="alert"
+              aria-live="polite"
+              aria-atomic="true">
               <div class="d-flex">
                 <div class="toast-body" id="appToastBody">...</div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white me-2 m-auto"
+                  data-bs-dismiss="toast"
+                  aria-label="Close"></button>
               </div>
             </div>
           </div>

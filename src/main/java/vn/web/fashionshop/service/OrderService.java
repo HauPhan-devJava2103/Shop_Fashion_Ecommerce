@@ -87,6 +87,15 @@ public class OrderService {
             throw new IllegalStateException("ORDER_CANNOT_CANCEL");
         }
 
+        // Phục hồi stock cho tất cả Order Items
+        if (order.getOrderItems() != null) {
+            for (var item : order.getOrderItems()) {
+                if (item.getVariant() != null && item.getQuantity() != null && item.getQuantity() > 0) {
+                    InventoryManager.releaseStock(item.getVariant(), item.getQuantity());
+                }
+            }
+        }
+
         LocalDateTime now = LocalDateTime.now();
         order.setOrderStatus(EOrderStatus.CANCELLED);
         order.setCancelReason(reason);

@@ -5,6 +5,94 @@
   layout:decorate="~{layout/main}">
   <head>
     <title>Đơn hàng của tôi</title>
+    <style>
+      /* Order Progress Styles */
+      .order-progress-mini {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 0 auto;
+        padding: 10px 0;
+      }
+      .order-progress-mini::before {
+        content: "";
+        position: absolute;
+        top: 22px;
+        left: 30px;
+        right: 30px;
+        height: 3px;
+        background: #e9ecef;
+        z-index: 1;
+      }
+      .progress-step-mini {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+        flex: 1;
+      }
+      .step-icon-mini {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 4px;
+      }
+      .step-icon-mini.active {
+        background: #6366f1;
+        color: #fff;
+      }
+      .step-icon-mini.completed {
+        background: #10b981;
+        color: #fff;
+      }
+      .step-icon-mini.cancelled {
+        background: #ef4444;
+        color: #fff;
+      }
+      .step-label-mini {
+        font-size: 10px;
+        color: #6c757d;
+        text-align: center;
+      }
+      .step-label-mini.active {
+        color: #6366f1;
+        font-weight: 600;
+      }
+      .step-label-mini.completed {
+        color: #10b981;
+      }
+      .progress-line-mini {
+        position: absolute;
+        top: 22px;
+        left: 30px;
+        height: 3px;
+        background: linear-gradient(90deg, #10b981 0%, #6366f1 100%);
+        z-index: 1;
+        transition: width 0.3s ease;
+      }
+      .order-card {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        background: #fff;
+        overflow: hidden;
+      }
+      .order-card-header {
+        padding: 16px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fafafa;
+      }
+      .order-card-body {
+        padding: 16px;
+      }
+    </style>
   </head>
   <body>
     <main layout:fragment="content">
@@ -27,75 +115,149 @@
           <div class="row justify-content-center">
             <div class="col-12 col-lg-10">
               <div
-                class="bg-white rounded"
-                style="border: 1px solid #eee; overflow: hidden">
-                <div class="p-4" style="border-bottom: 1px solid #eee">
-                  <h5 class="mb-0">Danh sách đơn hàng</h5>
+                th:if="${orders == null or orders.isEmpty()}"
+                class="text-center py-5">
+                <div class="mb-3">
+                  <i
+                    class="fa fa-shopping-bag"
+                    style="font-size: 48px; color: #ccc"></i>
                 </div>
+                <p class="text-muted mb-3">Bạn chưa có đơn hàng nào.</p>
+                <a th:href="@{/shop}" class="btn essence-btn">Mua sắm ngay</a>
+              </div>
 
-                <div th:if="${orders == null or orders.isEmpty()}" class="p-4">
-                  <p class="text-muted mb-3">Bạn chưa có đơn hàng nào.</p>
-                  <a th:href="@{/shop}" class="btn essence-btn">Mua sắm ngay</a>
-                </div>
+              <!-- Order Cards -->
+              <div th:if="${orders != null and !orders.isEmpty()}">
+                <div th:each="o : ${orders}" class="order-card">
+                  <!-- Order Header -->
+                  <div
+                    class="order-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                      <span class="fw-semibold"
+                        >Đơn hàng #<span th:text="${o.id}">0</span></span
+                      >
+                      <span
+                        class="text-muted ms-2"
+                        style="font-size: 13px"
+                        th:text="${#temporals.format(o.createdAt, 'dd/MM/yyyy HH:mm')}"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a
+                        class="btn btn-outline-dark btn-sm"
+                        th:href="@{/orders/{id}(id=${o.id})}"
+                        >Chi tiết</a
+                      >
+                      <form
+                        th:action="@{/orders/{id}/reorder(id=${o.id})}"
+                        method="post"
+                        class="d-inline">
+                        <button
+                          type="submit"
+                          class="btn btn-outline-primary btn-sm"
+                          title="Mua lại">
+                          <i class="fa fa-refresh"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
 
-                <div
-                  th:if="${orders != null and !orders.isEmpty()}"
-                  class="table-responsive">
-                  <table class="table mb-0 align-middle">
-                    <thead class="table-light">
-                      <tr>
-                        <th style="width: 120px">Mã đơn</th>
-                        <th style="width: 220px">Ngày tạo</th>
-                        <th>Trạng thái</th>
-                        <th>Thanh toán</th>
-                        <th class="text-end">Tổng tiền</th>
-                        <th style="width: 120px"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr th:each="o : ${orders}">
-                        <td class="fw-semibold" th:text="${o.id}">0</td>
-                        <td class="text-muted" th:text="${o.createdAt}">-</td>
-                        <td>
-                          <span
-                            class="badge bg-secondary"
-                            th:text="${o.orderStatus.displayName}"
-                            >Chờ xác nhận</span
-                          >
-                        </td>
-                        <td
-                          class="text-muted"
-                          th:text="${o.paymentMethod.displayName}">
-                          COD
-                        </td>
-                        <td
-                          class="text-end fw-semibold"
-                          th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'">
-                          0đ
-                        </td>
-                        <td class="text-end">
-                          <div class="d-flex gap-1 justify-content-end">
-                            <a
-                              class="btn btn-outline-dark btn-sm"
-                              th:href="@{/orders/{id}(id=${o.id})}"
-                              >Chi tiết</a
-                            >
-                            <form
-                              th:action="@{/orders/{id}/reorder(id=${o.id})}"
-                              method="post"
-                              class="d-inline">
-                              <button
-                                type="submit"
-                                class="btn btn-outline-primary btn-sm"
-                                title="Thêm sản phẩm từ đơn này vào giỏ hàng">
-                                <i class="fa fa-refresh"></i> Mua lại
-                              </button>
-                            </form>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <!-- Order Body with Progress -->
+                  <div class="order-card-body">
+                    <!-- Progress Bar for non-cancelled orders -->
+                    <div
+                      th:if="${o.orderStatus.name() != 'CANCELLED'}"
+                      class="order-progress-mini">
+                      <!-- Progress Line -->
+                      <div
+                        class="progress-line-mini"
+                        th:style="${o.orderStatus.name() == 'PENDING' ? 'width: 0%' :
+                                       o.orderStatus.name() == 'CONFIRMED' ? 'width: calc((100% - 60px) * 0.25)' :
+                                       o.orderStatus.name() == 'PROCESSING' ? 'width: calc((100% - 60px) * 0.5)' :
+                                       o.orderStatus.name() == 'SHIPPED' ? 'width: calc((100% - 60px) * 0.75)' :
+                                       (o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED') ? 'width: calc(100% - 60px)' :
+                                       'width: 0%'}"></div>
+
+                      <!-- Step: PENDING -->
+                      <div class="progress-step-mini">
+                        <div
+                          th:class="${o.orderStatus.name() == 'PENDING' ? 'step-icon-mini active' : 'step-icon-mini completed'}">
+                          <i class="fa fa-clock-o"></i>
+                        </div>
+                        <span
+                          th:class="${o.orderStatus.name() == 'PENDING' ? 'step-label-mini active' : 'step-label-mini completed'}"
+                          >Chờ xác nhận</span
+                        >
+                      </div>
+
+                      <!-- Step: CONFIRMED/PROCESSING -->
+                      <div class="progress-step-mini">
+                        <div
+                          th:class="${o.orderStatus.name() == 'CONFIRMED' or o.orderStatus.name() == 'PROCESSING' ? 'step-icon-mini active' : 
+                                        (o.orderStatus.name() == 'SHIPPED' or o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED') ? 'step-icon-mini completed' : 'step-icon-mini'}">
+                          <i class="fa fa-cog"></i>
+                        </div>
+                        <span
+                          th:class="${o.orderStatus.name() == 'CONFIRMED' or o.orderStatus.name() == 'PROCESSING' ? 'step-label-mini active' :
+                                         (o.orderStatus.name() == 'SHIPPED' or o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED') ? 'step-label-mini completed' : 'step-label-mini'}"
+                          >Đang xử lý</span
+                        >
+                      </div>
+
+                      <!-- Step: SHIPPED -->
+                      <div class="progress-step-mini">
+                        <div
+                          th:class="${o.orderStatus.name() == 'SHIPPED' ? 'step-icon-mini active' : 
+                                        (o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED') ? 'step-icon-mini completed' : 'step-icon-mini'}">
+                          <i class="fa fa-truck"></i>
+                        </div>
+                        <span
+                          th:class="${o.orderStatus.name() == 'SHIPPED' ? 'step-label-mini active' :
+                                         (o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED') ? 'step-label-mini completed' : 'step-label-mini'}"
+                          >Đang giao</span
+                        >
+                      </div>
+
+                      <!-- Step: COMPLETED -->
+                      <div class="progress-step-mini">
+                        <div
+                          th:class="${o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED' ? 'step-icon-mini completed' : 'step-icon-mini'}">
+                          <i class="fa fa-check"></i>
+                        </div>
+                        <span
+                          th:class="${o.orderStatus.name() == 'DELIVERED' or o.orderStatus.name() == 'COMPLETED' ? 'step-label-mini completed' : 'step-label-mini'}"
+                          >Hoàn thành</span
+                        >
+                      </div>
+                    </div>
+
+                    <!-- Cancelled Badge -->
+                    <div
+                      th:if="${o.orderStatus.name() == 'CANCELLED'}"
+                      class="text-center py-2">
+                      <span class="badge bg-danger px-3 py-2">
+                        <i class="fa fa-times-circle me-1"></i> Đã hủy
+                      </span>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div
+                      class="d-flex justify-content-between align-items-center mt-3 pt-3"
+                      style="border-top: 1px dashed #eee">
+                      <span class="text-muted" style="font-size: 13px">
+                        <i class="fa fa-credit-card me-1"></i>
+                        <span th:text="${o.paymentMethod.displayName}"
+                          >COD</span
+                        >
+                      </span>
+                      <span class="fw-semibold" style="color: #333">
+                        Tổng:
+                        <span
+                          th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + 'đ'"
+                          >0đ</span
+                        >
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
